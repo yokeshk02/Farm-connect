@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('booking.my_bookings_title') }}{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-2xl);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); margin-bottom: var(--spacing-xl);">
+        <div>
+            <h1 style="font-size: var(--font-size-2xl); font-weight: 800; color: var(--color-primary-dark); margin-bottom: var(--spacing-xs);">
+                🚜 {{ _t('booking.my_bookings_title') }}
+            </h1>
+            <p style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
+                {{ _t('booking.my_bookings_subtitle') }}
+            </p>
+        </div>
+        <div>
+            <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-primary">
+                🔍 {{ _t('booking.explore_btn') }}
+            </a>
+        </div>
+    </div>
+
+    {% if not bookings %}
+        <div class="card" style="text-align: center; padding: var(--spacing-2xl);">
+            <div style="font-size: 3rem; margin-bottom: var(--spacing-sm);">📋</div>
+            <h2 style="font-size: var(--font-size-lg); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-xs);">
+                {{ _t('booking.no_bookings') }}
+            </h2>
+            <p style="color: var(--color-text-muted); margin-bottom: var(--spacing-lg);">
+                {{ _t('booking.my_bookings_subtitle') }}
+            </p>
+            <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-primary">
+                {{ _t('booking.explore_btn') }}
+            </a>
+        </div>
+    {% else %}
+        <div class="table-responsive card" style="padding: var(--spacing-sm); overflow-x: auto;">
+            <table class="data-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 2px solid rgba(45, 106, 79, 0.1); background-color: rgba(45, 106, 79, 0.03);">
+                        <th style="padding: var(--spacing-md); font-size: var(--font-size-xs); text-transform: uppercase;">{{ _t('booking.ref') }}</th>
+                        <th style="padding: var(--spacing-md); font-size: var(--font-size-xs); text-transform: uppercase;">{{ _t('booking.machinery') }}</th>
+                        <th style="padding: var(--spacing-md); font-size: var(--font-size-xs); text-transform: uppercase;">{{ _t('booking.package') }}</th>
+                        <th style="padding: var(--spacing-md); font-size: var(--font-size-xs); text-transform: uppercase;">{{ _t('booking.dates') }}</th>
+                        <th style="padding: var(--spacing-md); font-size: var(--font-size-xs); text-transform: uppercase;">{{ _t('booking.total_cost') }}</th>
+                        <th style="padding: var(--spacing-md); font-size: var(--font-size-xs); text-transform: uppercase;">{{ _t('booking.status') }}</th>
+                        <th style="padding: var(--spacing-md); font-size: var(--font-size-xs); text-transform: uppercase; text-align: right;">{{ _t('booking.actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bookings %}
+                        <tr style="border-bottom: 1px solid rgba(0, 0, 0, 0.05);">
+                            <td style="padding: var(--spacing-md); font-weight: 700; font-family: monospace; color: var(--color-primary-dark);">
+                                <a href="{{ url_for('bookings.booking_detail', booking_id=b.id) }}" style="color: var(--color-primary); text-decoration: underline;">
+                                    {{ b.booking_reference }}
+                                </a>
+                            </td>
+                            <td style="padding: var(--spacing-md);">
+                                <div style="font-weight: 700; color: var(--color-text-main);">
+                                    {% if current_lang == 'ta' and b.machinery.name_ta %}
+                                        {{ b.machinery.name_ta }}
+                                    {% else %}
+                                        {{ b.machinery.name_en }}
+                                    {% endif %}
+                                </div>
+                                <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                                    📍 {{ b.machinery.village_or_town }}, {{ b.machinery.district }}
+                                </div>
+                            </td>
+                            <td style="padding: var(--spacing-md); font-size: var(--font-size-xs); font-weight: 600;">
+                                {{ _t('pkg.' + b.rental_option_type) }}
+                            </td>
+                            <td style="padding: var(--spacing-md); font-size: var(--font-size-xs);">
+                                <div>{{ b.start_time.strftime('%d %b %Y, %I:%M %p') }}</div>
+                                <div style="color: var(--color-text-muted);">to {{ b.end_time.strftime('%d %b %Y, %I:%M %p') }}</div>
+                            </td>
+                            <td style="padding: var(--spacing-md); font-weight: 800; color: var(--color-primary);">
+                                ₹{{ "%.2f"|format(b.estimated_total_cost) }}
+                            </td>
+                            <td style="padding: var(--spacing-md);">
+                                <span class="badge status-badge status-{{ b.status|lower }}">
+                                    {{ _t('status.' + b.status) }}
+                                </span>
+                            </td>
+                            <td style="padding: var(--spacing-md); text-align: right;">
+                                <a href="{{ url_for('bookings.booking_detail', booking_id=b.id) }}" class="btn btn-sm btn-outline">
+                                    {{ _t('booking.view_details') }}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

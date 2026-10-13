@@ -685,6 +685,262 @@ TRANSLATIONS = {
         "en": "Cancel",
         "ta": "ரத்து செய்க",
     },
+
+    # Canonical Booking Statuses
+    "status.PENDING": {
+        "en": "Pending",
+        "ta": "நிலுவையில் உள்ளது",
+    },
+    "status.APPROVED": {
+        "en": "Approved",
+        "ta": "அங்கீகரிக்கப்பட்டது",
+    },
+    "status.IN_PROGRESS": {
+        "en": "In Progress",
+        "ta": "பயன்பாட்டில் உள்ளது",
+    },
+    "status.COMPLETED": {
+        "en": "Completed",
+        "ta": "நிறைவடைந்தது",
+    },
+    "status.CANCELLED": {
+        "en": "Cancelled",
+        "ta": "ரத்து செய்யப்பட்டது",
+    },
+    "status.REJECTED": {
+        "en": "Declined",
+        "ta": "நிராகரிக்கப்பட்டது",
+    },
+
+    # Booking Form & Estimate
+    "booking.book_title": {
+        "en": "Book this Machinery",
+        "ta": "இந்த இயந்திரத்தை முன்பதிவு செய்க",
+    },
+    "booking.book_subtitle": {
+        "en": "Select a package, pick your rental dates, and request this equipment.",
+        "ta": "வாடகைத் தொகுப்பைத் தேர்ந்தெடுத்து, தேதிகளைக் குறிப்பிட்டு முன்பதிவு கோரவும்.",
+    },
+    "booking.select_package": {
+        "en": "Select Rental Package",
+        "ta": "வாடகைத் தொகுப்பைத் தேர்ந்தெடுக்கவும்",
+    },
+    "booking.start_time": {
+        "en": "Rental Start Date & Time",
+        "ta": "வாடகை தொடங்கும் நாள் & நேரம்",
+    },
+    "booking.end_time": {
+        "en": "Rental End Date & Time",
+        "ta": "வாடகை முடியும் நாள் & நேரம்",
+    },
+    "booking.delivery_address": {
+        "en": "Farm / Delivery Location",
+        "ta": "பண்ணை / வயல் இருப்பிடம்",
+    },
+    "booking.delivery_address_placeholder": {
+        "en": "e.g., North Street field, near temple, Kumbakonam",
+        "ta": "உதா: வடக்குத் தெரு வயல், கோவில் அருகில், கும்பகோணம்",
+    },
+    "booking.notes": {
+        "en": "Booking Notes & Crop Details (Optional)",
+        "ta": "கூடுதல் விவரங்கள் & பயிர் விபரம் (விருப்பத்தேர்வு)",
+    },
+    "booking.notes_placeholder": {
+        "en": "e.g., Need for paddy harvesting across 3 acres",
+        "ta": "உதா: 3 ஏக்கர் நெல் அறுவடைக்கு தேவைப்படுகிறது",
+    },
+    "booking.btn_estimate": {
+        "en": "Check Price Estimate",
+        "ta": "கட்டண மதிப்பீட்டைக் காண்க",
+    },
+    "booking.btn_submit": {
+        "en": "Request Booking Now",
+        "ta": "முன்பதிவு கோரிக்கை அனுப்பு",
+    },
+    "booking.estimated_cost": {
+        "en": "Estimated Rental Cost",
+        "ta": "உத்தேச வாடகைக் கட்டணம்",
+    },
+    "booking.deposit_note": {
+        "en": "Security Deposit (Payable directly to provider)",
+        "ta": "பாதுகாப்பு வைப்பு (உரிமையாளரிடம் நேரடியாக செலுத்தப்பட வேண்டும்)",
+    },
+    "booking.offline_notice": {
+        "en": "No online payment required now. Settlement is done directly between farmer and equipment owner upon job completion.",
+        "ta": "ஆன்லைன் கட்டணம் எதுவும் செலுத்தத் தேவையில்லை. பணி நிறைவடைந்ததும் கட்டணம் நேரடியாக உரிமையாளரிடம் செலுத்தப்படும்.",
+    },
+    "booking.login_to_book": {
+        "en": "Sign In as Farmer to Book",
+        "ta": "முன்பதிவு செய்ய விவசாயியாக உள்நுழையவும்",
+    },
+    "booking.provider_account_notice": {
+        "en": "You are currently signed in with a Provider account. Machinery rentals must be booked using a Farmer account.",
+        "ta": "நீங்கள் உரிமையாளர் கணக்கில் உள்நுழைந்துள்ளீர்கள். இயந்திரங்களை முன்பதிவு செய்ய விவசாயி கணக்கைப் பயன்படுத்தவும்.",
+    },
+
+    # Farmer My Bookings & Details
+    "booking.my_bookings_title": {
+        "en": "My Machinery Bookings",
+        "ta": "எனது இயந்திர முன்பதிவுகள்",
+    },
+    "booking.my_bookings_subtitle": {
+        "en": "Track the status of your equipment rental requests and bookings.",
+        "ta": "உங்கள் இயந்திர வாடகை முன்பதிவுகளின் நிலையை இங்கு கண்காணிக்கலாம்.",
+    },
+    "booking.ref": {
+        "en": "Booking Ref",
+        "ta": "முன்பதிவு எண்",
+    },
+    "booking.machinery": {
+        "en": "Machinery",
+        "ta": "இயந்திரம்",
+    },
+    "booking.package": {
+        "en": "Package",
+        "ta": "தொகுப்பு",
+    },
+    "booking.status": {
+        "en": "Status",
+        "ta": "நிலை",
+    },
+    "booking.dates": {
+        "en": "Rental Window",
+        "ta": "வாடகைக்காலம்",
+    },
+    "booking.total_cost": {
+        "en": "Estimated Total",
+        "ta": "உத்தேச கட்டணம்",
+    },
+    "booking.actions": {
+        "en": "Actions",
+        "ta": "செயல்கள்",
+    },
+    "booking.view_details": {
+        "en": "View Details",
+        "ta": "விவரங்களைக் காண்க",
+    },
+    "booking.btn_cancel": {
+        "en": "Cancel Booking",
+        "ta": "முன்பதிவை ரத்து செய்க",
+    },
+    "booking.cancel_confirm": {
+        "en": "Are you sure you want to cancel this booking request?",
+        "ta": "இந்த முன்பதிவுக் கோரிக்கையை ரத்து செய்ய விரும்புகிறீர்களா?",
+    },
+    "booking.no_bookings": {
+        "en": "You have not made any machinery booking requests yet.",
+        "ta": "நீங்கள் இதுவரை எந்த இயந்திர முன்பதிவுக் கோரிக்கையும் செய்யவில்லை.",
+    },
+    "booking.explore_btn": {
+        "en": "Explore Machinery Catalogue",
+        "ta": "இயந்திரப் பட்டியலை உலாவுக",
+    },
+    "booking.detail_title": {
+        "en": "Booking Details",
+        "ta": "முன்பதிவு விவரங்கள்",
+    },
+    "booking.detail_subtitle": {
+        "en": "Complete timeline, cost breakdown, and equipment details.",
+        "ta": "முழு காலவரிசை, கட்டண விபரம் மற்றும் இயந்திர விவரங்கள்.",
+    },
+    "booking.timeline": {
+        "en": "Status Audit Timeline",
+        "ta": "முன்பதிவு நிலை காலவரிசை",
+    },
+    "booking.price_breakdown": {
+        "en": "Rental Price Breakdown",
+        "ta": "கட்டண விவரம்",
+    },
+    "booking.billable_duration": {
+        "en": "Billable Duration",
+        "ta": "கணக்கிடப்பட்ட காலம்",
+    },
+    "booking.equipment_info": {
+        "en": "Equipment Information",
+        "ta": "இயந்திர விவரங்கள்",
+    },
+    "booking.provider_info": {
+        "en": "Equipment Provider",
+        "ta": "இயந்திர உரிமையாளர்",
+    },
+    "booking.farmer_info": {
+        "en": "Farmer / Customer",
+        "ta": "விவசாயி விவரங்கள்",
+    },
+
+    # Provider Bookings Dashboard
+    "provider.nav_bookings": {
+        "en": "Booking Requests",
+        "ta": "முன்பதிவுக் கோரிக்கைகள்",
+    },
+    "provider.bookings_title": {
+        "en": "Machinery Booking Requests",
+        "ta": "இயந்திர முன்பதிவுக் கோரிக்கைகள்",
+    },
+    "provider.bookings_subtitle": {
+        "en": "Review, approve, and manage rental requests for your machinery listings.",
+        "ta": "உங்கள் இயந்திரங்களுக்கான வாடகைக் கோரிக்கைகளை மதிப்பாய்வு செய்து நிர்வகிக்கவும்.",
+    },
+    "provider.tab_all": {
+        "en": "All",
+        "ta": "அனைத்தும்",
+    },
+    "provider.tab_pending": {
+        "en": "Pending",
+        "ta": "நிலுவையில்",
+    },
+    "provider.tab_approved": {
+        "en": "Approved",
+        "ta": "அங்கீகரிக்கப்பட்டவை",
+    },
+    "provider.tab_in_progress": {
+        "en": "In Progress",
+        "ta": "பயன்பாட்டில்",
+    },
+    "provider.tab_completed": {
+        "en": "Completed",
+        "ta": "நிறைவடைந்தவை",
+    },
+    "provider.btn_approve": {
+        "en": "Approve Request",
+        "ta": "கோரிக்கையை ஏற்கவும்",
+    },
+    "provider.btn_reject": {
+        "en": "Decline Request",
+        "ta": "நிராகரிக்கவும்",
+    },
+    "provider.btn_start": {
+        "en": "Mark In Progress",
+        "ta": "பணியைத் தொடங்கு",
+    },
+    "provider.btn_complete": {
+        "en": "Mark Completed",
+        "ta": "நிறைவடைந்ததாகக் குறி",
+    },
+    "provider.reject_reason_prompt": {
+        "en": "Please provide a reason for declining this request (Required):",
+        "ta": "இந்த கோரிக்கையை நிராகரிப்பதற்கான காரணத்தைக் குறிப்பிடவும் (கட்டாயம்):",
+    },
+    "provider.reject_reason_placeholder": {
+        "en": "e.g., Scheduled maintenance, operator unavailable, etc.",
+        "ta": "உதா: இயந்திரப் பராமரிப்பு, ஓட்டுநர் விடுப்பு, முதலியன.",
+    },
+    "provider.no_requests": {
+        "en": "No booking requests found for this filter.",
+        "ta": "இந்தப் பிரிவில் முன்பதிவுக் கோரிக்கைகள் எதுவும் இல்லை.",
+    },
+    "provider.approve_confirm": {
+        "en": "Approve this booking? This will lock the timeslot and prevent conflicting bookings.",
+        "ta": "இந்த முன்பதிவை அங்கீகரிக்கவா? இது கால அட்டவணையை உறுதிசெய்யும்.",
+    },
+    "provider.start_confirm": {
+        "en": "Mark this rental as In Progress (equipment dispatched/deployed)?",
+        "ta": "இந்த வாடகையை பயன்பாட்டில் உள்ளதாக மாற்றவா?",
+    },
+    "provider.complete_confirm": {
+        "en": "Mark this rental as Completed and payment settled offline?",
+        "ta": "பணி நிறைவடைந்து வாடகை பெறப்பட்டதாகக் குறிக்கவா?",
+    },
 }
 
 

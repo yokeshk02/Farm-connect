@@ -3,8 +3,17 @@ from decimal import Decimal, InvalidOperation
 from flask import render_template, request, redirect, url_for, flash, abort, current_app
 from app.blueprints.provider import provider_bp
 from app.extensions import db
+from app.models.booking import Booking, BookingStatusHistory
 from app.models.machinery import Machinery, MachineryPhoto, MachineryRate
 from app.models.user import ProviderProfile
+from app.services.booking_service import (
+    transition_booking_status,
+    calculate_pricing,
+    BookingConflictError,
+    BookingValidationError,
+    BookingStateError,
+    BookingAuthorizationError,
+)
 from app.services.image_service import validate_and_save_photo, MAX_PHOTOS_PER_MACHINERY
 from app.utils.geo import TAMIL_NADU_DISTRICTS, MACHINERY_CATEGORIES, RENTAL_OPTIONS
 from app.utils.security import login_required, role_required, get_current_user
@@ -516,3 +525,226 @@ def machinery_photo_delete(machinery_id, photo_id):
 
     flash("Photo deleted successfully.", "info")
     return redirect(url_for("provider.machinery_edit", machinery_id=machinery.id))
+
+
+@provider_bp.route("/bookings/", methods=["GET"])
+@login_required
+@role_required("PROVIDER")
+def bookings_list():
+    """Provider incoming booking requests management dashboard."""
+    user = get_current_user()
+    profile = get_or_create_provider_profile(user)
+
+    filter_status = (request.args.get("status") or "all").strip().lower()
+
+    # Query all bookings for machinery owned by this provider
+    base_query = (
+        Booking.query.join(Machinery, Booking.machinery_id == Machinery.id)
+        .filter(Machinery.provider_id == profile.id)
+        .order_by(Booking.created_at.desc())
+    )
+
+    all_bookings = base_query.all()
+
+    # Categorize counts for tab badges
+    counts = {
+        "all": len(all_bookings),
+        "pending": sum(1 for b in all_bookings if b.status == Booking.STATUS_PENDING),
+        "approved": sum(1 for b in all_bookings if b.status == Booking.STATUS_APPROVED),
+        "in_progress": sum(1 for b in all_bookings if b.status == Booking.STATUS_IN_PROGRESS),
+        "completed": sum(1 for b in all_bookings if b.status == Booking.STATUS_COMPLETED),
+        "cancelled_rejected": sum(
+            1 for b in all_bookings if b.status in [Booking.STATUS_CANCELLED, Booking.STATUS_REJECTED]
+        ),
+    }
+
+    if filter_status == "pending":
+        filtered_bookings = [b for b in all_bookings if b.status == Booking.STATUS_PENDING]
+    elif filter_status == "approved":
+        filtered_bookings = [b for b in all_bookings if b.status == Booking.STATUS_APPROVED]
+    elif filter_status == "in_progress":
+        filtered_bookings = [b for b in all_bookings if b.status == Booking.STATUS_IN_PROGRESS]
+    elif filter_status == "completed":
+        filtered_bookings = [b for b in all_bookings if b.status == Booking.STATUS_COMPLETED]
+    elif filter_status == "cancelled_rejected":
+        filtered_bookings = [
+            b for b in all_bookings if b.status in [Booking.STATUS_CANCELLED, Booking.STATUS_REJECTED]
+        ]
+    else:
+        filter_status = "all"
+        filtered_bookings = all_bookings
+
+    return render_template(
+        "provider/bookings_list.html",
+        bookings=filtered_bookings,
+        active_tab=filter_status,
+        counts=counts,
+        profile=profile,
+    )
+
+
+@provider_bp.route("/bookings/<uuid:booking_id>", methods=["GET"])
+@login_required
+@role_required("PROVIDER")
+def booking_detail(booking_id):
+    """View detailed request information from the provider perspective."""
+    user = get_current_user()
+    profile = get_or_create_provider_profile(user)
+
+    booking = db.session.get(Booking, booking_id)
+    if not booking:
+        abort(404)
+
+    # Ownership check
+    if booking.machinery.provider_id != profile.id:
+        abort(403)
+
+    pricing_breakdown = None
+    try:
+        pricing_breakdown = calculate_pricing(
+            machinery=booking.machinery,
+            package_type=booking.rental_option_type,
+            start_time=booking.start_time,
+            end_time=booking.end_time,
+        )
+    except Exception:
+        pass
+
+    return render_template(
+        "provider/booking_detail.html",
+        booking=booking,
+        pricing=pricing_breakdown,
+        profile=profile,
+    )
+
+
+@provider_bp.route("/bookings/<uuid:booking_id>/approve", methods=["POST"])
+@login_required
+@role_required("PROVIDER")
+def booking_approve(booking_id):
+    """Approve a pending booking request and lock the machinery timeslot."""
+    user = get_current_user()
+    profile = get_or_create_provider_profile(user)
+
+    booking = db.session.get(Booking, booking_id)
+    if not booking:
+        abort(404)
+
+    if booking.machinery.provider_id != profile.id:
+        abort(403)
+
+    try:
+        transition_booking_status(
+            booking=booking,
+            new_status=Booking.STATUS_APPROVED,
+            actor_user=user,
+            reason="Approved by equipment provider",
+        )
+        flash(f"Booking {booking.booking_reference} has been approved!", "success")
+    except BookingConflictError as bce:
+        flash(f"Approval conflict: {str(bce)}", "error")
+    except (BookingStateError, BookingAuthorizationError, BookingValidationError) as e:
+        flash(str(e), "error")
+    except Exception as e:
+        flash(f"Unexpected error approving booking: {str(e)}", "error")
+
+    return redirect(url_for("provider.booking_detail", booking_id=booking.id))
+
+
+@provider_bp.route("/bookings/<uuid:booking_id>/reject", methods=["POST"])
+@login_required
+@role_required("PROVIDER")
+def booking_reject(booking_id):
+    """Decline a pending booking request with a mandatory reason."""
+    user = get_current_user()
+    profile = get_or_create_provider_profile(user)
+
+    booking = db.session.get(Booking, booking_id)
+    if not booking:
+        abort(404)
+
+    if booking.machinery.provider_id != profile.id:
+        abort(403)
+
+    reason = request.form.get("rejection_reason")
+    if not reason or not reason.strip():
+        flash("A reason is mandatory when declining a booking request.", "error")
+        return redirect(url_for("provider.booking_detail", booking_id=booking.id))
+
+    try:
+        transition_booking_status(
+            booking=booking,
+            new_status=Booking.STATUS_REJECTED,
+            actor_user=user,
+            reason=reason.strip(),
+        )
+        flash(f"Booking {booking.booking_reference} has been declined.", "info")
+    except (BookingStateError, BookingAuthorizationError, BookingValidationError) as e:
+        flash(str(e), "error")
+    except Exception as e:
+        flash(f"Unexpected error declining booking: {str(e)}", "error")
+
+    return redirect(url_for("provider.booking_detail", booking_id=booking.id))
+
+
+@provider_bp.route("/bookings/<uuid:booking_id>/start", methods=["POST"])
+@login_required
+@role_required("PROVIDER")
+def booking_start(booking_id):
+    """Mark an approved rental as in-progress (equipment dispatched/deployed)."""
+    user = get_current_user()
+    profile = get_or_create_provider_profile(user)
+
+    booking = db.session.get(Booking, booking_id)
+    if not booking:
+        abort(404)
+
+    if booking.machinery.provider_id != profile.id:
+        abort(403)
+
+    try:
+        transition_booking_status(
+            booking=booking,
+            new_status=Booking.STATUS_IN_PROGRESS,
+            actor_user=user,
+            reason="Equipment dispatched and rental initiated",
+        )
+        flash(f"Rental for {booking.booking_reference} marked as In Progress.", "success")
+    except (BookingStateError, BookingAuthorizationError, BookingValidationError) as e:
+        flash(str(e), "error")
+    except Exception as e:
+        flash(f"Unexpected error starting rental: {str(e)}", "error")
+
+    return redirect(url_for("provider.booking_detail", booking_id=booking.id))
+
+
+@provider_bp.route("/bookings/<uuid:booking_id>/complete", methods=["POST"])
+@login_required
+@role_required("PROVIDER")
+def booking_complete(booking_id):
+    """Mark an in-progress rental as completed and offline payment settled."""
+    user = get_current_user()
+    profile = get_or_create_provider_profile(user)
+
+    booking = db.session.get(Booking, booking_id)
+    if not booking:
+        abort(404)
+
+    if booking.machinery.provider_id != profile.id:
+        abort(403)
+
+    try:
+        transition_booking_status(
+            booking=booking,
+            new_status=Booking.STATUS_COMPLETED,
+            actor_user=user,
+            reason="Job completed and offline payment settled",
+        )
+        flash(f"Booking {booking.booking_reference} marked as Completed!", "success")
+    except (BookingStateError, BookingAuthorizationError, BookingValidationError) as e:
+        flash(str(e), "error")
+    except Exception as e:
+        flash(f"Unexpected error completing booking: {str(e)}", "error")
+
+    return redirect(url_for("provider.booking_detail", booking_id=booking.id))
+

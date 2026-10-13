@@ -165,13 +165,120 @@
                     {% endfor %}
                 </div>
 
-                <!-- Booking Engine Notice -->
-                <div class="alert alert-info" style="margin-top: var(--spacing-md); font-size: var(--font-size-xs);">
-                    ℹ️ {{ _t('detail.booking_soon') }}
                 </div>
             </div>
 
-            <!-- Provider Contact Card -->
+            <!-- Booking Section -->
+            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);" id="bookingSection">
+                <h2 style="font-size: var(--font-size-md); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-xs);">
+                    📅 {{ _t('booking.book_title') }}
+                </h2>
+                <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: var(--spacing-md);">
+                    {{ _t('booking.book_subtitle') }}
+                </p>
+
+                {% if not session.get('user_id') %}
+                    <div class="alert alert-info" style="margin-bottom: var(--spacing-md); font-size: var(--font-size-sm);">
+                        ℹ️ {{ _t('booking.login_to_book') }}
+                    </div>
+                    <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary btn-block">
+                        🔐 {{ _t('auth.login_tab') }} / {{ _t('nav.register') }}
+                    </a>
+                {% elif session.get('user_role') == 'PROVIDER' %}
+                    <div class="alert alert-warning" style="font-size: var(--font-size-xs);">
+                        ℹ️ {{ _t('booking.provider_account_notice') }}
+                    </div>
+                {% else %}
+                    <!-- Farmer Booking Form -->
+                    <form action="{{ url_for('bookings.submit_booking', machinery_id=machinery.id) }}" method="POST" id="machineryBookingForm">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" id="machineryIdField" value="{{ machinery.id }}">
+
+                        <!-- Package selection -->
+                        <div class="form-group" style="margin-bottom: var(--spacing-md);">
+                            <label class="form-label" style="font-weight: 700; font-size: var(--font-size-xs);">
+                                {{ _t('booking.select_package') }} *
+                            </label>
+                            <select name="rental_option_type" id="packageSelect" class="form-select" required>
+                                {% for r in machinery.rates %}
+                                    <option value="{{ r.rental_option_type }}">
+                                        {{ _t('pkg.' + r.rental_option_type) }} 
+                                        {% if r.rate_per_hour %}(₹{{ "%.0f"|format(r.rate_per_hour) }}/hr){% endif %}
+                                        {% if r.rate_per_day %}(₹{{ "%.0f"|format(r.rate_per_day) }}/day){% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Date/Time Inputs -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm); margin-bottom: var(--spacing-md);">
+                            <div class="form-group">
+                                <label class="form-label" style="font-weight: 700; font-size: var(--font-size-xs);">
+                                    {{ _t('booking.start_time') }} *
+                                </label>
+                                <input type="datetime-local" name="start_time" id="bookingStartTime" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" style="font-weight: 700; font-size: var(--font-size-xs);">
+                                    {{ _t('booking.end_time') }} *
+                                </label>
+                                <input type="datetime-local" name="end_time" id="bookingEndTime" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Address -->
+                        <div class="form-group" style="margin-bottom: var(--spacing-md);">
+                            <label class="form-label" style="font-weight: 700; font-size: var(--font-size-xs);">
+                                {{ _t('booking.delivery_address') }}
+                            </label>
+                            <input type="text" name="delivery_address" class="form-control" 
+                                   placeholder="{{ _t('booking.delivery_address_placeholder') }}">
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="form-group" style="margin-bottom: var(--spacing-md);">
+                            <label class="form-label" style="font-weight: 700; font-size: var(--font-size-xs);">
+                                {{ _t('booking.notes') }}
+                            </label>
+                            <textarea name="notes" class="form-control" rows="2" 
+                                      placeholder="{{ _t('booking.notes_placeholder') }}"></textarea>
+                        </div>
+
+                        <!-- Estimate Calculation Preview Box -->
+                        <div style="margin-bottom: var(--spacing-md);">
+                            <button type="button" id="btnCalculateEstimate" class="btn btn-outline btn-sm btn-block" style="margin-bottom: var(--spacing-xs);">
+                                🧮 {{ _t('booking.btn_estimate') }}
+                            </button>
+                            <div id="estimateResultBox" style="display: none; background: rgba(45, 106, 79, 0.05); border: 1px dashed var(--color-primary); border-radius: var(--border-radius-sm); padding: var(--spacing-sm);">
+                                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+                                    <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">{{ _t('booking.billable_duration') }}:</span>
+                                    <span id="estBillableDuration" style="font-weight: 700; font-size: var(--font-size-xs); color: var(--color-primary-dark);"></span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+                                    <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">{{ _t('booking.estimated_cost') }}:</span>
+                                    <span id="estTotalCost" style="font-weight: 800; font-size: var(--font-size-md); color: var(--color-primary);"></span>
+                                </div>
+                                <div id="estDepositRow" style="display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; color: var(--color-text-muted);">
+                                    <span>{{ _t('detail.security_deposit') }}:</span>
+                                    <span id="estDepositAmount" style="font-weight: 600;"></span>
+                                </div>
+                            </div>
+                            <div id="estimateErrorBox" class="alert alert-error" style="display: none; font-size: var(--font-size-xs); margin-top: var(--spacing-xs);"></div>
+                        </div>
+
+                        <!-- Offline payment reassurance banner -->
+                        <div class="alert alert-info" style="font-size: 11px; line-height: 1.4; margin-bottom: var(--spacing-md); padding: var(--spacing-xs) var(--spacing-sm);">
+                            🤝 {{ _t('booking.offline_notice') }}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block btn-lg" id="btnSubmitBooking">
+                            🚜 {{ _t('booking.btn_submit') }}
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+
+            <!-- Provider Contact Card (Safe Public Display) -->
             <div class="card" style="padding: var(--spacing-lg);">
                 <h2 style="font-size: var(--font-size-md); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-sm);">
                     🧑‍🌾 {{ _t('detail.provider_info') }}
@@ -179,7 +286,7 @@
 
                 {% if provider %}
                     <p style="font-weight: 700; font-size: var(--font-size-base); color: var(--color-text-main); margin-bottom: var(--spacing-xs);">
-                        {{ provider.business_name or 'Verified Provider' }}
+                        {{ provider.business_name or 'Verified Equipment Provider' }}
                     </p>
 
                     <div style="margin-bottom: var(--spacing-md);">
@@ -194,22 +301,16 @@
                         </p>
                     {% endif %}
 
-                    <!-- Communication buttons -->
-                    <div style="display: flex; flex-direction: column; gap: var(--spacing-xs);">
-                        {% if provider.user and provider.user.phone %}
-                            <a href="tel:{{ provider.user.phone }}" class="btn btn-primary btn-block">
-                                📞 {{ _t('detail.call_owner') }} ({{ provider.user.phone }})
-                            </a>
-                        {% endif %}
-
-                        {% if provider.whatsapp_enabled and provider.whatsapp_number %}
+                    <!-- Safe Provider Communication: WhatsApp only if explicit provider consent given -->
+                    {% if provider.whatsapp_enabled and provider.whatsapp_number %}
+                        <div style="margin-top: var(--spacing-sm);">
                             <a href="https://wa.me/{{ provider.whatsapp_number|replace('+', '')|replace(' ', '') }}?text=Hello,%20I%20am%20interested%20in%20renting%20{{ machinery.name_en }}%20via%20FarmConnect." 
                                target="_blank" rel="noopener noreferrer" 
                                class="btn btn-accent btn-block" style="background-color: #25D366; color: white;">
                                 💬 {{ _t('detail.whatsapp_owner') }}
                             </a>
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
@@ -229,5 +330,87 @@ function selectGalleryImage(url, thumbElement) {
         thumbElement.classList.add('active');
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const startInput = document.getElementById('bookingStartTime');
+    const endInput = document.getElementById('bookingEndTime');
+    const btnEstimate = document.getElementById('btnCalculateEstimate');
+    const resultBox = document.getElementById('estimateResultBox');
+    const errorBox = document.getElementById('estimateErrorBox');
+    const machineryId = document.getElementById('machineryIdField') ? document.getElementById('machineryIdField').value : null;
+
+    // Set minimum start time to now
+    if (startInput) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        const minIso = now.toISOString().slice(0, 16);
+        startInput.min = minIso;
+        if (endInput) endInput.min = minIso;
+    }
+
+    if (btnEstimate && machineryId) {
+        btnEstimate.addEventListener('click', function() {
+            const pkg = document.getElementById('packageSelect').value;
+            const startVal = startInput.value;
+            const endVal = endInput.value;
+
+            errorBox.style.display = 'none';
+            resultBox.style.display = 'none';
+
+            if (!startVal || !endVal) {
+                errorBox.textContent = 'Please enter both start time and end time.';
+                errorBox.style.display = 'block';
+                return;
+            }
+
+            btnEstimate.disabled = true;
+            btnEstimate.textContent = 'Calculating...';
+
+            fetch('/bookings/estimate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    machinery_id: machineryId,
+                    rental_option_type: pkg,
+                    start_time: startVal,
+                    end_time: endVal,
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btnEstimate.disabled = false;
+                btnEstimate.textContent = '🧮 Check Price Estimate';
+                if (data.success) {
+                    const info = data.data;
+                    document.getElementById('estBillableDuration').textContent = 
+                        info.full_days > 0 
+                            ? `${info.full_days} day(s) + ${info.remaining_hours} hr(s) (${info.billable_hours} total billable hrs)`
+                            : `${info.billable_hours} billable hour(s)`;
+                    document.getElementById('estTotalCost').textContent = `₹${info.total_estimated_cost.toFixed(2)}`;
+                    
+                    const depRow = document.getElementById('estDepositRow');
+                    if (info.security_deposit > 0) {
+                        depRow.style.display = 'flex';
+                        document.getElementById('estDepositAmount').textContent = `₹${info.security_deposit.toFixed(2)}`;
+                    } else {
+                        depRow.style.display = 'none';
+                    }
+                    resultBox.style.display = 'block';
+                } else {
+                    errorBox.textContent = data.error || 'Unable to calculate price estimate.';
+                    errorBox.style.display = 'block';
+                }
+            })
+            .catch(err => {
+                btnEstimate.disabled = false;
+                btnEstimate.textContent = '🧮 Check Price Estimate';
+                errorBox.textContent = 'Network error calculating estimate.';
+                errorBox.style.display = 'block';
+            });
+        });
+    }
+});
 </script>
 {% endblock %}

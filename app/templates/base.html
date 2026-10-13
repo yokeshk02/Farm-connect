@@ -24,6 +24,13 @@
                     {% if session.get('user_id') %}
                         {% if session.get('user_role') == 'PROVIDER' %}
                             <li><a href="{{ url_for('provider.machinery_list') }}" class="nav-link">{{ _t('nav.my_machinery') }}</a></li>
+                            <li><a href="{{ url_for('provider.bookings_list') }}" class="nav-link">{{ _t('provider.nav_bookings') }}</a></li>
+                        {% elif session.get('user_role') == 'ADMIN' %}
+                            <li><a href="{{ url_for('provider.machinery_list') }}" class="nav-link">{{ _t('nav.my_machinery') }}</a></li>
+                            <li><a href="{{ url_for('provider.bookings_list') }}" class="nav-link">{{ _t('provider.nav_bookings') }}</a></li>
+                            <li><a href="{{ url_for('bookings.my_bookings') }}" class="nav-link">{{ _t('booking.my_bookings_title') }}</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('bookings.my_bookings') }}" class="nav-link">{{ _t('booking.my_bookings_title') }}</a></li>
                         {% endif %}
                         <li><a href="{{ url_for('auth.profile') }}" class="nav-link">{{ _t('nav.profile') }}</a></li>
                         <li>

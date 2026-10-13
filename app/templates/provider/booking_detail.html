@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('provider.bookings_title') }} - {{ booking.booking_reference }}{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-2xl);">
+    <!-- Back Link -->
+    <div style="margin-bottom: var(--spacing-md);">
+        <a href="{{ url_for('provider.bookings_list') }}" class="back-link">
+            ← {{ _t('provider.bookings_title') }}
+        </a>
+    </div>
+
+    <!-- Header Summary Card -->
+    <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--spacing-md);">
+            <div>
+                <span class="badge status-badge status-{{ booking.status|lower }}" style="margin-bottom: var(--spacing-xs);">
+                    {{ _t('status.' + booking.status) }}
+                </span>
+                <h1 style="font-size: var(--font-size-2xl); font-weight: 800; color: var(--color-primary-dark); font-family: monospace; margin-bottom: var(--spacing-2xs);">
+                    {{ booking.booking_reference }}
+                </h1>
+                <p style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
+                    Requested on {{ booking.created_at.strftime('%d %b %Y at %I:%M %p') }}
+                </p>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">{{ _t('booking.total_cost') }}</div>
+                <div style="font-size: 2rem; font-weight: 800; color: var(--color-primary);">
+                    ₹{{ "%.2f"|format(booking.estimated_total_cost) }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Provider Actions Toolbar -->
+        <div style="margin-top: var(--spacing-lg); border-top: 1px solid rgba(0, 0, 0, 0.05); padding-top: var(--spacing-md); display: flex; gap: var(--spacing-sm); flex-wrap: wrap; align-items: center;">
+            {% if booking.status == 'PENDING' %}
+                <!-- Approve Action -->
+                <form action="{{ url_for('provider.booking_approve', booking_id=booking.id) }}" method="POST" 
+                      onsubmit="return confirm('{{ _t('provider.approve_confirm') }}');" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-primary" id="btnApproveBooking">
+                        ✓ {{ _t('provider.btn_approve') }}
+                    </button>
+                </form>
+
+                <!-- Trigger Reject Modal/Form -->
+                <button type="button" class="btn btn-outline" style="color: #dc3545; border-color: #dc3545;" 
+                        onclick="document.getElementById('rejectFormContainer').style.display = 'block'; this.style.display = 'none';">
+                    ✕ {{ _t('provider.btn_reject') }}
+                </button>
+            {% elif booking.status == 'APPROVED' %}
+                <!-- Mark In Progress -->
+                <form action="{{ url_for('provider.booking_start', booking_id=booking.id) }}" method="POST" 
+                      onsubmit="return confirm('{{ _t('provider.start_confirm') }}');" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-primary">
+                        🚜 {{ _t('provider.btn_start') }}
+                    </button>
+                </form>
+            {% elif booking.status == 'IN_PROGRESS' %}
+                <!-- Mark Completed -->
+                <form action="{{ url_for('provider.booking_complete', booking_id=booking.id) }}" method="POST" 
+                      onsubmit="return confirm('{{ _t('provider.complete_confirm') }}');" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-accent" style="background-color: var(--color-accent); color: white;">
+                        ★ {{ _t('provider.btn_complete') }}
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+
+        <!-- Inline Rejection Form (shown when Decline clicked) -->
+        <div id="rejectFormContainer" style="display: none; margin-top: var(--spacing-md); background: rgba(220, 53, 69, 0.05); border: 1px solid rgba(220, 53, 69, 0.2); border-radius: var(--border-radius-sm); padding: var(--spacing-md);">
+            <form action="{{ url_for('provider.booking_reject', booking_id=booking.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group" style="margin-bottom: var(--spacing-sm);">
+                    <label class="form-label" style="font-weight: 700; color: #dc3545; font-size: var(--font-size-xs);">
+                        {{ _t('provider.reject_reason_prompt') }}
+                    </label>
+                    <input type="text" name="rejection_reason" class="form-control" required 
+                           placeholder="{{ _t('provider.reject_reason_placeholder') }}">
+                </div>
+                <div style="display: flex; gap: var(--spacing-xs);">
+                    <button type="submit" class="btn btn-sm" style="background-color: #dc3545; color: white;">
+                        {{ _t('provider.btn_reject') }}
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm" 
+                            onclick="document.getElementById('rejectFormContainer').style.display = 'none';">
+                        {{ _t('provider.btn_cancel') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="detail-layout">
+        <!-- Left: Equipment & Price Breakdown -->
+        <div>
+            <!-- Equipment Details Card -->
+            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                <h2 style="font-size: var(--font-size-lg); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-md);">
+                    🚜 {{ _t('booking.equipment_info') }}
+                </h2>
+                <div style="font-size: var(--font-size-base); font-weight: 700; color: var(--color-text-main); margin-bottom: var(--spacing-xs);">
+                    {{ booking.machinery.name_en }}
+                </div>
+                <div class="specs-grid">
+                    <div class="spec-item">
+                        <span class="spec-label">{{ _t('booking.package') }}</span>
+                        <span class="spec-val"><strong>{{ _t('pkg.' + booking.rental_option_type) }}</strong></span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">{{ _t('booking.dates') }}</span>
+                        <span class="spec-val">
+                            {{ booking.start_time.strftime('%d %b %Y, %I:%M %p') }} <br>
+                            to {{ booking.end_time.strftime('%d %b %Y, %I:%M %p') }}
+                        </span>
+                    </div>
+                    {% if booking.delivery_address %}
+                        <div class="spec-item" style="grid-column: span 2;">
+                            <span class="spec-label">{{ _t('booking.delivery_address') }}</span>
+                            <span class="spec-val">{{ booking.delivery_address }}</span>
+                        </div>
+                    {% endif %}
+                    {% if booking.notes %}
+                        <div class="spec-item" style="grid-column: span 2;">
+                            <span class="spec-label">{{ _t('booking.notes') }}</span>
+                            <span class="spec-val">{{ booking.notes }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Price Breakdown Card -->
+            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                <h2 style="font-size: var(--font-size-lg); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-md);">
+                    💰 {{ _t('booking.price_breakdown') }}
+                </h2>
+                {% if pricing %}
+                    <div style="display: flex; flex-direction: column; gap: var(--spacing-xs);">
+                        <div style="display: flex; justify-content: space-between; font-size: var(--font-size-sm);">
+                            <span style="color: var(--color-text-muted);">{{ _t('booking.billable_duration') }}:</span>
+                            <span style="font-weight: 600;">
+                                {% if pricing.full_days > 0 %}
+                                    {{ pricing.full_days }} day(s) + {{ pricing.remaining_hours }} hr(s) ({{ pricing.billable_hours }} total hrs)
+                                {% else %}
+                                    {{ pricing.billable_hours }} billable hour(s)
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if pricing.rate_per_day and pricing.full_days > 0 %}
+                            <div style="display: flex; justify-content: space-between; font-size: var(--font-size-sm);">
+                                <span style="color: var(--color-text-muted);">Daily Rate:</span>
+                                <span>{{ pricing.full_days }} × ₹{{ "%.2f"|format(pricing.rate_per_day) }} = ₹{{ "%.2f"|format(pricing.daily_cost) }}</span>
+                            </div>
+                        {% endif %}
+                        {% if pricing.hourly_cost > 0 %}
+                            <div style="display: flex; justify-content: space-between; font-size: var(--font-size-sm);">
+                                <span style="color: var(--color-text-muted);">Hourly Rate:</span>
+                                <span>₹{{ "%.2f"|format(pricing.hourly_cost) }}</span>
+                            </div>
+                        {% endif %}
+                        {% if pricing.security_deposit > 0 %}
+                            <div style="display: flex; justify-content: space-between; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                                <span>{{ _t('detail.security_deposit') }} (offline):</span>
+                                <span>₹{{ "%.2f"|format(pricing.security_deposit) }}</span>
+                            </div>
+                        {% endif %}
+                        <div style="border-top: 1px solid rgba(0, 0, 0, 0.1); margin-top: var(--spacing-xs); padding-top: var(--spacing-xs); display: flex; justify-content: space-between; font-weight: 800; font-size: var(--font-size-md);">
+                            <span>Total Estimate:</span>
+                            <span style="color: var(--color-primary);">₹{{ "%.2f"|format(booking.estimated_total_cost) }}</span>
+                        </div>
+                    </div>
+                {% else %}
+                    <div style="font-size: var(--font-size-lg); font-weight: 800; color: var(--color-primary);">
+                        ₹{{ "%.2f"|format(booking.estimated_total_cost) }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right: Farmer Contact & Status Timeline -->
+        <div>
+            <!-- Farmer Contact Details Card -->
+            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                <h2 style="font-size: var(--font-size-md); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-md);">
+                    🧑‍🌾 {{ _t('booking.farmer_info') }}
+                </h2>
+                <div style="font-weight: 700; color: var(--color-text-main); font-size: var(--font-size-base); margin-bottom: var(--spacing-xs);">
+                    {{ booking.farmer.full_name or 'Farmer' }}
+                </div>
+                {% if booking.contact_phone_snapshot %}
+                    <div style="margin-bottom: var(--spacing-md); font-size: var(--font-size-sm);">
+                        📞 <a href="tel:{{ booking.contact_phone_snapshot }}" style="color: var(--color-primary); font-weight: 600;">
+                            {{ booking.contact_phone_snapshot }}
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Status Timeline Card -->
+            <div class="card" style="padding: var(--spacing-lg);">
+                <h2 style="font-size: var(--font-size-md); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-md);">
+                    ⏱️ {{ _t('booking.timeline') }}
+                </h2>
+                <div class="timeline" style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                    {% for h in booking.status_history %}
+                        <div style="display: flex; gap: var(--spacing-sm); align-items: flex-start;">
+                            <div style="width: 12px; height: 12px; border-radius: 50%; background-color: var(--color-primary); margin-top: 4px; flex-shrink: 0;"></div>
+                            <div>
+                                <div style="display: flex; gap: var(--spacing-xs); align-items: center; flex-wrap: wrap;">
+                                    <span class="badge status-badge status-{{ h.to_status|lower }}" style="font-size: 10px; padding: 2px 6px;">
+                                        {{ _t('status.' + h.to_status) }}
+                                    </span>
+                                    <span style="font-size: 11px; color: var(--color-text-muted);">
+                                        {{ h.changed_at.strftime('%d %b, %I:%M %p') }}
+                                    </span>
+                                </div>
+                                {% if h.reason_or_comment %}
+                                    <div style="font-size: var(--font-size-xs); color: var(--color-text-main); margin-top: 2px;">
+                                        {{ h.reason_or_comment }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

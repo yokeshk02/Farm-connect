@@ -38,11 +38,13 @@ def create_app(config_name: str | None = None) -> Flask:
     from app.blueprints.auth import auth_bp
     from app.blueprints.machinery import machinery_bp
     from app.blueprints.provider import provider_bp
+    from app.blueprints.bookings import bookings_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(machinery_bp)
     app.register_blueprint(provider_bp)
+    app.register_blueprint(bookings_bp)
 
     # Base healthcheck route for startup and monitoring
     @app.route("/api/health")

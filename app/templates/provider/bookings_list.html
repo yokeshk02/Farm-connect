@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('provider.bookings_title') }}{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-2xl);">
+    <div style="margin-bottom: var(--spacing-lg);">
+        <h1 style="font-size: var(--font-size-2xl); font-weight: 800; color: var(--color-primary-dark); margin-bottom: var(--spacing-xs);">
+            📋 {{ _t('provider.bookings_title') }}
+        </h1>
+        <p style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
+            {{ _t('provider.bookings_subtitle') }}
+        </p>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="tabs-nav" style="margin-bottom: var(--spacing-lg); overflow-x: auto; white-space: nowrap;">
+        <a href="{{ url_for('provider.bookings_list', status='all') }}" 
+           class="tab-link {% if active_tab == 'all' %}active{% endif %}">
+            {{ _t('provider.tab_all') }} ({{ counts.all }})
+        </a>
+        <a href="{{ url_for('provider.bookings_list', status='pending') }}" 
+           class="tab-link {% if active_tab == 'pending' %}active{% endif %}">
+            ⏳ {{ _t('provider.tab_pending') }} ({{ counts.pending }})
+        </a>
+        <a href="{{ url_for('provider.bookings_list', status='approved') }}" 
+           class="tab-link {% if active_tab == 'approved' %}active{% endif %}">
+            ✓ {{ _t('provider.tab_approved') }} ({{ counts.approved }})
+        </a>
+        <a href="{{ url_for('provider.bookings_list', status='in_progress') }}" 
+           class="tab-link {% if active_tab == 'in_progress' %}active{% endif %}">
+            🚜 {{ _t('provider.tab_in_progress') }} ({{ counts.in_progress }})
+        </a>
+        <a href="{{ url_for('provider.bookings_list', status='completed') }}" 
+           class="tab-link {% if active_tab == 'completed' %}active{% endif %}">
+            ★ {{ _t('provider.tab_completed') }} ({{ counts.completed }})
+        </a>
+        <a href="{{ url_for('provider.bookings_list', status='cancelled_rejected') }}" 
+           class="tab-link {% if active_tab == 'cancelled_rejected' %}active{% endif %}">
+            ✕ {{ _t('status.CANCELLED') }} / {{ _t('status.REJECTED') }} ({{ counts.cancelled_rejected }})
+        </a>
+    </div>
+
+    {% if not bookings %}
+        <div class="card" style="text-align: center; padding: var(--spacing-2xl);">
+            <div style="font-size: 3rem; margin-bottom: var(--spacing-sm);">📭</div>
+            <h2 style="font-size: var(--font-size-lg); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-xs);">
+                {{ _t('provider.no_requests') }}
+            </h2>
+            <p style="color: var(--color-text-muted);">
+                {{ _t('provider.bookings_subtitle') }}
+            </p>
+        </div>
+    {% else %}
+        <div class="table-responsive card" style="padding: var(--spacing-sm); overflow-x: auto;">
+            <table class="data-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 2px solid rgba(45, 106, 79, 0.1); background-color: rgba(45, 106, 79, 0.03);">
+                        <th style="padding: var(--spacing-md); font-size: var(--font-size-xs); text-transform: uppercase;">{{ _t('booking.ref') }}</th>
+                        <th style="padding: var(--spacing-md); font-size: var(--font-size-xs); text-transform: uppercase;">{{ _t('booking.machinery') }}</th>
+                        <th style="padding: var(--spacing-md); font-size: var(--font-size-xs); text-transform: uppercase;">{{ _t('booking.farmer_info') }}</th>
+                        <th style="padding: var(--spacing-md); font-size: var(--font-size-xs); text-transform: uppercase;">{{ _t('booking.dates') }}</th>
+                        <th style="padding: var(--spacing-md); font-size: var(--font-size-xs); text-transform: uppercase;">{{ _t('booking.total_cost') }}</th>
+                        <th style="padding: var(--spacing-md); font-size: var(--font-size-xs); text-transform: uppercase;">{{ _t('booking.status') }}</th>
+                        <th style="padding: var(--spacing-md); font-size: var(--font-size-xs); text-transform: uppercase; text-align: right;">{{ _t('booking.actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bookings %}
+                        <tr style="border-bottom: 1px solid rgba(0, 0, 0, 0.05);">
+                            <td style="padding: var(--spacing-md); font-weight: 700; font-family: monospace;">
+                                <a href="{{ url_for('provider.booking_detail', booking_id=b.id) }}" style="color: var(--color-primary); text-decoration: underline;">
+                                    {{ b.booking_reference }}
+                                </a>
+                            </td>
+                            <td style="padding: var(--spacing-md);">
+                                <div style="font-weight: 700;">{{ b.machinery.name_en }}</div>
+                                <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">{{ _t('pkg.' + b.rental_option_type) }}</div>
+                            </td>
+                            <td style="padding: var(--spacing-md);">
+                                <div style="font-weight: 600;">{{ b.farmer.full_name or 'Farmer' }}</div>
+                                {% if b.contact_phone_snapshot %}
+                                    <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">📞 {{ b.contact_phone_snapshot }}</div>
+                                {% endif %}
+                            </td>
+                            <td style="padding: var(--spacing-md); font-size: var(--font-size-xs);">
+                                <div>{{ b.start_time.strftime('%d %b %Y, %I:%M %p') }}</div>
+                                <div style="color: var(--color-text-muted);">to {{ b.end_time.strftime('%d %b %Y, %I:%M %p') }}</div>
+                            </td>
+                            <td style="padding: var(--spacing-md); font-weight: 800; color: var(--color-primary);">
+                                ₹{{ "%.2f"|format(b.estimated_total_cost) }}
+                            </td>
+                            <td style="padding: var(--spacing-md);">
+                                <span class="badge status-badge status-{{ b.status|lower }}">
+                                    {{ _t('status.' + b.status) }}
+                                </span>
+                            </td>
+                            <td style="padding: var(--spacing-md); text-align: right;">
+                                <a href="{{ url_for('provider.booking_detail', booking_id=b.id) }}" class="btn btn-sm btn-outline">
+                                    {{ _t('booking.view_details') }}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
