@@ -90,6 +90,11 @@ def catalogue():
         rate_val, rate_unit = get_starting_rate(item)
         photo_url = get_primary_photo_url(item)
 
+        hourly_rates = [float(r.rate_per_hour) for r in item.rates if r.rate_per_hour is not None]
+        daily_rates = [float(r.rate_per_day) for r in item.rates if r.rate_per_day is not None]
+        hourly_rate = min(hourly_rates) if hourly_rates else None
+        daily_rate = min(daily_rates) if daily_rates else None
+
         distance_km = None
         if has_gps and item.latitude is not None and item.longitude is not None:
             distance_km = haversine_distance(user_lat, user_lng, float(item.latitude), float(item.longitude))
@@ -98,6 +103,8 @@ def catalogue():
             "machinery": item,
             "starting_rate": rate_val,
             "starting_unit": rate_unit,
+            "hourly_rate": hourly_rate,
+            "daily_rate": daily_rate,
             "primary_photo_url": photo_url,
             "distance_km": distance_km,
         })

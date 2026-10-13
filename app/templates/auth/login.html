@@ -3,88 +3,133 @@
 {% block title %}{{ _t('auth.login_title') }} - {{ _t('app.name') }}{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="auth-wrapper">
-        <div class="card">
-            <div class="card-header">
-                <h1 class="card-title">{{ _t('auth.login_title') }}</h1>
-                <p class="card-subtitle">{{ _t('auth.login_subtitle') }}</p>
-            </div>
+<div class="container auth-page-container">
+    <div class="auth-split-wrapper">
+        <!-- Left Side: FarmConnect Brand Showcase Banner -->
+        <div class="auth-brand-side">
+            <div class="auth-brand-inner">
+                <a href="{{ url_for('main.index') }}" class="brand auth-brand-logo">
+                    <span class="brand-icon">🌾</span>
+                    <span class="brand-text">Farm<span>Connect</span></span>
+                </a>
+                <h2 class="auth-brand-title">
+                    Tamil Nadu's Agricultural Machinery Rental Network
+                </h2>
+                <p class="auth-brand-desc">
+                    Connect directly with local farmers and equipment providers with zero middleman commissions and verified scheduling.
+                </p>
 
-            <!-- Segmented Toggle: Login with OTP vs Login with Password -->
-            <div class="segmented-toggle tabs-nav" role="tablist">
-                <button type="button" class="segmented-btn tab-link {% if active_tab != 'password' %}active{% endif %}" 
-                        id="tabOtpLink" onclick="switchLoginTab('otp')" role="tab" aria-selected="{% if active_tab != 'password' %}true{% else %}false{% endif %}">
-                    📱 {{ _t('auth.otp_login_tab') }}
-                </button>
-                <button type="button" class="segmented-btn tab-link {% if active_tab == 'password' %}active{% endif %}" 
-                        id="tabPassLink" onclick="switchLoginTab('password')" role="tab" aria-selected="{% if active_tab == 'password' %}true{% else %}false{% endif %}">
-                    🔑 {{ _t('auth.password_login_tab') }}
-                </button>
-            </div>
+                <div class="auth-feature-list">
+                    <div class="auth-feature-item">
+                        <span class="auth-feature-icon">🚜</span>
+                        <div>
+                            <strong>Wide Machinery Fleet</strong>
+                            <p>Tractors, harvesters, rotavators, tillers & implements</p>
+                        </div>
+                    </div>
 
-            <!-- OTP Login Form -->
-            <form id="otpLoginForm" action="{{ url_for('auth.login') }}" method="POST" 
-                  style="{% if active_tab == 'password' %}display: none;{% else %}display: block;{% endif %}">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="hidden" name="login_type" value="otp">
+                    <div class="auth-feature-item">
+                        <span class="auth-feature-icon">🛡️</span>
+                        <div>
+                            <strong>Transparent & Safe</strong>
+                            <p>Direct provider coordination with booking overlap prevention</p>
+                        </div>
+                    </div>
 
-                <div class="form-group">
-                    <label for="otpPhone" class="form-label">{{ _t('auth.phone_label') }} *</label>
-                    <input type="tel" id="otpPhone" name="phone" class="form-control" 
-                           placeholder="{{ _t('auth.phone_placeholder') }}" 
-                           value="{% if active_tab != 'password' %}{{ phone or '' }}{% endif %}" 
-                           required {% if active_tab != 'password' %}autofocus{% endif %}>
-                    <p class="form-tip">{{ _t('auth.dev_tip') }}</p>
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-block btn-lg" id="btnSendOtp">
-                    📨 {{ _t('auth.btn_send_otp') }}
-                </button>
-            </form>
-
-            <!-- Password Login Form (Farmer, Provider, Admin) -->
-            <form id="passLoginForm" action="{{ url_for('auth.login') }}" method="POST" 
-                  style="{% if active_tab == 'password' %}display: block;{% else %}display: none;{% endif %}">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="hidden" name="login_type" value="password">
-
-                <div class="form-group">
-                    <label for="passPhone" class="form-label">{{ _t('auth.phone_label') }} *</label>
-                    <input type="tel" id="passPhone" name="phone" class="form-control" 
-                           placeholder="{{ _t('auth.phone_placeholder') }}" 
-                           value="{% if active_tab == 'password' %}{{ phone or '' }}{% endif %}" 
-                           required {% if active_tab == 'password' %}autofocus{% endif %}>
-                </div>
-
-                <div class="form-group">
-                    <label for="passwordInput" class="form-label">{{ _t('auth.password_label') }} *</label>
-                    <div class="password-input-group">
-                        <input type="password" id="passwordInput" name="password" class="form-control" 
-                               placeholder="••••••••" required autocomplete="current-password">
-                        <button type="button" class="password-toggle-btn" id="togglePasswordBtn" 
-                                onclick="togglePasswordVisibility('passwordInput', 'togglePasswordBtn')"
-                                data-show-text="{{ _t('auth.show_password') }}" 
-                                data-hide-text="{{ _t('auth.hide_password') }}"
-                                aria-label="Toggle password visibility">
-                            👁️ {{ _t('auth.show_password') }}
-                        </button>
+                    <div class="auth-feature-item">
+                        <span class="auth-feature-icon">🌐</span>
+                        <div>
+                            <strong>English & தமிழ் Bilingual</strong>
+                            <p>Fully accessible in Tamil and English across all 38 districts</p>
+                        </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <button type="submit" class="btn btn-primary btn-block btn-lg" id="btnLoginPassword">
-                    🔓 {{ _t('auth.btn_login_password') }}
-                </button>
-
-                <!-- Guidance Box explaining OTP fallback for users without passwords -->
-                <div class="auth-guidance-box">
-                    💡 {{ _t('auth.password_help_message') }}
+        <!-- Right Side: Clean Login Card -->
+        <div class="auth-card-side">
+            <div class="card auth-form-card">
+                <div class="card-header">
+                    <h1 class="card-title">{{ _t('auth.login_title') }}</h1>
+                    <p class="card-subtitle">{{ _t('auth.login_subtitle') }}</p>
                 </div>
-            </form>
 
-            <div style="margin-top: var(--spacing-xl); text-align: center; font-size: var(--font-size-sm); border-top: 1px solid var(--color-border); padding-top: var(--spacing-md);">
-                <span>{{ _t('auth.no_account') }}</span>
-                <a href="{{ url_for('auth.register') }}" style="font-weight: 700; color: var(--color-primary);">{{ _t('auth.register_now') }}</a>
+                <!-- Segmented Toggle: Login with OTP vs Login with Password -->
+                <div class="segmented-toggle tabs-nav" role="tablist">
+                    <button type="button" class="segmented-btn tab-link {% if active_tab != 'password' %}active{% endif %}" 
+                            id="tabOtpLink" onclick="switchLoginTab('otp')" role="tab" aria-selected="{% if active_tab != 'password' %}true{% else %}false{% endif %}">
+                        📱 {{ _t('auth.otp_login_tab') }}
+                    </button>
+                    <button type="button" class="segmented-btn tab-link {% if active_tab == 'password' %}active{% endif %}" 
+                            id="tabPassLink" onclick="switchLoginTab('password')" role="tab" aria-selected="{% if active_tab == 'password' %}true{% else %}false{% endif %}">
+                        🔑 {{ _t('auth.password_login_tab') }}
+                    </button>
+                </div>
+
+                <!-- OTP Login Form -->
+                <form id="otpLoginForm" action="{{ url_for('auth.login') }}" method="POST" 
+                      style="{% if active_tab == 'password' %}display: none;{% else %}display: block;{% endif %}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="login_type" value="otp">
+
+                    <div class="form-group">
+                        <label for="otpPhone" class="form-label">{{ _t('auth.phone_label') }} *</label>
+                        <input type="tel" id="otpPhone" name="phone" class="form-control" 
+                               placeholder="{{ _t('auth.phone_placeholder') }}" 
+                               value="{% if active_tab != 'password' %}{{ phone or '' }}{% endif %}" 
+                               required {% if active_tab != 'password' %}autofocus{% endif %}>
+                        <p class="form-tip">{{ _t('auth.dev_tip') }}</p>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block btn-lg" id="btnSendOtp">
+                        📨 {{ _t('auth.btn_send_otp') }}
+                    </button>
+                </form>
+
+                <!-- Password Login Form (Farmer, Provider, Admin) -->
+                <form id="passLoginForm" action="{{ url_for('auth.login') }}" method="POST" 
+                      style="{% if active_tab == 'password' %}display: block;{% else %}display: none;{% endif %}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="login_type" value="password">
+
+                    <div class="form-group">
+                        <label for="passPhone" class="form-label">{{ _t('auth.phone_label') }} *</label>
+                        <input type="tel" id="passPhone" name="phone" class="form-control" 
+                               placeholder="{{ _t('auth.phone_placeholder') }}" 
+                               value="{% if active_tab == 'password' %}{{ phone or '' }}{% endif %}" 
+                               required {% if active_tab == 'password' %}autofocus{% endif %}>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="passwordInput" class="form-label">{{ _t('auth.password_label') }} *</label>
+                        <div class="password-input-group">
+                            <input type="password" id="passwordInput" name="password" class="form-control" 
+                                   placeholder="••••••••" required autocomplete="current-password">
+                            <button type="button" class="password-toggle-btn" id="togglePasswordBtn" 
+                                    onclick="togglePasswordVisibility('passwordInput', 'togglePasswordBtn')"
+                                    data-show-text="{{ _t('auth.show_password') }}" 
+                                    data-hide-text="{{ _t('auth.hide_password') }}"
+                                    aria-label="Toggle password visibility">
+                                👁️ {{ _t('auth.show_password') }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block btn-lg" id="btnLoginPassword">
+                        🔓 {{ _t('auth.btn_login_password') }}
+                    </button>
+
+                    <!-- Guidance Box explaining OTP fallback for users without passwords -->
+                    <div class="auth-guidance-box">
+                        💡 {{ _t('auth.password_help_message') }}
+                    </div>
+                </form>
+
+                <div style="margin-top: var(--spacing-xl); text-align: center; font-size: var(--font-size-sm); border-top: 1px solid var(--color-border); padding-top: var(--spacing-md);">
+                    <span>{{ _t('auth.no_account') }}</span>
+                    <a href="{{ url_for('auth.register') }}" style="font-weight: 700; color: var(--color-primary);">{{ _t('auth.register_now') }}</a>
+                </div>
             </div>
         </div>
     </div>

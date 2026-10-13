@@ -127,13 +127,30 @@ def my_bookings():
         # Redirect providers to their incoming requests dashboard
         return redirect(url_for("provider.bookings_list"))
 
-    bookings = (
-        Booking.query.filter_by(farmer_id=user.id)
-        .order_by(Booking.created_at.desc())
-        .all()
-    )
+    status_filter = (request.args.get("status") or "ALL").strip().upper()
+    query = Booking.query.filter_by(farmer_id=user.id)
+    if status_filter != "ALL":
+        query = query.filter_by(status=status_filter)
 
-    return render_template("bookings/my_bookings.html", bookings=bookings)
+    bookings = query.order_by(Booking.created_at.desc()).all()
+
+    # Calculate status counts for filter tabs
+    all_user_bookings = Booking.query.filter_by(farmer_id=user.id).all()
+    status_counts = {
+        "ALL": len(all_user_bookings),
+        "PENDING": sum(1 for b in all_user_bookings if b.status == Booking.STATUS_PENDING),
+        "APPROVED": sum(1 for b in all_user_bookings if b.status == Booking.STATUS_APPROVED),
+        "IN_PROGRESS": sum(1 for b in all_user_bookings if b.status == Booking.STATUS_IN_PROGRESS),
+        "COMPLETED": sum(1 for b in all_user_bookings if b.status == Booking.STATUS_COMPLETED),
+        "CANCELLED": sum(1 for b in all_user_bookings if b.status == Booking.STATUS_CANCELLED),
+    }
+
+    return render_template(
+        "bookings/my_bookings.html", 
+        bookings=bookings, 
+        active_status=status_filter,
+        status_counts=status_counts
+    )
 
 
 @bookings_bp.route("/<uuid:booking_id>", methods=["GET"])

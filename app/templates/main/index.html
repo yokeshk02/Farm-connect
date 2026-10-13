@@ -3,7 +3,7 @@
 {% block title %}{{ _t('app.name') }} - {{ _t('hero.title') }}{% endblock %}
 
 {% block content %}
-<!-- 1. Hero Section -->
+<!-- A. Hero Section -->
 <section class="hero-section">
     <div class="container hero-content">
         <div class="hero-pill-badge">
@@ -32,7 +32,62 @@
     </div>
 </section>
 
-<!-- 2. Four-Step How It Works Section -->
+<!-- B. Popular Categories (Directly after Hero) -->
+<section class="section" id="popular-categories">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-pill">{{ _t('categories.pill') }}</span>
+            <h2 class="section-title">{{ _t('categories.title') }}</h2>
+            <p class="section-desc">{{ _t('categories.subtitle') }}</p>
+        </div>
+
+        <div class="categories-grid categories-grid-6">
+            <!-- 1. Tractors -->
+            <a href="{{ url_for('machinery.catalogue', category='TRACTOR') }}" class="category-card" id="catCardTractor">
+                <div class="category-icon-box">🚜</div>
+                <div class="category-name">{{ _t('cat.TRACTOR') }}</div>
+                <span class="category-count">40–75 HP Plowing & Haulage</span>
+            </a>
+
+            <!-- 2. Harvesters -->
+            <a href="{{ url_for('machinery.catalogue', category='HARVESTER') }}" class="category-card" id="catCardHarvester">
+                <div class="category-icon-box">🌾</div>
+                <div class="category-name">{{ _t('cat.HARVESTER') }}</div>
+                <span class="category-count">Paddy & Multi-Crop Combine</span>
+            </a>
+
+            <!-- 3. Rotavators -->
+            <a href="{{ url_for('machinery.catalogue', category='ROTAVATOR') }}" class="category-card" id="catCardRotavator">
+                <div class="category-icon-box">⚙️</div>
+                <div class="category-name">{{ _t('cat.ROTAVATOR') }}</div>
+                <span class="category-count">Soil Preparation & Tillage</span>
+            </a>
+
+            <!-- 4. Backhoes -->
+            <a href="{{ url_for('machinery.catalogue', category='BACKHOE') }}" class="category-card" id="catCardBackhoe">
+                <div class="category-icon-box">🏗️</div>
+                <div class="category-name">{{ _t('cat.BACKHOE') }}</div>
+                <span class="category-count">Earthmoving & Trenching</span>
+            </a>
+
+            <!-- 5. Threshers -->
+            <a href="{{ url_for('machinery.catalogue', category='THRESHER') }}" class="category-card" id="catCardThresher">
+                <div class="category-icon-box">🌾</div>
+                <div class="category-name">{{ _t('cat.THRESHER') }}</div>
+                <span class="category-count">Grain Separation & Cleaning</span>
+            </a>
+
+            <!-- 6. Other Equipment -->
+            <a href="{{ url_for('machinery.catalogue', category='OTHER') }}" class="category-card" id="catCardOther">
+                <div class="category-icon-box">📦</div>
+                <div class="category-name">{{ _t('cat.OTHER') }}</div>
+                <span class="category-count">Balers, Sprayers & Tillers</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- C. Four-Step How It Works Section -->
 <section class="section section-subtle" id="how-it-works">
     <div class="container">
         <div class="section-header">
@@ -42,6 +97,7 @@
         </div>
 
         <div class="steps-grid">
+            <!-- Step 1: Search -->
             <div class="step-card">
                 <span class="step-number">01</span>
                 <div class="step-icon">📍</div>
@@ -49,6 +105,7 @@
                 <p class="step-desc">{{ _t('how_it_works.step1_desc') }}</p>
             </div>
 
+            <!-- Step 2: Compare -->
             <div class="step-card">
                 <span class="step-number">02</span>
                 <div class="step-icon">🚜</div>
@@ -56,6 +113,7 @@
                 <p class="step-desc">{{ _t('how_it_works.step2_desc') }}</p>
             </div>
 
+            <!-- Step 3: Request Booking -->
             <div class="step-card">
                 <span class="step-number">03</span>
                 <div class="step-icon">💰</div>
@@ -63,6 +121,7 @@
                 <p class="step-desc">{{ _t('how_it_works.step3_desc') }}</p>
             </div>
 
+            <!-- Step 4: Track Booking -->
             <div class="step-card">
                 <span class="step-number">04</span>
                 <div class="step-icon">🤝</div>
@@ -73,51 +132,8 @@
     </div>
 </section>
 
-<!-- 3. Popular Machinery Categories Section -->
+<!-- D. Why Choose FarmConnect Section -->
 <section class="section">
-    <div class="container">
-        <div class="section-header">
-            <span class="section-pill">{{ _t('categories.pill') }}</span>
-            <h2 class="section-title">{{ _t('categories.title') }}</h2>
-            <p class="section-desc">{{ _t('categories.subtitle') }}</p>
-        </div>
-
-        <div class="categories-grid">
-            <a href="{{ url_for('machinery.catalogue', category='TRACTOR') }}" class="category-card">
-                <div class="category-icon">🚜</div>
-                <div class="category-name">{{ _t('cat.TRACTOR') }}</div>
-                <span class="category-count">40–65 HP Plowing</span>
-            </a>
-
-            <a href="{{ url_for('machinery.catalogue', category='HARVESTER') }}" class="category-card">
-                <div class="category-icon">🌾</div>
-                <div class="category-name">{{ _t('cat.HARVESTER') }}</div>
-                <span class="category-count">Paddy & Multi-Crop</span>
-            </a>
-
-            <a href="{{ url_for('machinery.catalogue', category='TILLER') }}" class="category-card">
-                <div class="category-icon">⚙️</div>
-                <div class="category-name">{{ _t('cat.TILLER') }}</div>
-                <span class="category-count">Power Tillers</span>
-            </a>
-
-            <a href="{{ url_for('machinery.catalogue', category='SPRAYER') }}" class="category-card">
-                <div class="category-icon">💧</div>
-                <div class="category-name">{{ _t('cat.SPRAYER') }}</div>
-                <span class="category-count">Boom & Orchard</span>
-            </a>
-
-            <a href="{{ url_for('machinery.catalogue', category='BALER') }}" class="category-card">
-                <div class="category-icon">📦</div>
-                <div class="category-name">{{ _t('cat.BALER') }}</div>
-                <span class="category-count">Straw & Hay</span>
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- 4. Why Choose FarmConnect Section -->
-<section class="section section-subtle">
     <div class="container">
         <div class="section-header">
             <span class="section-pill">{{ _t('why_choose.pill') }}</span>
@@ -125,28 +141,40 @@
             <p class="section-desc">{{ _t('why_choose.subtitle') }}</p>
         </div>
 
-        <div class="benefits-grid">
+        <div class="benefits-grid benefits-grid-4">
+            <!-- Card 1: Wide Range of Machinery -->
             <div class="benefit-card">
-                <div class="benefit-icon">🛡️</div>
+                <div class="benefit-icon">🚜</div>
                 <div>
                     <h3 class="benefit-title">{{ _t('why_choose.b1_title') }}</h3>
                     <p class="benefit-desc">{{ _t('why_choose.b1_desc') }}</p>
                 </div>
             </div>
 
+            <!-- Card 2: Location-Based Search -->
             <div class="benefit-card">
-                <div class="benefit-icon">💵</div>
+                <div class="benefit-icon">📍</div>
                 <div>
                     <h3 class="benefit-title">{{ _t('why_choose.b2_title') }}</h3>
                     <p class="benefit-desc">{{ _t('why_choose.b2_desc') }}</p>
                 </div>
             </div>
 
+            <!-- Card 3: Direct Provider Contact -->
             <div class="benefit-card">
-                <div class="benefit-icon">⏱️</div>
+                <div class="benefit-icon">🤝</div>
                 <div>
                     <h3 class="benefit-title">{{ _t('why_choose.b3_title') }}</h3>
                     <p class="benefit-desc">{{ _t('why_choose.b3_desc') }}</p>
+                </div>
+            </div>
+
+            <!-- Card 4: Safe and Transparent Booking Workflow -->
+            <div class="benefit-card">
+                <div class="benefit-icon">🛡️</div>
+                <div>
+                    <h3 class="benefit-title">{{ _t('why_choose.b4_title') }}</h3>
+                    <p class="benefit-desc">{{ _t('why_choose.b4_desc') }}</p>
                 </div>
             </div>
         </div>

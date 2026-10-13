@@ -61,7 +61,48 @@ def register():
             flash("This mobile number is already registered. Please sign in.", "info")
             return redirect(url_for("auth.login"))
 
-        # Request OTP
+        action = request.form.get("action", "verify_otp")
+
+        if action == "save_signin":
+            if not password:
+                flash("Please provide a password to save and sign in directly.", "error")
+                return render_template("auth/register.html", form_data=request.form)
+
+            # Direct password creation: Account is created with is_phone_verified=False
+            if existing_user:
+                user = existing_user
+                user.full_name = full_name
+                user.role = role
+                user.preferred_language = preferred_language
+                user.password_hash = password_hash
+            else:
+                user = User(
+                    phone=phone,
+                    full_name=full_name,
+                    role=role,
+                    preferred_language=preferred_language,
+                    password_hash=password_hash,
+                    is_phone_verified=False,
+                )
+                db.session.add(user)
+                db.session.flush()
+
+                if role == "PROVIDER":
+                    profile = ProviderProfile(
+                        user_id=user.id,
+                        business_name=f"{full_name}'s Equipment Services",
+                        verification_status="PENDING",
+                    )
+                    db.session.add(profile)
+
+            db.session.commit()
+            login_user_session(user)
+            flash("Account registered successfully! Note: Mobile verification is required for rental bookings and machinery management.", "info")
+            if user.role == "PROVIDER":
+                return redirect(url_for("provider.dashboard"))
+            return redirect(url_for("auth.profile"))
+
+        # Default: Continue to Phone Verification (OTP)
         success, msg = otp_service.request_otp(phone, purpose="REGISTER")
         if not success:
             flash(msg, "warning")

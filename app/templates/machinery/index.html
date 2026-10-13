@@ -113,6 +113,50 @@
         </form>
     </div>
 
+    <!-- Category Shortcuts: Horizontally Scrollable Category Chips -->
+    <div class="category-chips-bar" role="navigation" aria-label="Category shortcuts">
+        <a href="{{ url_for('machinery.catalogue', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
+           class="category-chip {% if not category %}active{% endif %}">
+            🌟 {{ _t('cat.ALL') }}
+        </a>
+        <a href="{{ url_for('machinery.catalogue', category='TRACTOR', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
+           class="category-chip {% if category == 'TRACTOR' %}active{% endif %}">
+            🚜 {{ _t('cat.TRACTOR') }}
+        </a>
+        <a href="{{ url_for('machinery.catalogue', category='HARVESTER', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
+           class="category-chip {% if category == 'HARVESTER' %}active{% endif %}">
+            🌾 {{ _t('cat.HARVESTER') }}
+        </a>
+        <a href="{{ url_for('machinery.catalogue', category='ROTAVATOR', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
+           class="category-chip {% if category == 'ROTAVATOR' %}active{% endif %}">
+            ⚙️ {{ _t('cat.ROTAVATOR') }}
+        </a>
+        <a href="{{ url_for('machinery.catalogue', category='BACKHOE', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
+           class="category-chip {% if category == 'BACKHOE' %}active{% endif %}">
+            🏗️ {{ _t('cat.BACKHOE') }}
+        </a>
+        <a href="{{ url_for('machinery.catalogue', category='THRESHER', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
+           class="category-chip {% if category == 'THRESHER' %}active{% endif %}">
+            🌾 {{ _t('cat.THRESHER') }}
+        </a>
+        <a href="{{ url_for('machinery.catalogue', category='TILLER', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
+           class="category-chip {% if category == 'TILLER' %}active{% endif %}">
+            ⚙️ {{ _t('cat.TILLER') }}
+        </a>
+        <a href="{{ url_for('machinery.catalogue', category='SPRAYER', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
+           class="category-chip {% if category == 'SPRAYER' %}active{% endif %}">
+            💧 {{ _t('cat.SPRAYER') }}
+        </a>
+        <a href="{{ url_for('machinery.catalogue', category='BALER', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
+           class="category-chip {% if category == 'BALER' %}active{% endif %}">
+            📦 {{ _t('cat.BALER') }}
+        </a>
+        <a href="{{ url_for('machinery.catalogue', category='OTHER', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
+           class="category-chip {% if category == 'OTHER' %}active{% endif %}">
+            📦 {{ _t('cat.OTHER') }}
+        </a>
+    </div>
+
     <!-- Results Status Bar -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-base);">
         <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); font-weight: 600;">
@@ -172,12 +216,19 @@
                                     <span style="font-size: 11px; color: var(--color-text-muted); display: block;">
                                         {{ _t('catalogue.starts_from') }}
                                     </span>
-                                    <span class="machinery-rate-val">
-                                        ₹{{ "%.0f"|format(item.starting_rate) }}
-                                    </span>
-                                    <span class="machinery-rate-unit">
-                                        {% if item.starting_unit == 'hr' %}{{ _t('catalogue.per_hour') }}{% else %}{{ _t('catalogue.per_day') }}{% endif %}
-                                    </span>
+                                    <div style="display: flex; align-items: baseline; gap: 4px;">
+                                        <span class="machinery-rate-val">
+                                            ₹{{ "%.0f"|format(item.starting_rate) }}
+                                        </span>
+                                        <span class="machinery-rate-unit">
+                                            {% if item.starting_unit == 'hr' %}{{ _t('catalogue.per_hour') }}{% else %}{{ _t('catalogue.per_day') }}{% endif %}
+                                        </span>
+                                    </div>
+                                    {% if item.daily_rate and item.starting_unit == 'hr' %}
+                                        <span style="font-size: 11px; color: var(--color-primary-light); font-weight: 600; display: block; margin-top: 2px;">
+                                            ₹{{ "%.0f"|format(item.daily_rate) }} / day
+                                        </span>
+                                    {% endif %}
                                 {% else %}
                                     <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">
                                         Flexible Pricing

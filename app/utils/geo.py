@@ -46,7 +46,10 @@ TAMIL_NADU_DISTRICTS = [
 MACHINERY_CATEGORIES = [
     "TRACTOR",
     "HARVESTER",
+    "ROTAVATOR",
     "TILLER",
+    "BACKHOE",
+    "THRESHER",
     "SPRAYER",
     "BALER",
     "OTHER",

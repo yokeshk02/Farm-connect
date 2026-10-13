@@ -142,10 +142,21 @@
                                         {{ _t('status.' + b.status) }}
                                     </span>
                                 </td>
-                                <td style="text-align: right;">
-                                    <a href="{{ url_for('provider.booking_detail', booking_id=b.id) }}" class="btn btn-sm btn-outline">
-                                        {{ _t('booking.view_details') }}
-                                    </a>
+                                <td style="text-align: right; white-space: nowrap;">
+                                    <div style="display: inline-flex; gap: var(--spacing-xs); align-items: center; justify-content: flex-end;">
+                                        <a href="{{ url_for('provider.booking_detail', booking_id=b.id) }}" class="btn btn-sm btn-outline">
+                                            {{ _t('booking.view_details') }}
+                                        </a>
+                                        {% if b.status == 'PENDING' %}
+                                            <form action="{{ url_for('provider.booking_approve', booking_id=b.id) }}" method="POST" 
+                                                  onsubmit="return confirm('{{ _t('provider.approve_confirm') }}');" style="margin: 0; display: inline;">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="btn btn-sm btn-primary">
+                                                    ✓ {{ _t('provider.btn_approve') }}
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
                                 </td>
                             </tr>
                         {% endfor %}

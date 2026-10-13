@@ -66,20 +66,20 @@ TRANSLATIONS = {
         "ta": "நவீன விவசாய இயந்திர வாடகை தளம்",
     },
     "hero.title": {
-        "en": "Connecting Farmers with Modern Machinery",
-        "ta": "விவசாயிகளையும் நவீன இயந்திரங்களையும் இணைக்கும் தளம்",
+        "en": "Find the Right Machinery for Your Farm",
+        "ta": "உங்கள் பண்ணைக்கான சரியான விவசாய இயந்திரங்களை கண்டறியுங்கள்",
     },
     "hero.subtitle": {
-        "en": "Rent tractors, harvesters, tillers, and sprayers directly from verified equipment owners in your district.",
-        "ta": "உங்கள் மாவட்டத்தில் உள்ள சரிபார்க்கப்பட்ட உரிமையாளர்களிடம் இருந்து டிராக்டர், அறுவடை இயந்திரங்களை நேரடியாக வாடகைக்கு பெறுங்கள்.",
+        "en": "Rent agricultural machinery easily and affordably. Explore a wide range of equipment from providers near you.",
+        "ta": "விவசாய இயந்திரங்களை எளிதாகவும் மலிவாகவும் வாடகைக்கு பெறுங்கள். உங்கள் அருகில் உள்ள உரிமையாளர்களிடம் இருந்து இயந்திரங்களை ஆராயுங்கள்.",
     },
     "hero.cta_browse": {
         "en": "Explore Machinery",
-        "ta": "இயந்திரங்களை காண்க",
+        "ta": "இயந்திரங்களை ஆராய்க",
     },
     "hero.cta_list": {
         "en": "List Your Machinery",
-        "ta": "இயந்திரத்தைப் பட்டியலிடுங்கள்",
+        "ta": "உங்கள் இயந்திரத்தை பட்டியலிடுங்கள்",
     },
     "hero.cta_register": {
         "en": "Join as Farmer / Provider",
@@ -100,36 +100,36 @@ TRANSLATIONS = {
         "ta": "இயந்திரங்களை எளிதில் கண்டறிந்து வாடகைக்கு பெற நான்கு எளிய படிகள்.",
     },
     "how_it_works.step1_title": {
-        "en": "1. Discover Equipment",
-        "ta": "1. இயந்திரங்களைத் தேடுங்கள்",
+        "en": "1. Search",
+        "ta": "1. தேடுங்கள்",
     },
     "how_it_works.step1_desc": {
-        "en": "Search nearby equipment by district, village, PIN code, or optional browser GPS.",
-        "ta": "மாவட்டம், கிராமம் அல்லது GPS மூலம் அருகில் உள்ள இயந்திரங்களை கண்டறியவும்.",
+        "en": "Find machinery by location and category near your village or district.",
+        "ta": "இருப்பிடம் மற்றும் வகை மூலம் அருகில் உள்ள இயந்திரங்களைக் கண்டறியவும்.",
     },
     "how_it_works.step2_title": {
-        "en": "2. Choose Rental Tier",
-        "ta": "2. வாடகைத் தொகுப்பைத் தேர்ந்தெடுக்கவும்",
+        "en": "2. Compare",
+        "ta": "2. ஒப்பிடுங்கள்",
     },
     "how_it_works.step2_desc": {
-        "en": "Pick Machine Only, Machine + Operator, or Machine + Operator + Field Labour.",
-        "ta": "இயந்திரம் மட்டும், ஓட்டுநருடன், அல்லது கூடுதல் களப்பணியாளருடன் தேர்வு செய்யவும்.",
+        "en": "Review photos, specifications, rental tiers, and verified owner rates.",
+        "ta": "புகைப்படங்கள், விவரங்கள் மற்றும் வாடகை கட்டணங்களை சரிபார்க்கவும்.",
     },
     "how_it_works.step3_title": {
-        "en": "3. Transparent Estimate",
-        "ta": "3. வெளிப்படையான கட்டணம்",
+        "en": "3. Request Booking",
+        "ta": "3. முன்பதிவு செய்க",
     },
     "how_it_works.step3_desc": {
-        "en": "Review upfront hourly and daily rate estimates without hidden fees or middleman markups.",
-        "ta": "மறைமுகக் கட்டணங்கள் இன்றி கணக்கிடப்பட்ட கட்டண மதிப்பீட்டை சரிபார்க்கவும்.",
+        "en": "Submit a rental request with transparent upfront price estimates.",
+        "ta": "வெளிப்படையான வாடகை மதிப்பீட்டுடன் முன்பதிவு கோரிக்கையை சமர்ப்பிக்கவும்.",
     },
     "how_it_works.step4_title": {
-        "en": "4. Confirm & Settle",
-        "ta": "4. முன்பதிவு & நேரடி தீர்வு",
+        "en": "4. Track Booking",
+        "ta": "4. கண்காணிக்கவும்",
     },
     "how_it_works.step4_desc": {
-        "en": "Owner confirms booking to lock the slot; settle payment directly upon job fulfillment.",
-        "ta": "உரிமையாளர் ஏற்றுக்கொண்டு உறுதிசெய்ததும், பணி முடிந்ததும் நேரடியாக பணம் செலுத்தலாம்.",
+        "en": "Review status, lock in dates, and view updates in My Bookings.",
+        "ta": "என் முன்பதிவுகள் பக்கத்தில் நிலை மற்றும் வரலாற்றை சரிபார்க்கவும்.",
     },
 
     # Popular Machinery Categories
@@ -152,36 +152,44 @@ TRANSLATIONS = {
         "ta": "நம்பகத்தன்மை & வெளிப்படைத்தன்மை",
     },
     "why_choose.title": {
-        "en": "Why Farmers & Owners Choose FarmConnect",
-        "ta": "விவசாயிகளும் உரிமையாளர்களும் ஏன் எங்களை தேர்வு செய்கிறார்கள்",
+        "en": "Why Choose FarmConnect?",
+        "ta": "ஏன் ஃபார்ம்கனெக்ட்டை தேர்வு செய்ய வேண்டும்?",
     },
     "why_choose.subtitle": {
         "en": "Empowering rural communities with transparent equipment sharing.",
         "ta": "வெளிப்படையான இயந்திர பகிர்வு மூலம் கிராமப்புற விவசாயத்தை மேம்படுத்துகிறோம்.",
     },
     "why_choose.b1_title": {
-        "en": "Verified Local Providers",
-        "ta": "சரிபார்க்கப்பட்ட உள்ளூர் உரிமையாளர்கள்",
+        "en": "Wide Range of Machinery",
+        "ta": "பல்வேறு வகையான இயந்திரங்கள்",
     },
     "why_choose.b1_desc": {
-        "en": "All machinery listings belong to verified equipment owners across Tamil Nadu.",
-        "ta": "அனைத்து இயந்திரங்களும் தமிழ்நாடு முழுவதும் உள்ள சரிபார்க்கப்பட்ட உரிமையாளர்களுக்கு சொந்தமானவை.",
+        "en": "Access tractors, harvesters, rotavators, tillers, and specialized farm equipment across Tamil Nadu.",
+        "ta": "டிராக்டர்கள், அறுவடை இயந்திரங்கள், உழவு இயந்திரங்கள் மற்றும் பிற விவசாய உபகரணங்களை எளிதில் வாடகைக்கு பெறுங்கள்.",
     },
     "why_choose.b2_title": {
-        "en": "Zero Middlemen Markups",
-        "ta": "இடைத்தரகர் இல்லாத நேரடி சேவை",
+        "en": "Location-Based Search",
+        "ta": "இருப்பிடம் சார்ந்த எளிதான தேடல்",
     },
     "why_choose.b2_desc": {
-        "en": "Direct coordination between farmers and equipment providers with offline payment settlement.",
-        "ta": "விவசாயிகளுக்கும் உரிமையாளர்களுக்கும் இடையேயான நேரடி தொடர்பு மற்றும் கட்டணம்.",
+        "en": "Locate available machinery closest to your farmland by district, village, PIN code or GPS.",
+        "ta": "உங்கள் நிலத்திற்கு மிக அருகில் உள்ள இயந்திரங்களை மாவட்டம், கிராமம் அல்லது ஜிபிஎஸ் மூலம் கண்டறியவும்.",
     },
     "why_choose.b3_title": {
-        "en": "Double-Booking Prevention",
-        "ta": "இரட்டை முன்பதிவு தடுப்பு",
+        "en": "Direct Provider Contact",
+        "ta": "உரிமையாளருடன் நேரடி தொடர்பு",
     },
     "why_choose.b3_desc": {
-        "en": "Database exclusion constraints prevent conflicting overlapping bookings on any machine.",
-        "ta": "கால அட்டவணை முரண்பாடுகளை தடுக்கும் பாதுகாப்பான தொழில்நுட்ப அமைப்பு.",
+        "en": "Direct coordination with verified local equipment providers via phone and WhatsApp with zero middleman fee.",
+        "ta": "இடைத்தரகர் கட்டணங்கள் இன்றி உள்ளூர் இயந்திர உரிமையாளர்களுடன் தொலைபேசி மற்றும் வாட்ஸ்அப் மூலம் தொடர்பு கொள்ளுங்கள்.",
+    },
+    "why_choose.b4_title": {
+        "en": "Safe & Transparent Booking",
+        "ta": "பாதுகாப்பான & வெளிப்படையான முன்பதிவு",
+    },
+    "why_choose.b4_desc": {
+        "en": "Transparent hourly and daily estimates with automated scheduling conflict protection.",
+        "ta": "வெளிப்படையான வாடகை மதிப்பீடு மற்றும் கால அட்டவணை முரண்பாடுகளை தடுக்கும் பாதுகாப்பான தொழில்நுட்ப அமைப்பு.",
     },
 
     # Stepper
@@ -579,25 +587,41 @@ TRANSLATIONS = {
     },
 
     # Categories
+    "cat.ALL": {
+        "en": "All Categories",
+        "ta": "அனைத்தும்",
+    },
     "cat.TRACTOR": {
-        "en": "Tractor",
-        "ta": "டிராக்டர்",
+        "en": "Tractors",
+        "ta": "டிராக்டர்கள்",
     },
     "cat.HARVESTER": {
-        "en": "Harvester",
-        "ta": "அறுவடை இயந்திரம்",
+        "en": "Harvesters",
+        "ta": "அறுவடை இயந்திரங்கள்",
     },
     "cat.TILLER": {
-        "en": "Power Tiller",
-        "ta": "உழவு இயந்திரம்",
+        "en": "Power Tillers",
+        "ta": "உழவு இயந்திரங்கள்",
+    },
+    "cat.ROTAVATOR": {
+        "en": "Rotavators",
+        "ta": "ரோட்டாவேட்டர்கள்",
+    },
+    "cat.BACKHOE": {
+        "en": "Backhoes",
+        "ta": "பேக்ஹோ / ஜேசிபி",
+    },
+    "cat.THRESHER": {
+        "en": "Threshers",
+        "ta": "கதிர் அடிக்கும் இயந்திரங்கள்",
     },
     "cat.SPRAYER": {
-        "en": "Sprayer",
-        "ta": "தெளிப்பான்",
+        "en": "Sprayers",
+        "ta": "தெளிப்பான்கள்",
     },
     "cat.BALER": {
-        "en": "Baler",
-        "ta": "வைக்கோல் கட்டும் இயந்திரம்",
+        "en": "Balers",
+        "ta": "வைக்கோல் கட்டும் இயந்திரங்கள்",
     },
     "cat.OTHER": {
         "en": "Other Equipment",

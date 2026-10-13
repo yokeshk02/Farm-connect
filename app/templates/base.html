@@ -8,60 +8,161 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Main Header & Role-Based Navigation -->
-    <header class="navbar">
-        <div class="container nav-container">
-            <a href="{{ url_for('main.index') }}" class="brand" title="{{ _t('app.name') }}">
-                <span class="brand-icon">🌾</span>
-                <span class="brand-text">Farm<span>Connect</span></span>
-            </a>
+    <!-- Consistent Two-Level Header (Desktop & Mobile) -->
+    <header class="site-header">
+        <!-- Top Header: Brand, Wide Search Bar, Language Selector, User Controls -->
+        <div class="top-header">
+            <div class="container top-header-container">
+                <a href="{{ url_for('main.index') }}" class="brand" title="{{ _t('app.name') }}">
+                    <span class="brand-icon">🌾</span>
+                    <span class="brand-text">Farm<span>Connect</span></span>
+                </a>
 
-            <nav>
-                <ul class="nav-menu">
-                    <li><a href="{{ url_for('main.index') }}" class="nav-link">{{ _t('nav.home') }}</a></li>
-                    <li><a href="{{ url_for('machinery.catalogue') }}" class="nav-link">{{ _t('nav.machinery') }}</a></li>
-                    
+                <!-- Wide Machinery Search Bar -->
+                <div class="top-search-wrap">
+                    <form action="{{ url_for('machinery.catalogue') }}" method="GET" class="header-search-form" role="search">
+                        <input type="search" name="q" class="header-search-input" 
+                               placeholder="{{ _t('catalogue.search_placeholder') }}" 
+                               value="{{ request.args.get('q', '') }}" 
+                               aria-label="Search agricultural machinery">
+                        <button type="submit" class="header-search-btn" aria-label="Search">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Account Controls & Language Switcher -->
+                <div class="top-controls">
+                    <!-- Bilingual Language Selector -->
+                    <div class="lang-switcher" aria-label="{{ _t('nav.language') }}">
+                        <a href="{{ url_for('main.set_language', lang='en', next=request.path) }}" 
+                           class="lang-btn {% if current_lang == 'en' %}active{% endif %}"
+                           id="langBtnEn">EN</a>
+                        <a href="{{ url_for('main.set_language', lang='ta', next=request.path) }}" 
+                           class="lang-btn {% if current_lang == 'ta' %}active{% endif %}"
+                           id="langBtnTa">தமிழ்</a>
+                    </div>
+
                     {% if session.get('user_id') %}
-                        {% if session.get('user_role') == 'PROVIDER' %}
-                            <li><a href="{{ url_for('provider.dashboard') }}" class="nav-link">{{ _t('nav.provider_dashboard') }}</a></li>
-                            <li><a href="{{ url_for('provider.machinery_list') }}" class="nav-link">{{ _t('nav.my_machinery') }}</a></li>
-                            <li><a href="{{ url_for('provider.bookings_list') }}" class="nav-link">{{ _t('provider.nav_bookings') }}</a></li>
-                        {% elif session.get('user_role') == 'ADMIN' %}
-                            <li><a href="{{ url_for('provider.dashboard') }}" class="nav-link">{{ _t('nav.admin_dashboard') }}</a></li>
-                        {% else %}
-                            <li><a href="{{ url_for('bookings.my_bookings') }}" class="nav-link">{{ _t('nav.my_bookings') }}</a></li>
-                        {% endif %}
-                        <li><a href="{{ url_for('auth.profile') }}" class="nav-link">{{ _t('nav.profile') }}</a></li>
-                        <li>
-                            <form action="{{ url_for('auth.logout') }}" method="POST" class="logout-form" style="display: inline; margin: 0;">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <button type="submit" class="nav-link btn-logout" id="logoutBtn">
-                                    {{ _t('nav.logout') }}
-                                </button>
-                            </form>
-                        </li>
+                        <!-- Authenticated User Controls -->
+                        <a href="{{ url_for('auth.profile') }}" class="nav-account-btn" title="{{ _t('nav.profile') }}">
+                            <span class="account-icon">👤</span>
+                            <span class="account-name">{{ session.get('user_name') or _t('nav.profile') }}</span>
+                        </a>
+                        <form action="{{ url_for('auth.logout') }}" method="POST" class="logout-form" style="display: inline; margin: 0;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-outline-light btn-sm btn-logout" id="logoutBtn">
+                                {{ _t('nav.logout') }}
+                            </button>
+                        </form>
                     {% else %}
-                        <li><a href="{{ url_for('main.index') }}#how-it-works" class="nav-link">{{ _t('nav.how_it_works') }}</a></li>
-                        <li><a href="{{ url_for('main.contact') }}" class="nav-link">{{ _t('nav.contact') }}</a></li>
-                        <li><a href="{{ url_for('auth.login') }}" class="nav-link">{{ _t('nav.login') }}</a></li>
-                        <li><a href="{{ url_for('auth.register') }}" class="btn btn-accent btn-sm">{{ _t('nav.register') }}</a></li>
+                        <!-- Public Visitor Controls -->
+                        <a href="{{ url_for('auth.login') }}" class="nav-link signin-link">{{ _t('nav.login') }}</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-accent btn-sm register-btn">{{ _t('nav.register') }}</a>
                     {% endif %}
 
-                    <!-- Bilingual Language Switcher -->
-                    <li>
-                        <div class="lang-switcher" aria-label="{{ _t('nav.language') }}">
-                            <a href="{{ url_for('main.set_language', lang='en', next=request.path) }}" 
-                               class="lang-btn {% if current_lang == 'en' %}active{% endif %}"
-                               id="langBtnEn">EN</a>
-                            <a href="{{ url_for('main.set_language', lang='ta', next=request.path) }}" 
-                               class="lang-btn {% if current_lang == 'ta' %}active{% endif %}"
-                               id="langBtnTa">தமிழ்</a>
-                        </div>
-                    </li>
+                    <!-- Mobile Menu Hamburger Button -->
+                    <button type="button" class="mobile-toggle-btn" id="mobileMenuBtn" aria-label="Toggle navigation menu" onclick="toggleMobileNav()">
+                        <span class="hamburger-bar"></span>
+                        <span class="hamburger-bar"></span>
+                        <span class="hamburger-bar"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secondary Navigation: Role-Specific & Common Navigation Shortcuts -->
+        <nav class="secondary-nav" aria-label="Secondary Navigation">
+            <div class="container secondary-nav-container">
+                <ul class="secondary-nav-menu">
+                    <li><a href="{{ url_for('main.index') }}" class="sec-link">{{ _t('nav.home') }}</a></li>
+                    <li><a href="{{ url_for('machinery.catalogue') }}" class="sec-link">{{ _t('nav.machinery') }}</a></li>
+
+                    {% if session.get('user_id') %}
+                        {% if session.get('user_role') == 'PROVIDER' %}
+                            <li><a href="{{ url_for('provider.dashboard') }}" class="sec-link">{{ _t('nav.provider_dashboard') }}</a></li>
+                            <li><a href="{{ url_for('provider.machinery_list') }}" class="sec-link">{{ _t('nav.my_machinery') }}</a></li>
+                            <li><a href="{{ url_for('provider.bookings_list') }}" class="sec-link">{{ _t('provider.nav_bookings') }}</a></li>
+                        {% elif session.get('user_role') == 'ADMIN' %}
+                            <li><a href="{{ url_for('provider.dashboard') }}" class="sec-link">{{ _t('nav.admin_dashboard') }}</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('bookings.my_bookings') }}" class="sec-link">{{ _t('nav.my_bookings') }}</a></li>
+                        {% endif %}
+                        <li><a href="{{ url_for('main.contact') }}" class="sec-link">{{ _t('nav.contact') }}</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('main.index') }}#how-it-works" class="sec-link">{{ _t('nav.how_it_works') }}</a></li>
+                        <li><a href="{{ url_for('main.contact') }}" class="sec-link">{{ _t('nav.contact') }}</a></li>
+                    {% endif %}
                 </ul>
-            </nav>
+            </div>
+        </nav>
+
+        <!-- Mobile Navigation Drawer -->
+        <div class="mobile-drawer-overlay" id="mobileDrawerOverlay" onclick="toggleMobileNav(false)"></div>
+        <div class="mobile-drawer" id="mobileDrawer">
+            <div class="mobile-drawer-header">
+                <a href="{{ url_for('main.index') }}" class="brand">
+                    <span class="brand-icon">🌾</span>
+                    <span class="brand-text">Farm<span>Connect</span></span>
+                </a>
+                <button type="button" class="mobile-drawer-close" aria-label="Close menu" onclick="toggleMobileNav(false)">✕</button>
+            </div>
+
+            <!-- Mobile Search Bar -->
+            <form action="{{ url_for('machinery.catalogue') }}" method="GET" class="mobile-search-form">
+                <input type="search" name="q" class="header-search-input" placeholder="{{ _t('catalogue.search_placeholder') }}" value="{{ request.args.get('q', '') }}">
+                <button type="submit" class="header-search-btn" aria-label="Search">🔍</button>
+            </form>
+
+            <ul class="mobile-nav-list">
+                <li><a href="{{ url_for('main.index') }}" class="mobile-nav-link">🏠 {{ _t('nav.home') }}</a></li>
+                <li><a href="{{ url_for('machinery.catalogue') }}" class="mobile-nav-link">🚜 {{ _t('nav.machinery') }}</a></li>
+
+                {% if session.get('user_id') %}
+                    {% if session.get('user_role') == 'PROVIDER' %}
+                        <li><a href="{{ url_for('provider.dashboard') }}" class="mobile-nav-link">📊 {{ _t('nav.provider_dashboard') }}</a></li>
+                        <li><a href="{{ url_for('provider.machinery_list') }}" class="mobile-nav-link">🚜 {{ _t('nav.my_machinery') }}</a></li>
+                        <li><a href="{{ url_for('provider.bookings_list') }}" class="mobile-nav-link">📋 {{ _t('provider.nav_bookings') }}</a></li>
+                    {% elif session.get('user_role') == 'ADMIN' %}
+                        <li><a href="{{ url_for('provider.dashboard') }}" class="mobile-nav-link">⚙️ {{ _t('nav.admin_dashboard') }}</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('bookings.my_bookings') }}" class="mobile-nav-link">📋 {{ _t('nav.my_bookings') }}</a></li>
+                    {% endif %}
+                    <li><a href="{{ url_for('auth.profile') }}" class="mobile-nav-link">👤 {{ _t('nav.profile') }}</a></li>
+                    <li><a href="{{ url_for('main.contact') }}" class="mobile-nav-link">📞 {{ _t('nav.contact') }}</a></li>
+                    <li style="margin-top: var(--spacing-sm); padding-top: var(--spacing-sm); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                        <form action="{{ url_for('auth.logout') }}" method="POST" style="margin: 0;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-outline-light btn-block" style="width: 100%; text-align: center;">
+                                🚪 {{ _t('nav.logout') }}
+                            </button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="{{ url_for('main.index') }}#how-it-works" class="mobile-nav-link">💡 {{ _t('nav.how_it_works') }}</a></li>
+                    <li><a href="{{ url_for('main.contact') }}" class="mobile-nav-link">📞 {{ _t('nav.contact') }}</a></li>
+                    <li style="margin-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-xs);">
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-block">{{ _t('nav.login') }}</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-accent btn-block">{{ _t('nav.register') }}</a>
+                    </li>
+                {% endif %}
+            </ul>
+
+            <div class="mobile-lang-wrap">
+                <span style="font-size: var(--font-size-xs); color: rgba(255, 255, 255, 0.7);">{{ _t('nav.language') }}:</span>
+                <div class="lang-switcher">
+                    <a href="{{ url_for('main.set_language', lang='en', next=request.path) }}" 
+                       class="lang-btn {% if current_lang == 'en' %}active{% endif %}">EN</a>
+                    <a href="{{ url_for('main.set_language', lang='ta', next=request.path) }}" 
+                       class="lang-btn {% if current_lang == 'ta' %}active{% endif %}">தமிழ்</a>
+                </div>
+            </div>
         </div>
     </header>
+
 
     <!-- Main Page Content -->
     <main class="main-content">
@@ -148,6 +249,24 @@
     </footer>
 
     <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    <script>
+        function toggleMobileNav(forceState) {
+            const drawer = document.getElementById('mobileDrawer');
+            const overlay = document.getElementById('mobileDrawerOverlay');
+            if (!drawer || !overlay) return;
+            const isOpen = drawer.classList.contains('active');
+            const shouldOpen = forceState !== undefined ? forceState : !isOpen;
+            if (shouldOpen) {
+                drawer.classList.add('active');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                drawer.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
