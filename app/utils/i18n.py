@@ -356,12 +356,16 @@ TRANSLATIONS = {
         "ta": "இப்போதே பதிவு செய்க",
     },
     "auth.admin_login_tab": {
-        "en": "Password Sign In (Admin / Staff)",
-        "ta": "கடவுச்சொல் உள்நுழைவு (நிர்வாகம்)",
+        "en": "Login with Password",
+        "ta": "கடவுச்சொல் மூலம் உள்நுழைக",
+    },
+    "auth.password_login_tab": {
+        "en": "Login with Password",
+        "ta": "கடவுச்சொல் மூலம் உள்நுழைக",
     },
     "auth.otp_login_tab": {
-        "en": "Phone OTP Sign In (Farmer / Provider)",
-        "ta": "மொபைல் OTP உள்நுழைவு (விவசாயி / உரிமையாளர்)",
+        "en": "Login with OTP",
+        "ta": "OTP மூலம் உள்நுழைக",
     },
     "auth.password_label": {
         "en": "Password",
@@ -370,6 +374,18 @@ TRANSLATIONS = {
     "auth.btn_login_password": {
         "en": "Sign In with Password",
         "ta": "கடவுச்சொல் மூலம் உள்நுழைக",
+    },
+    "auth.show_password": {
+        "en": "Show",
+        "ta": "காட்டு",
+    },
+    "auth.hide_password": {
+        "en": "Hide",
+        "ta": "மறை",
+    },
+    "auth.password_help_message": {
+        "en": "Haven't set a password yet or forgot it? Switch to the Login with OTP tab to sign in with your phone number, then set your password anytime in your profile settings.",
+        "ta": "கடவுச்சொல் அமைக்கவில்லையா அல்லது மறந்துவிட்டதா? உங்கள் மொபைல் எண்ணைக் கொண்டு உள்நுழைய OTP மூலம் உள்நுழைக தாவலுக்கு மாறவும், பின்னர் உங்கள் சுயவிவர அமைப்புகளில் கடவுச்சொல்லை அமைக்கலாம்.",
     },
 
     # Authentication - Register
@@ -404,6 +420,18 @@ TRANSLATIONS = {
     "auth.preferred_lang_label": {
         "en": "Preferred Language",
         "ta": "விருப்பமான மொழி",
+    },
+    "auth.password_optional": {
+        "en": "Create Password (Optional - for Password Login)",
+        "ta": "கடவுச்சொல் அமைத்தல் (விருப்பத்தேர்வு)",
+    },
+    "auth.confirm_password_label": {
+        "en": "Confirm Password",
+        "ta": "கடவுச்சொல்லை உறுதிசெய்க",
+    },
+    "auth.password_rules_tip": {
+        "en": "Password must be at least 6 characters long.",
+        "ta": "குறைந்தது 6 எழுத்துக்கள் இருக்க வேண்டும்.",
     },
     "auth.btn_register": {
         "en": "Continue to Phone Verification",
@@ -476,6 +504,54 @@ TRANSLATIONS = {
     "profile.save": {
         "en": "Save Changes",
         "ta": "மாற்றங்களைச் சேமிக்கவும்",
+    },
+    "profile.password_section_title": {
+        "en": "Security & Password Management",
+        "ta": "பாதுகாப்பு & கடவுச்சொல் மேலாண்மை",
+    },
+    "profile.set_password_title": {
+        "en": "Set Account Password",
+        "ta": "கணக்கு கடவுச்சொல் அமைத்தல்",
+    },
+    "profile.set_password_desc": {
+        "en": "Create a password to sign in directly with your phone number and password without waiting for OTP SMS.",
+        "ta": "OTP குறுஞ்செய்திக்காக காத்திருக்காமல் உங்கள் மொபைல் எண் மற்றும் கடவுச்சொல் மூலம் நேரடியாக உள்நுழைய கடவுச்சொல்லை அமைக்கவும்.",
+    },
+    "profile.change_password_title": {
+        "en": "Change Account Password",
+        "ta": "கடவுச்சொல்லை மாற்றுதல்",
+    },
+    "profile.change_password_desc": {
+        "en": "Update your current account password to keep your account secure.",
+        "ta": "உங்கள் கணக்கைப் பாதுகாக்க தற்போதைய கடவுச்சொல்லை மாற்றவும்.",
+    },
+    "profile.current_password": {
+        "en": "Current Password",
+        "ta": "தற்போதைய கடவுச்சொல்",
+    },
+    "profile.new_password": {
+        "en": "New Password",
+        "ta": "புதிய கடவுச்சொல்",
+    },
+    "profile.confirm_new_password": {
+        "en": "Confirm New Password",
+        "ta": "புதிய கடவுச்சொல்லை உறுதிசெய்க",
+    },
+    "profile.btn_set_password": {
+        "en": "Set Password",
+        "ta": "கடவுச்சொல்லை சேமி",
+    },
+    "profile.btn_change_password": {
+        "en": "Update Password",
+        "ta": "கடவுச்சொல்லை புதுப்பி",
+    },
+    "profile.password_status_active": {
+        "en": "Password is active. You can log in using either OTP or your Password.",
+        "ta": "கடவுச்சொல் அமைக்கப்பட்டுள்ளது. நீங்கள் OTP அல்லது கடவுச்சொல் மூலம் உள்நுழையலாம்.",
+    },
+    "profile.password_status_none": {
+        "en": "No password set yet. You currently sign in using phone OTP.",
+        "ta": "இன்னும் கடவுச்சொல் அமைக்கப்படவில்லை. தற்போது நீங்கள் மொபைல் OTP மூலம் உள்நுழைகிறீர்கள்.",
     },
 
     # Footer

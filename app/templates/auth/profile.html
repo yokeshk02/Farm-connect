@@ -3,10 +3,12 @@
 {% block title %}{{ _t('profile.title') }} - {{ _t('app.name') }}{% endblock %}
 
 {% block content %}
-<div class="container" style="max-width: 600px; margin: var(--spacing-2xl) auto;">
-    <div class="card">
-        <div class="card-header">
-            <h1 class="card-title">{{ _t('profile.title') }}</h1>
+<div class="container" style="max-width: 650px; margin: var(--spacing-2xl) auto; display: flex; flex-direction: column; gap: var(--spacing-xl);">
+    
+    <!-- Profile Details Card -->
+    <div class="card" style="padding: var(--spacing-xl);">
+        <div class="card-header" style="margin-bottom: var(--spacing-lg);">
+            <h1 class="card-title">🧑‍🌾 {{ _t('profile.title') }}</h1>
             <p class="card-subtitle">{{ user.full_name or 'Farmer' }}</p>
         </div>
 
@@ -20,11 +22,18 @@
 
             <div class="form-group">
                 <label class="form-label">{{ _t('profile.role') }}</label>
-                <input type="text" class="form-control" value="{{ user.role }}" readonly style="background-color: var(--color-bg-subtle); font-weight: 600;">
+                <div style="display: flex; align-items: center; gap: var(--spacing-xs);">
+                    <span class="badge" style="background-color: rgba(19, 56, 38, 0.1); color: var(--color-primary-dark); font-weight: 700;">
+                        {{ user.role }}
+                    </span>
+                    <span class="badge badge-success">
+                        ✓ {{ _t('profile.verified') }}
+                    </span>
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="full_name" class="form-label">{{ _t('auth.name_label') }}</label>
+                <label for="full_name" class="form-label">{{ _t('auth.name_label') }} *</label>
                 <input type="text" id="full_name" name="full_name" class="form-control" value="{{ user.full_name or '' }}" required>
             </div>
 
@@ -36,10 +45,127 @@
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-block">
-                {{ _t('profile.save') }}
+            <button type="submit" class="btn btn-primary btn-block" id="btnSaveProfile">
+                💾 {{ _t('profile.save') }}
             </button>
         </form>
     </div>
+
+    <!-- Password Management Card -->
+    <div class="card" style="padding: var(--spacing-xl);">
+        <div class="card-header" style="margin-bottom: var(--spacing-lg);">
+            <h2 class="card-title" style="font-size: var(--font-size-xl);">🔒 {{ _t('profile.password_section_title') }}</h2>
+            <p class="card-subtitle">
+                {% if user.password_hash %}
+                    <span style="color: var(--color-success); font-weight: 600;">✓ {{ _t('profile.password_status_active') }}</span>
+                {% else %}
+                    <span style="color: var(--color-accent); font-weight: 600;">⚠️ {{ _t('profile.password_status_none') }}</span>
+                {% endif %}
+            </p>
+        </div>
+
+        <form action="{{ url_for('auth.set_password') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            {% if user.password_hash %}
+                <!-- Change Existing Password -->
+                <div class="form-group">
+                    <label for="currentPassword" class="form-label">{{ _t('profile.current_password') }} *</label>
+                    <div class="password-input-group">
+                        <input type="password" id="currentPassword" name="current_password" class="form-control" 
+                               placeholder="••••••••" required autocomplete="current-password">
+                        <button type="button" class="password-toggle-btn" id="toggleCurrentPassBtn" 
+                                onclick="togglePasswordVisibility('currentPassword', 'toggleCurrentPassBtn')"
+                                data-show-text="{{ _t('auth.show_password') }}" 
+                                data-hide-text="{{ _t('auth.hide_password') }}"
+                                aria-label="Toggle password visibility">
+                            👁️ {{ _t('auth.show_password') }}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword" class="form-label">{{ _t('profile.new_password') }} *</label>
+                    <div class="password-input-group">
+                        <input type="password" id="newPassword" name="new_password" class="form-control" 
+                               placeholder="••••••••" required minlength="6" autocomplete="new-password">
+                        <button type="button" class="password-toggle-btn" id="toggleNewPassBtn" 
+                                onclick="togglePasswordVisibility('newPassword', 'toggleNewPassBtn')"
+                                data-show-text="{{ _t('auth.show_password') }}" 
+                                data-hide-text="{{ _t('auth.hide_password') }}"
+                                aria-label="Toggle password visibility">
+                            👁️ {{ _t('auth.show_password') }}
+                        </button>
+                    </div>
+                    <p class="form-tip">{{ _t('auth.password_rules_tip') }}</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmNewPassword" class="form-label">{{ _t('profile.confirm_new_password') }} *</label>
+                    <input type="password" id="confirmNewPassword" name="confirm_password" class="form-control" 
+                           placeholder="••••••••" required minlength="6" autocomplete="new-password">
+                </div>
+
+                <button type="submit" class="btn btn-accent btn-block" id="btnUpdatePassword">
+                    🔑 {{ _t('profile.btn_change_password') }}
+                </button>
+            {% else %}
+                <!-- Set Password For The First Time -->
+                <div class="alert alert-info" style="margin-bottom: var(--spacing-base); font-size: var(--font-size-sm);">
+                    💡 {{ _t('profile.set_password_desc') }}
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword" class="form-label">{{ _t('profile.new_password') }} *</label>
+                    <div class="password-input-group">
+                        <input type="password" id="newPassword" name="new_password" class="form-control" 
+                               placeholder="••••••••" required minlength="6" autocomplete="new-password">
+                        <button type="button" class="password-toggle-btn" id="toggleNewPassBtn" 
+                                onclick="togglePasswordVisibility('newPassword', 'toggleNewPassBtn')"
+                                data-show-text="{{ _t('auth.show_password') }}" 
+                                data-hide-text="{{ _t('auth.hide_password') }}"
+                                aria-label="Toggle password visibility">
+                            👁️ {{ _t('auth.show_password') }}
+                        </button>
+                    </div>
+                    <p class="form-tip">{{ _t('auth.password_rules_tip') }}</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmNewPassword" class="form-label">{{ _t('profile.confirm_new_password') }} *</label>
+                    <input type="password" id="confirmNewPassword" name="confirm_password" class="form-control" 
+                           placeholder="••••••••" required minlength="6" autocomplete="new-password">
+                </div>
+
+                <button type="submit" class="btn btn-accent btn-block" id="btnSetPassword">
+                    🔑 {{ _t('profile.btn_set_password') }}
+                </button>
+            {% endif %}
+        </form>
+    </div>
+
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePasswordVisibility(fieldId, btnId) {
+    const field = document.getElementById(fieldId);
+    const btn = document.getElementById(btnId);
+    if (!field || !btn) return;
+
+    const showText = btn.dataset.showText || 'Show';
+    const hideText = btn.dataset.hideText || 'Hide';
+
+    if (field.type === 'password') {
+        field.type = 'text';
+        btn.innerHTML = '🙈 ' + hideText;
+        btn.setAttribute('aria-label', hideText);
+    } else {
+        field.type = 'password';
+        btn.innerHTML = '👁️ ' + showText;
+        btn.setAttribute('aria-label', showText);
+    }
+}
+</script>
 {% endblock %}

@@ -41,6 +41,63 @@ def normalize_phone_number(raw_phone: str | None) -> str:
     return f"+91{cleaned}"
 
 
+from collections import defaultdict
+from datetime import datetime, timedelta
+from urllib.parse import urlparse
+
+# Failed password attempt tracking: phone -> list of failure datetimes
+_password_failures: dict[str, list[datetime]] = defaultdict(list)
+PASSWORD_MAX_ATTEMPTS = 5
+PASSWORD_LOCKOUT_MINUTES = 15
+
+
+def validate_password_strength(password: str | None) -> tuple[bool, str]:
+    """Validate that a password meets minimum security standards."""
+    if not password or len(password) < 6:
+        return False, "Password must be at least 6 characters long."
+    if len(password) > 128:
+        return False, "Password cannot exceed 128 characters."
+    return True, ""
+
+
+def record_password_failure(phone: str) -> None:
+    """Record a failed password login attempt for rate limiting."""
+    now = datetime.utcnow()
+    window_start = now - timedelta(minutes=PASSWORD_LOCKOUT_MINUTES)
+    attempts = [t for t in _password_failures[phone] if t > window_start]
+    attempts.append(now)
+    _password_failures[phone] = attempts
+
+
+def is_password_rate_limited(phone: str) -> bool:
+    """Check if a phone number is locked out due to excessive failed password attempts."""
+    now = datetime.utcnow()
+    window_start = now - timedelta(minutes=PASSWORD_LOCKOUT_MINUTES)
+    attempts = [t for t in _password_failures[phone] if t > window_start]
+    _password_failures[phone] = attempts
+    return len(attempts) >= PASSWORD_MAX_ATTEMPTS
+
+
+def clear_password_failures(phone: str) -> None:
+    """Reset failed password login attempts upon successful authentication."""
+    _password_failures.pop(phone, None)
+
+
+def is_safe_redirect_url(target: str | None) -> bool:
+    """Ensure redirect target is a safe relative URL within the application origin."""
+    if not target:
+        return False
+    if target.startswith("//") or "\\" in target:
+        return False
+    target_lower = target.lower()
+    if target_lower.startswith(("javascript:", "data:", "vbscript:")):
+        return False
+    if not target.startswith("/"):
+        return False
+    parsed = urlparse(target)
+    return parsed.netloc == "" and parsed.scheme == ""
+
+
 def login_user_session(user: User) -> None:
     """Establish a secure, authenticated Flask session for a verified user."""
     # Prevent session fixation by resetting and storing session identity

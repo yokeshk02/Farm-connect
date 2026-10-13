@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask import render_template, request, session, redirect, url_for, flash
+from werkzeug.security import generate_password_hash
 from app.blueprints.auth import auth_bp
 from app.extensions import db
 from app.models.user import User, ProviderProfile
@@ -10,6 +11,11 @@ from app.utils.security import (
     logout_user_session,
     get_current_user,
     login_required,
+    validate_password_strength,
+    record_password_failure,
+    is_password_rate_limited,
+    clear_password_failures,
+    is_safe_redirect_url,
 )
 
 
@@ -24,6 +30,8 @@ def register():
         raw_phone = request.form.get("phone")
         role = (request.form.get("role") or "FARMER").upper()
         preferred_language = request.form.get("preferred_language") or session.get("lang", "en")
+        password = request.form.get("password") or ""
+        confirm_password = request.form.get("confirm_password") or ""
 
         # Public registration cannot assign ADMIN role
         if role not in ("FARMER", "PROVIDER"):
@@ -33,7 +41,19 @@ def register():
             phone = normalize_phone_number(raw_phone)
         except ValueError as e:
             flash(str(e), "error")
-            return render_template("auth/register.html")
+            return render_template("auth/register.html", form_data=request.form)
+
+        # Password validation if provided
+        password_hash = None
+        if password or confirm_password:
+            valid, err = validate_password_strength(password)
+            if not valid:
+                flash(err, "error")
+                return render_template("auth/register.html", form_data=request.form)
+            if password != confirm_password:
+                flash("Passwords do not match.", "error")
+                return render_template("auth/register.html", form_data=request.form)
+            password_hash = generate_password_hash(password)
 
         # Check if phone is already registered and verified
         existing_user = User.query.filter_by(phone=phone).first()
@@ -45,7 +65,7 @@ def register():
         success, msg = otp_service.request_otp(phone, purpose="REGISTER")
         if not success:
             flash(msg, "warning")
-            return render_template("auth/register.html")
+            return render_template("auth/register.html", form_data=request.form)
 
         # Save pending registration details into session for post-verification creation
         session["pending_registration"] = {
@@ -53,62 +73,79 @@ def register():
             "phone": phone,
             "role": role,
             "preferred_language": preferred_language,
+            "password_hash": password_hash,
         }
         session.pop("pending_login_phone", None)
 
         flash(msg, "info")
         return redirect(url_for("auth.verify_otp"))
 
-    return render_template("auth/register.html")
+    return render_template("auth/register.html", form_data={})
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    """Sign-in route supporting OTP (Farmers & Providers) and password (Admin/Staff)."""
+    """Sign-in route supporting OTP and password authentication."""
     if session.get("user_id"):
         return redirect(url_for("auth.profile"))
 
+    active_tab = request.args.get("tab") or "otp"
+    phone_val = ""
+
     if request.method == "POST":
         login_type = request.form.get("login_type", "otp")
+        active_tab = login_type
         raw_phone = request.form.get("phone")
+        phone_val = raw_phone or ""
 
         try:
             phone = normalize_phone_number(raw_phone)
         except ValueError as e:
             flash(str(e), "error")
-            return render_template("auth/login.html")
+            return render_template("auth/login.html", active_tab=active_tab, phone=phone_val)
 
         if login_type == "password":
+            if is_password_rate_limited(phone):
+                flash("Too many failed login attempts. Please wait 15 minutes or sign in using OTP.", "error")
+                return render_template("auth/login.html", active_tab="password", phone=phone_val)
+
             password = request.form.get("password") or ""
             user = User.query.filter_by(phone=phone).first()
-            if user and user.check_password(password):
+
+            if user and user.password_hash and user.check_password(password):
                 if not user.is_active:
                     flash("This account is currently suspended. Please contact support.", "error")
-                    return render_template("auth/login.html")
+                    return render_template("auth/login.html", active_tab="password", phone=phone_val)
+
+                clear_password_failures(phone)
                 user.last_login_at = datetime.utcnow()
                 db.session.commit()
                 login_user_session(user)
                 flash(f"Welcome back, {user.full_name or 'Farmer'}!", "success")
-                next_url = request.args.get("next")
-                if next_url and next_url.startswith("/") and not next_url.startswith("//"):
+
+                next_url = request.args.get("next") or request.form.get("next")
+                if is_safe_redirect_url(next_url):
                     return redirect(next_url)
+                if user.role == "PROVIDER":
+                    return redirect(url_for("provider.dashboard"))
                 return redirect(url_for("auth.profile"))
             else:
+                record_password_failure(phone)
                 flash("Invalid mobile number or password.", "error")
-                return render_template("auth/login.html")
+                return render_template("auth/login.html", active_tab="password", phone=phone_val)
 
         # Default OTP login flow
         success, msg = otp_service.request_otp(phone, purpose="LOGIN")
         if not success:
             flash(msg, "warning")
-            return render_template("auth/login.html")
+            return render_template("auth/login.html", active_tab="otp", phone=phone_val)
 
         session["pending_login_phone"] = phone
         session.pop("pending_registration", None)
         flash(msg, "info")
         return redirect(url_for("auth.verify_otp"))
 
-    return render_template("auth/login.html")
+    return render_template("auth/login.html", active_tab=active_tab, phone=phone_val)
 
 
 @auth_bp.route("/verify-otp", methods=["GET", "POST"])
@@ -139,6 +176,7 @@ def verify_otp():
                     full_name=pending_reg.get("full_name"),
                     role=pending_reg.get("role", "FARMER"),
                     preferred_language=pending_reg.get("preferred_language", "en"),
+                    password_hash=pending_reg.get("password_hash"),
                     is_phone_verified=True,
                     is_active=True,
                     last_login_at=datetime.utcnow(),
@@ -157,6 +195,8 @@ def verify_otp():
             else:
                 user.full_name = pending_reg.get("full_name") or user.full_name
                 user.role = pending_reg.get("role") or user.role
+                if pending_reg.get("password_hash"):
+                    user.password_hash = pending_reg.get("password_hash")
                 user.is_phone_verified = True
                 user.last_login_at = datetime.utcnow()
 
@@ -244,3 +284,38 @@ def profile():
         return redirect(url_for("auth.profile"))
 
     return render_template("auth/profile.html", user=user)
+
+
+@auth_bp.route("/set-password", methods=["POST"])
+@login_required
+def set_password():
+    """Allow authenticated users to establish or update their account password."""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for("auth.login"))
+
+    current_password = request.form.get("current_password") or ""
+    new_password = request.form.get("new_password") or ""
+    confirm_password = request.form.get("confirm_password") or ""
+
+    # If user already has a password, current password must match
+    if user.password_hash:
+        if not current_password or not user.check_password(current_password):
+            flash("Current password is incorrect.", "error")
+            return redirect(url_for("auth.profile"))
+
+    # Validate new password
+    valid, err = validate_password_strength(new_password)
+    if not valid:
+        flash(err, "error")
+        return redirect(url_for("auth.profile"))
+
+    if new_password != confirm_password:
+        flash("New passwords do not match.", "error")
+        return redirect(url_for("auth.profile"))
+
+    user.set_password(new_password)
+    db.session.commit()
+    flash("Password updated successfully! You can now use it to sign in.", "success")
+    return redirect(url_for("auth.profile"))
+
