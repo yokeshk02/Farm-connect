@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('catalogue.title') }} - {{ _t('app.name') }}{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-2xl);">
+    <!-- Header Section -->
+    <div style="margin-bottom: var(--spacing-lg);">
+        <h1 style="color: var(--color-primary-dark); font-size: var(--font-size-2xl); font-weight: 700; margin-bottom: var(--spacing-xs);">
+            🚜 {{ _t('catalogue.title') }}
+        </h1>
+        <p style="color: var(--color-text-muted); font-size: var(--font-size-base);">
+            {{ _t('catalogue.subtitle') }}
+        </p>
+    </div>
+
+    <!-- Filters & Search Toolbar -->
+    <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-xl); background-color: var(--color-bg-card);">
+        <form id="filterForm" action="{{ url_for('machinery.catalogue') }}" method="GET">
+            <input type="hidden" name="lat" id="gpsLat" value="{{ user_lat or '' }}">
+            <input type="hidden" name="lng" id="gpsLng" value="{{ user_lng or '' }}">
+
+            <div class="filter-grid">
+                <!-- Search Keyword -->
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="searchQuery" class="form-label" style="font-weight: 600;">{{ _t('catalogue.search_placeholder') }}</label>
+                    <input type="text" id="searchQuery" name="q" class="form-control" 
+                           placeholder="{{ _t('catalogue.search_placeholder') }}" value="{{ q or '' }}">
+                </div>
+
+                <!-- District Filter -->
+                <div class="form-group">
+                    <label for="districtSelect" class="form-label">{{ _t('catalogue.filter_district') }}</label>
+                    <select id="districtSelect" name="district" class="form-select">
+                        <option value="">{{ _t('catalogue.all_districts') }}</option>
+                        {% for d in districts %}
+                            <option value="{{ d }}" {% if district == d %}selected{% endif %}>{{ d }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Category Filter -->
+                <div class="form-group">
+                    <label for="categorySelect" class="form-label">{{ _t('catalogue.filter_category') }}</label>
+                    <select id="categorySelect" name="category" class="form-select">
+                        <option value="">{{ _t('catalogue.all_categories') }}</option>
+                        {% for c in categories %}
+                            <option value="{{ c }}" {% if category == c %}selected{% endif %}>
+                                {{ _t('cat.' + c) }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Rental Package Filter -->
+                <div class="form-group">
+                    <label for="packageSelect" class="form-label">{{ _t('catalogue.filter_package') }}</label>
+                    <select id="packageSelect" name="package" class="form-select">
+                        <option value="">{{ _t('catalogue.all_packages') }}</option>
+                        {% for p in packages %}
+                            <option value="{{ p }}" {% if package == p %}selected{% endif %}>
+                                {{ _t('pkg.' + p) }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Village / Town -->
+                <div class="form-group">
+                    <label for="villageInput" class="form-label">{{ _t('catalogue.filter_village') }}</label>
+                    <input type="text" id="villageInput" name="village" class="form-control" 
+                           placeholder="e.g. Maduranthakam" value="{{ village or '' }}">
+                </div>
+
+                <!-- PIN Code -->
+                <div class="form-group">
+                    <label for="pincodeInput" class="form-label">{{ _t('catalogue.filter_pincode') }}</label>
+                    <input type="text" id="pincodeInput" name="pincode" class="form-control" 
+                           placeholder="6 Digits" maxlength="6" value="{{ pincode or '' }}">
+                </div>
+
+                <!-- Sort By -->
+                <div class="form-group">
+                    <label for="sortSelect" class="form-label">{{ _t('catalogue.sort_by') }}</label>
+                    <select id="sortSelect" name="sort" class="form-select">
+                        <option value="newest" {% if sort == 'newest' %}selected{% endif %}>{{ _t('catalogue.sort_newest') }}</option>
+                        <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>{{ _t('catalogue.sort_price_asc') }}</option>
+                        <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>{{ _t('catalogue.sort_price_desc') }}</option>
+                        {% if user_lat and user_lng %}
+                            <option value="distance" {% if sort == 'distance' %}selected{% endif %}>{{ _t('catalogue.sort_distance') }}</option>
+                        {% endif %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Action Buttons: Filter, Reset, GPS -->
+            <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-sm); align-items: center; justify-content: space-between; margin-top: var(--spacing-sm); padding-top: var(--spacing-sm); border-top: 1px solid var(--color-border);">
+                <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        🔍 {{ _t('catalogue.btn_filter') }}
+                    </button>
+                    <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-outline btn-sm">
+                        ↺ {{ _t('catalogue.btn_reset') }}
+                    </a>
+                </div>
+
+                <!-- Optional GPS button -->
+                <div>
+                    <button type="button" id="btnGps" class="btn btn-sm" 
+                            style="background-color: var(--color-bg-subtle); border: 1px solid var(--color-border); color: var(--color-primary-dark); font-weight: 500;"
+                            onclick="requestUserLocation()">
+                        <span id="gpsIcon">📍</span> <span id="gpsText">{{ _t('catalogue.use_gps') }}</span>
+                    </button>
+                    <span id="gpsStatus" style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-left: var(--spacing-xs);"></span>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+        <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); font-weight: 500;">
+            {{ _t('catalogue.results_count', count=pagination.total_count) }}
+        </p>
+        {% if user_lat and user_lng %}
+            <span class="badge" style="background-color: rgba(45, 106, 79, 0.1); color: var(--color-primary-dark); border: 1px solid var(--color-primary-light);">
+                📍 GPS Active
+            </span>
+        {% endif %}
+    </div>
+
+    <!-- Machinery Cards Grid -->
+    {% if items %}
+        <div class="machinery-grid">
+            {% for item in items %}
+                {% set m = item.machinery %}
+                <div class="card machinery-card">
+                    <!-- Photo Header -->
+                    <div class="machinery-photo-wrapper">
+                        <img src="{{ item.primary_photo_url }}" alt="{{ m.name_en }}" class="machinery-photo" loading="lazy">
+                        <span class="category-badge">
+                            {{ _t('cat.' + m.category) }}
+                        </span>
+                        {% if item.distance_km is not none %}
+                            <span class="distance-badge">
+                                📍 ~{{ item.distance_km }} km
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="machinery-card-body">
+                        <h2 class="machinery-title">
+                            {% if current_lang == 'ta' and m.name_ta %}
+                                {{ m.name_ta }}
+                            {% else %}
+                                {{ m.name_en }}
+                            {% endif %}
+                        </h2>
+
+                        {% if m.make_model %}
+                            <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: var(--spacing-xs);">
+                                {{ m.make_model }} {% if m.model_year %}({{ m.model_year }}){% endif %}
+                                {% if m.horsepower %} • {{ m.horsepower }} HP{% endif %}
+                            </p>
+                        {% endif %}
+
+                        <p class="machinery-location">
+                            📍 {{ m.village_or_town }}, {{ m.district }} ({{ m.pincode }})
+                        </p>
+
+                        <!-- Price & Action -->
+                        <div class="machinery-card-footer">
+                            <div>
+                                {% if item.starting_rate %}
+                                    <span style="font-size: var(--font-size-xs); color: var(--color-text-muted); display: block;">
+                                        {{ _t('catalogue.starts_from') }}
+                                    </span>
+                                    <span class="machinery-price">
+                                        ₹{{ "%.0f"|format(item.starting_rate) }}
+                                    </span>
+                                    <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                                        {% if item.starting_unit == 'hr' %}{{ _t('catalogue.per_hour') }}{% else %}{{ _t('catalogue.per_day') }}{% endif %}
+                                    </span>
+                                {% else %}
+                                    <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                                        Flexible Pricing
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <a href="{{ url_for('machinery.detail', machinery_id=m.id) }}" class="btn btn-primary btn-sm">
+                                {{ _t('catalogue.view_details') }} &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination Controls -->
+        {% if pagination.total_pages > 1 %}
+            <div class="pagination-wrapper">
+                {% if pagination.has_prev %}
+                    <a href="{{ url_for('machinery.catalogue', q=q, district=district, village=village, pincode=pincode, category=category, package=package, sort=sort, lat=user_lat, lng=user_lng, page=pagination.prev_page) }}" 
+                       class="btn btn-outline btn-sm">
+                        &larr; {{ _t('catalogue.prev') }}
+                    </a>
+                {% endif %}
+
+                <span style="font-size: var(--font-size-sm); color: var(--color-text-muted); font-weight: 500;">
+                    {{ _t('catalogue.page_info', current=pagination.page, total=pagination.total_pages) }}
+                </span>
+
+                {% if pagination.has_next %}
+                    <a href="{{ url_for('machinery.catalogue', q=q, district=district, village=village, pincode=pincode, category=category, package=package, sort=sort, lat=user_lat, lng=user_lng, page=pagination.next_page) }}" 
+                       class="btn btn-outline btn-sm">
+                        {{ _t('catalogue.next') }} &rarr;
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="card empty-state-card">
+            <div style="font-size: 3rem; margin-bottom: var(--spacing-sm);">🌾</div>
+            <h2 style="font-size: var(--font-size-lg); color: var(--color-primary-dark); font-weight: 700; margin-bottom: var(--spacing-xs);">
+                {{ _t('catalogue.no_results_title') }}
+            </h2>
+            <p style="color: var(--color-text-muted); max-width: 500px; margin: 0 auto var(--spacing-md);">
+                {{ _t('catalogue.no_results_desc') }}
+            </p>
+            <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-primary btn-sm">
+                {{ _t('catalogue.btn_reset') }}
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function requestUserLocation() {
+    const btn = document.getElementById('btnGps');
+    const statusText = document.getElementById('gpsStatus');
+    const latInput = document.getElementById('gpsLat');
+    const lngInput = document.getElementById('gpsLng');
+    const form = document.getElementById('filterForm');
+    const sortSelect = document.getElementById('sortSelect');
+
+    if (!navigator.geolocation) {
+        statusText.textContent = "{{ _t('catalogue.gps_denied') }}";
+        return;
+    }
+
+    statusText.textContent = "{{ _t('catalogue.gps_locating') }}";
+    btn.disabled = true;
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            latInput.value = position.coords.latitude.toFixed(6);
+            lngInput.value = position.coords.longitude.toFixed(6);
+            statusText.textContent = "✓ Located";
+            // Ensure distance sort option is available and chosen
+            if (sortSelect) {
+                let opt = sortSelect.querySelector('option[value="distance"]');
+                if (!opt) {
+                    opt = document.createElement('option');
+                    opt.value = 'distance';
+                    opt.textContent = "{{ _t('catalogue.sort_distance') }}";
+                    sortSelect.appendChild(opt);
+                }
+                sortSelect.value = 'distance';
+            }
+            form.submit();
+        },
+        (error) => {
+            btn.disabled = false;
+            statusText.textContent = "{{ _t('catalogue.gps_denied') }}";
+        },
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+    );
+}
+</script>
+{% endblock %}

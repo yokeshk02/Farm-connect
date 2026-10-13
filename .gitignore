@@ -25,8 +25,9 @@ htmlcov/
 .nox/
 
 # Media and user uploads
-app/static/uploads/
-!app/static/uploads/.gitkeep
+app/static/uploads/**/*
+!app/static/uploads/**/
+!app/static/uploads/**/.gitkeep
 
 # SQLite database fallback / scratch
 *.db

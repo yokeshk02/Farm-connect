@@ -23,10 +23,13 @@ def client(app):
 
 @pytest.fixture
 def db_session(app):
-    """Provide a transactional database session for each test."""
+    """Provide a transactional database session for each test with clean table teardown."""
     with app.app_context():
         yield db.session
         db.session.rollback()
+        for table in reversed(db.metadata.sorted_tables):
+            db.session.execute(table.delete())
+        db.session.commit()
 
 
 @pytest.fixture(scope="session")

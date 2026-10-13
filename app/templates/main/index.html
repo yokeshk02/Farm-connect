@@ -9,11 +9,11 @@
         <h1 class="hero-title">{{ _t('hero.title') }}</h1>
         <p class="hero-subtitle">{{ _t('hero.subtitle') }}</p>
         <div class="hero-actions">
+            <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-accent">{{ _t('hero.cta_browse') }}</a>
             {% if session.get('user_id') %}
-                <a href="{{ url_for('auth.profile') }}" class="btn btn-accent">{{ _t('nav.profile') }}</a>
+                <a href="{{ url_for('auth.profile') }}" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.4);">{{ _t('nav.profile') }}</a>
             {% else %}
-                <a href="{{ url_for('auth.register') }}" class="btn btn-accent">{{ _t('hero.cta_register') }}</a>
-                <a href="{{ url_for('auth.login') }}" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.4);">{{ _t('nav.login') }}</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.4);">{{ _t('hero.cta_register') }}</a>
             {% endif %}
         </div>
     </div>

@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if current_lang == 'ta' and machinery.name_ta %}
+        {{ machinery.name_ta }} - {{ _t('detail.title') }}
+    {% else %}
+        {{ machinery.name_en }} - {{ _t('detail.title') }}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-2xl);">
+    <!-- Back Link -->
+    <div style="margin-bottom: var(--spacing-md);">
+        <a href="{{ url_for('machinery.catalogue') }}" class="back-link">
+            {{ _t('detail.back_catalogue') }}
+        </a>
+    </div>
+
+    <div class="detail-layout">
+        <!-- Left Column: Gallery & Details -->
+        <div>
+            <!-- Main Gallery Card -->
+            <div class="card" style="padding: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                <div class="detail-gallery-main">
+                    {% if photos %}
+                        <img id="mainGalleryImg" src="{{ photos[0].photo_url }}" alt="{{ machinery.name_en }}" class="gallery-hero-img">
+                    {% else %}
+                        <img id="mainGalleryImg" src="/static/images/placeholder_machinery.svg" alt="{{ machinery.name_en }}" class="gallery-hero-img">
+                    {% endif %}
+                </div>
+
+                {% if photos and photos|length > 1 %}
+                    <div class="gallery-thumbnails">
+                        {% for p in photos %}
+                            <img src="{{ p.photo_url }}" alt="Thumbnail {{ loop.index }}" 
+                                 class="gallery-thumb {% if loop.first %}active{% endif %}"
+                                 onclick="selectGalleryImage('{{ p.photo_url }}', this)">
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Description Card -->
+            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                <h2 style="font-size: var(--font-size-lg); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-sm);">
+                    {{ _t('detail.description') }}
+                </h2>
+                {% if current_lang == 'ta' and machinery.description_ta %}
+                    <p style="color: var(--color-text-main); line-height: 1.6; white-space: pre-line;">{{ machinery.description_ta }}</p>
+                {% elif machinery.description_en %}
+                    <p style="color: var(--color-text-main); line-height: 1.6; white-space: pre-line;">{{ machinery.description_en }}</p>
+                {% else %}
+                    <p style="color: var(--color-text-muted); font-style: italic;">No description provided.</p>
+                {% endif %}
+            </div>
+
+            <!-- Specifications Card -->
+            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                <h2 style="font-size: var(--font-size-lg); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-md);">
+                    ⚙️ {{ _t('detail.specifications') }}
+                </h2>
+                <div class="specs-grid">
+                    <div class="spec-item">
+                        <span class="spec-label">{{ _t('provider.category') }}</span>
+                        <span class="spec-val">{{ _t('cat.' + machinery.category) }}</span>
+                    </div>
+                    {% if machinery.make_model %}
+                        <div class="spec-item">
+                            <span class="spec-label">{{ _t('detail.make_model') }}</span>
+                            <span class="spec-val">{{ machinery.make_model }}</span>
+                        </div>
+                    {% endif %}
+                    {% if machinery.model_year %}
+                        <div class="spec-item">
+                            <span class="spec-label">{{ _t('detail.year') }}</span>
+                            <span class="spec-val">{{ machinery.model_year }}</span>
+                        </div>
+                    {% endif %}
+                    {% if machinery.horsepower %}
+                        <div class="spec-item">
+                            <span class="spec-label">{{ _t('detail.hp') }}</span>
+                            <span class="spec-val">{{ machinery.horsepower }} HP</span>
+                        </div>
+                    {% endif %}
+                    <div class="spec-item">
+                        <span class="spec-label">{{ _t('detail.location') }}</span>
+                        <span class="spec-val">📍 {{ machinery.village_or_town }}, {{ machinery.district }} ({{ machinery.pincode }})</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Title, Rates & Provider Details -->
+        <div>
+            <!-- Header Card -->
+            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                <span class="category-badge" style="position: static; display: inline-block; margin-bottom: var(--spacing-xs);">
+                    {{ _t('cat.' + machinery.category) }}
+                </span>
+
+                <h1 style="font-size: var(--font-size-2xl); font-weight: 800; color: var(--color-primary-dark); margin-bottom: var(--spacing-xs);">
+                    {% if current_lang == 'ta' and machinery.name_ta %}
+                        {{ machinery.name_ta }}
+                    {% else %}
+                        {{ machinery.name_en }}
+                    {% endif %}
+                </h1>
+
+                {% if current_lang == 'ta' and machinery.name_ta and machinery.name_en %}
+                    <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--spacing-sm);">
+                        {{ machinery.name_en }}
+                    </p>
+                {% endif %}
+
+                <p style="font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    📍 {{ machinery.village_or_town }}, {{ machinery.district }}, PIN {{ machinery.pincode }}
+                </p>
+            </div>
+
+            <!-- Rental Options & Rates Card -->
+            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                <h2 style="font-size: var(--font-size-md); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-md);">
+                    💰 {{ _t('detail.rates_packages') }}
+                </h2>
+
+                <div class="rates-list">
+                    {% for opt in ['MACHINE_ONLY', 'MACHINE_OPERATOR', 'MACHINE_OPERATOR_LABOUR'] %}
+                        {% set r = rates_by_type.get(opt) %}
+                        {% if r %}
+                            <div class="rate-tier-box">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xs);">
+                                    <span style="font-weight: 700; font-size: var(--font-size-sm); color: var(--color-primary-dark);">
+                                        {{ _t('pkg.' + opt) }}
+                                    </span>
+                                </div>
+
+                                <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap; margin-bottom: var(--spacing-xs);">
+                                    {% if r.rate_per_hour %}
+                                        <div>
+                                            <span style="font-size: 1.25rem; font-weight: 800; color: var(--color-primary);">
+                                                ₹{{ "%.0f"|format(r.rate_per_hour) }}
+                                            </span>
+                                            <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">{{ _t('catalogue.per_hour') }}</span>
+                                        </div>
+                                    {% endif %}
+                                    {% if r.rate_per_day %}
+                                        <div>
+                                            <span style="font-size: 1.25rem; font-weight: 800; color: var(--color-primary);">
+                                                ₹{{ "%.0f"|format(r.rate_per_day) }}
+                                            </span>
+                                            <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">{{ _t('catalogue.per_day') }}</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); display: flex; gap: var(--spacing-md);">
+                                    <span>{{ _t('detail.min_duration') }}: <strong>{{ r.min_booking_duration_hours }} {{ _t('detail.hours') }}</strong></span>
+                                    {% if r.security_deposit and r.security_deposit > 0 %}
+                                        <span>{{ _t('detail.security_deposit') }}: <strong>₹{{ "%.0f"|format(r.security_deposit) }}</strong></span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- Booking Engine Notice -->
+                <div class="alert alert-info" style="margin-top: var(--spacing-md); font-size: var(--font-size-xs);">
+                    ℹ️ {{ _t('detail.booking_soon') }}
+                </div>
+            </div>
+
+            <!-- Provider Contact Card -->
+            <div class="card" style="padding: var(--spacing-lg);">
+                <h2 style="font-size: var(--font-size-md); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-sm);">
+                    🧑‍🌾 {{ _t('detail.provider_info') }}
+                </h2>
+
+                {% if provider %}
+                    <p style="font-weight: 700; font-size: var(--font-size-base); color: var(--color-text-main); margin-bottom: var(--spacing-xs);">
+                        {{ provider.business_name or 'Verified Provider' }}
+                    </p>
+
+                    <div style="margin-bottom: var(--spacing-md);">
+                        <span class="badge" style="background-color: rgba(45, 106, 79, 0.1); color: var(--color-primary-dark);">
+                            ✓ {{ _t('detail.verified') }}
+                        </span>
+                    </div>
+
+                    {% if provider.bio_description %}
+                        <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--spacing-md);">
+                            {{ provider.bio_description }}
+                        </p>
+                    {% endif %}
+
+                    <!-- Communication buttons -->
+                    <div style="display: flex; flex-direction: column; gap: var(--spacing-xs);">
+                        {% if provider.user and provider.user.phone %}
+                            <a href="tel:{{ provider.user.phone }}" class="btn btn-primary btn-block">
+                                📞 {{ _t('detail.call_owner') }} ({{ provider.user.phone }})
+                            </a>
+                        {% endif %}
+
+                        {% if provider.whatsapp_enabled and provider.whatsapp_number %}
+                            <a href="https://wa.me/{{ provider.whatsapp_number|replace('+', '')|replace(' ', '') }}?text=Hello,%20I%20am%20interested%20in%20renting%20{{ machinery.name_en }}%20via%20FarmConnect." 
+                               target="_blank" rel="noopener noreferrer" 
+                               class="btn btn-accent btn-block" style="background-color: #25D366; color: white;">
+                                💬 {{ _t('detail.whatsapp_owner') }}
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function selectGalleryImage(url, thumbElement) {
+    const heroImg = document.getElementById('mainGalleryImg');
+    if (heroImg) {
+        heroImg.src = url;
+    }
+    document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+    if (thumbElement) {
+        thumbElement.classList.add('active');
+    }
+}
+</script>
+{% endblock %}

@@ -19,8 +19,12 @@
             <nav>
                 <ul class="nav-menu">
                     <li><a href="{{ url_for('main.index') }}" class="nav-link">{{ _t('nav.home') }}</a></li>
+                    <li><a href="{{ url_for('machinery.catalogue') }}" class="nav-link">{{ _t('nav.machinery') }}</a></li>
                     
                     {% if session.get('user_id') %}
+                        {% if session.get('user_role') == 'PROVIDER' %}
+                            <li><a href="{{ url_for('provider.machinery_list') }}" class="nav-link">{{ _t('nav.my_machinery') }}</a></li>
+                        {% endif %}
                         <li><a href="{{ url_for('auth.profile') }}" class="nav-link">{{ _t('nav.profile') }}</a></li>
                         <li>
                             <form action="{{ url_for('auth.logout') }}" method="POST" class="logout-form" style="display: inline; margin: 0;">

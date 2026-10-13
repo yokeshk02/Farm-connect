@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if is_edit %}
+        {{ _t('provider.form_edit_title') }} - {{ _t('app.name') }}
+    {% else %}
+        {{ _t('provider.form_new_title') }} - {{ _t('app.name') }}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 820px; margin-top: var(--spacing-xl); margin-bottom: var(--spacing-2xl);">
+    <!-- Back Link -->
+    <div style="margin-bottom: var(--spacing-md);">
+        <a href="{{ url_for('provider.machinery_list') }}" class="back-link">
+            &larr; {{ _t('provider.my_machinery') }}
+        </a>
+    </div>
+
+    <div class="card" style="padding: var(--spacing-xl);">
+        <!-- Form Header -->
+        <div style="margin-bottom: var(--spacing-xl); border-bottom: 1px solid var(--color-border); padding-bottom: var(--spacing-md);">
+            <h1 style="color: var(--color-primary-dark); font-size: var(--font-size-xl); font-weight: 800; margin-bottom: var(--spacing-xs);">
+                {% if is_edit %}
+                    ✏️ {{ _t('provider.form_edit_title') }}
+                {% else %}
+                    🚜 {{ _t('provider.form_new_title') }}
+                {% endif %}
+            </h1>
+            <p style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
+                {{ _t('provider.form_subtitle') }}
+            </p>
+        </div>
+
+        <form action="" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <!-- SECTION 1: BASIC INFORMATION -->
+            <div style="margin-bottom: var(--spacing-xl);">
+                <h2 style="font-size: var(--font-size-md); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-md); border-left: 3px solid var(--color-accent-gold); padding-left: var(--spacing-xs);">
+                    {{ _t('provider.sec_basic') }}
+                </h2>
+
+                <div class="form-group">
+                    <label for="name_en" class="form-label">{{ _t('provider.name_en') }} *</label>
+                    <input type="text" id="name_en" name="name_en" class="form-control" 
+                           placeholder="e.g. Mahindra 575 DI 45HP Tractor" 
+                           value="{{ form_data.get('name_en', '') }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="name_ta" class="form-label">{{ _t('provider.name_ta') }}</label>
+                    <input type="text" id="name_ta" name="name_ta" class="form-control" 
+                           placeholder="உதா: மஹிந்திரா 575 DI டிராக்டர்" 
+                           value="{{ form_data.get('name_ta', '') }}">
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--spacing-md);">
+                    <div class="form-group">
+                        <label for="category" class="form-label">{{ _t('provider.category') }} *</label>
+                        <select id="category" name="category" class="form-select" required>
+                            <option value="">{{ _t('provider.select_category') }}</option>
+                            {% for c in categories %}
+                                <option value="{{ c }}" {% if form_data.get('category') == c %}selected{% endif %}>
+                                    {{ _t('cat.' + c) }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="make_model" class="form-label">{{ _t('provider.make_model') }}</label>
+                        <input type="text" id="make_model" name="make_model" class="form-control" 
+                               placeholder="e.g. John Deere 5050D" 
+                               value="{{ form_data.get('make_model', '') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model_year" class="form-label">{{ _t('provider.year') }}</label>
+                        <input type="number" id="model_year" name="model_year" class="form-control" 
+                               placeholder="e.g. 2022" min="1950" max="2035" 
+                               value="{{ form_data.get('model_year', '') }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="horsepower" class="form-label">{{ _t('provider.hp') }}</label>
+                        <input type="number" id="horsepower" name="horsepower" class="form-control" 
+                               placeholder="e.g. 45" min="1" max="500" 
+                               value="{{ form_data.get('horsepower', '') }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description_en" class="form-label">{{ _t('provider.desc_en') }}</label>
+                    <textarea id="description_en" name="description_en" class="form-control" rows="3" 
+                              placeholder="Mention equipment condition, attachments, and field suitability...">{{ form_data.get('description_en', '') }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="description_ta" class="form-label">{{ _t('provider.desc_ta') }}</label>
+                    <textarea id="description_ta" name="description_ta" class="form-control" rows="3" 
+                              placeholder="இயந்திரத்தின் நிலை, கூடுதல் கருவிகள் மற்றும் பயன்பாடு பற்றி குறிப்பிடவும்...">{{ form_data.get('description_ta', '') }}</textarea>
+                </div>
+            </div>
+
+            <!-- SECTION 2: LOCATION -->
+            <div style="margin-bottom: var(--spacing-xl);">
+                <h2 style="font-size: var(--font-size-md); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-md); border-left: 3px solid var(--color-accent-gold); padding-left: var(--spacing-xs);">
+                    {{ _t('provider.sec_location') }}
+                </h2>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--spacing-md);">
+                    <div class="form-group">
+                        <label for="village_or_town" class="form-label">{{ _t('provider.village') }} *</label>
+                        <input type="text" id="village_or_town" name="village_or_town" class="form-control" 
+                               placeholder="e.g. Maduranthakam" 
+                               value="{{ form_data.get('village_or_town', '') }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="district" class="form-label">{{ _t('provider.district') }} *</label>
+                        <select id="district" name="district" class="form-select" required>
+                            <option value="">{{ _t('provider.select_district') }}</option>
+                            {% for d in districts %}
+                                <option value="{{ d }}" {% if form_data.get('district') == d %}selected{% endif %}>
+                                    {{ d }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pincode" class="form-label">{{ _t('provider.pincode') }} *</label>
+                        <input type="text" id="pincode" name="pincode" class="form-control" 
+                               placeholder="6 Digits (e.g. 603306)" maxlength="6" 
+                               pattern="\d{6}" 
+                               value="{{ form_data.get('pincode', '') }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: RATES & PACKAGES -->
+            <div style="margin-bottom: var(--spacing-xl);">
+                <h2 style="font-size: var(--font-size-md); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-xs); border-left: 3px solid var(--color-accent-gold); padding-left: var(--spacing-xs);">
+                    {{ _t('provider.sec_rates') }}
+                </h2>
+                <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: var(--spacing-md);">
+                    Configure pricing for at least one rental tier. You can provide hourly, daily, or both rates.
+                </p>
+
+                <!-- Tier 1: Machine Only -->
+                <div class="rate-config-box">
+                    <h3 style="font-size: var(--font-size-sm); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-sm);">
+                        {{ _t('provider.opt_machine_only') }}
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--spacing-sm);">
+                        <div>
+                            <label class="form-label" style="font-size: var(--font-size-xs);">{{ _t('provider.rate_hour') }}</label>
+                            <input type="number" step="0.01" min="0" name="machine_only_hour" class="form-control" 
+                                   placeholder="e.g. 500" value="{{ form_data.get('machine_only_hour', '') }}">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: var(--font-size-xs);">{{ _t('provider.rate_day') }}</label>
+                            <input type="number" step="0.01" min="0" name="machine_only_day" class="form-control" 
+                                   placeholder="e.g. 3500" value="{{ form_data.get('machine_only_day', '') }}">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: var(--font-size-xs);">{{ _t('provider.min_hours') }}</label>
+                            <input type="number" min="1" name="machine_only_min_hours" class="form-control" 
+                                   placeholder="1" value="{{ form_data.get('machine_only_min_hours', '1') }}">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: var(--font-size-xs);">{{ _t('provider.deposit') }}</label>
+                            <input type="number" step="0.01" min="0" name="machine_only_deposit" class="form-control" 
+                                   placeholder="0" value="{{ form_data.get('machine_only_deposit', '0') }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tier 2: Machine + Operator -->
+                <div class="rate-config-box">
+                    <h3 style="font-size: var(--font-size-sm); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-sm);">
+                        {{ _t('provider.opt_machine_operator') }}
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--spacing-sm);">
+                        <div>
+                            <label class="form-label" style="font-size: var(--font-size-xs);">{{ _t('provider.rate_hour') }}</label>
+                            <input type="number" step="0.01" min="0" name="machine_operator_hour" class="form-control" 
+                                   placeholder="e.g. 800" value="{{ form_data.get('machine_operator_hour', '') }}">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: var(--font-size-xs);">{{ _t('provider.rate_day') }}</label>
+                            <input type="number" step="0.01" min="0" name="machine_operator_day" class="form-control" 
+                                   placeholder="e.g. 5000" value="{{ form_data.get('machine_operator_day', '') }}">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: var(--font-size-xs);">{{ _t('provider.min_hours') }}</label>
+                            <input type="number" min="1" name="machine_operator_min_hours" class="form-control" 
+                                   placeholder="1" value="{{ form_data.get('machine_operator_min_hours', '1') }}">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: var(--font-size-xs);">{{ _t('provider.deposit') }}</label>
+                            <input type="number" step="0.01" min="0" name="machine_operator_deposit" class="form-control" 
+                                   placeholder="0" value="{{ form_data.get('machine_operator_deposit', '0') }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tier 3: Machine + Operator + Labour -->
+                <div class="rate-config-box">
+                    <h3 style="font-size: var(--font-size-sm); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-sm);">
+                        {{ _t('provider.opt_machine_operator_labour') }}
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--spacing-sm);">
+                        <div>
+                            <label class="form-label" style="font-size: var(--font-size-xs);">{{ _t('provider.rate_hour') }}</label>
+                            <input type="number" step="0.01" min="0" name="machine_operator_labour_hour" class="form-control" 
+                                   placeholder="e.g. 1200" value="{{ form_data.get('machine_operator_labour_hour', '') }}">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: var(--font-size-xs);">{{ _t('provider.rate_day') }}</label>
+                            <input type="number" step="0.01" min="0" name="machine_operator_labour_day" class="form-control" 
+                                   placeholder="e.g. 7500" value="{{ form_data.get('machine_operator_labour_day', '') }}">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: var(--font-size-xs);">{{ _t('provider.min_hours') }}</label>
+                            <input type="number" min="1" name="machine_operator_labour_min_hours" class="form-control" 
+                                   placeholder="1" value="{{ form_data.get('machine_operator_labour_min_hours', '1') }}">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: var(--font-size-xs);">{{ _t('provider.deposit') }}</label>
+                            <input type="number" step="0.01" min="0" name="machine_operator_labour_deposit" class="form-control" 
+                                   placeholder="0" value="{{ form_data.get('machine_operator_labour_deposit', '0') }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: PHOTOS -->
+            <div style="margin-bottom: var(--spacing-xl);">
+                <h2 style="font-size: var(--font-size-md); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-xs); border-left: 3px solid var(--color-accent-gold); padding-left: var(--spacing-xs);">
+                    {{ _t('provider.sec_photos') }}
+                </h2>
+                <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: var(--spacing-sm);">
+                    {{ _t('provider.photos_tip') }}
+                </p>
+
+                <!-- Existing Photos (when editing) -->
+                {% if is_edit and machinery.photos and machinery.photos|length > 0 %}
+                    <div style="margin-bottom: var(--spacing-md);">
+                        <label class="form-label" style="font-size: var(--font-size-xs);">{{ _t('provider.current_photos') }} ({{ machinery.photos|length }}/5)</label>
+                        <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                            {% for p in machinery.photos %}
+                                <div style="position: relative; width: 100px; height: 80px; border-radius: var(--border-radius-sm); overflow: hidden; border: 1px solid var(--color-border);">
+                                    <img src="{{ p.photo_url }}" alt="Photo {{ loop.index }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <button type="submit" 
+                                            formaction="{{ url_for('provider.machinery_photo_delete', machinery_id=machinery.id, photo_id=p.id) }}"
+                                            class="btn btn-sm" 
+                                            style="position: absolute; top: 2px; right: 2px; padding: 1px 5px; font-size: 0.65rem; background: rgba(220, 38, 38, 0.85); color: white; border: none; border-radius: 3px;"
+                                            onclick="return confirm('Delete this photo?')">
+                                        ✕
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="photosInput" class="form-label">{{ _t('provider.upload_photos') }}</label>
+                    <input type="file" id="photosInput" name="photos" class="form-control" multiple 
+                           accept="image/png,image/jpeg,image/webp">
+                </div>
+            </div>
+
+            <!-- Submit & Cancel Buttons -->
+            <div style="display: flex; gap: var(--spacing-md); align-items: center; border-top: 1px solid var(--color-border); padding-top: var(--spacing-md);">
+                <button type="submit" class="btn btn-primary">
+                    {% if is_edit %}
+                        {{ _t('provider.btn_update') }}
+                    {% else %}
+                        {{ _t('provider.btn_save') }}
+                    {% endif %}
+                </button>
+                <a href="{{ url_for('provider.machinery_list') }}" class="btn btn-outline">
+                    {{ _t('provider.btn_cancel') }}
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('provider.my_machinery') }} - {{ _t('app.name') }}{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-2xl);">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--spacing-md); margin-bottom: var(--spacing-xl);">
+        <div>
+            <h1 style="color: var(--color-primary-dark); font-size: var(--font-size-2xl); font-weight: 800; margin-bottom: var(--spacing-xs);">
+                🚜 {{ _t('provider.my_machinery') }}
+            </h1>
+            <p style="color: var(--color-text-muted); font-size: var(--font-size-base);">
+                {{ _t('provider.my_machinery_subtitle') }}
+            </p>
+        </div>
+
+        <a href="{{ url_for('provider.machinery_new') }}" class="btn btn-accent">
+            + {{ _t('provider.add_new') }}
+        </a>
+    </div>
+
+    {% if machinery_list %}
+        <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+            {% for m in machinery_list %}
+                <div class="card" style="padding: var(--spacing-md); display: flex; flex-wrap: wrap; gap: var(--spacing-lg); align-items: center; justify-content: space-between;">
+                    <!-- Left: Thumbnail & Details -->
+                    <div style="display: flex; gap: var(--spacing-md); align-items: center; flex: 1 1 320px;">
+                        <div style="width: 120px; height: 90px; border-radius: var(--border-radius-sm); overflow: hidden; flex-shrink: 0; background-color: var(--color-bg-subtle);">
+                            {% if m.photos and m.photos|length > 0 %}
+                                <img src="{{ m.photos[0].photo_url }}" alt="{{ m.name_en }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                <img src="/static/images/placeholder_machinery.svg" alt="{{ m.name_en }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <div style="display: flex; align-items: center; gap: var(--spacing-xs); margin-bottom: 2px;">
+                                <span class="badge" style="background-color: rgba(45, 106, 79, 0.1); color: var(--color-primary-dark); font-size: 0.7rem;">
+                                    {{ _t('cat.' + m.category) }}
+                                </span>
+                                {% if m.is_active %}
+                                    <span class="badge badge-success" style="font-size: 0.7rem;">
+                                        ✓ {{ _t('provider.status_active') }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge" style="background-color: rgba(0,0,0,0.1); color: var(--color-text-muted); font-size: 0.7rem;">
+                                        ✕ {{ _t('provider.status_inactive') }}
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <h2 style="font-size: var(--font-size-base); font-weight: 700; color: var(--color-primary-dark); margin-bottom: 2px;">
+                                {% if current_lang == 'ta' and m.name_ta %}
+                                    {{ m.name_ta }} ({{ m.name_en }})
+                                {% else %}
+                                    {{ m.name_en }}
+                                {% endif %}
+                            </h2>
+
+                            <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: 2px;">
+                                📍 {{ m.village_or_town }}, {{ m.district }} ({{ m.pincode }})
+                            </p>
+
+                            <p style="font-size: var(--font-size-xs); color: var(--color-primary); font-weight: 600;">
+                                {{ _t('provider.rates_count', count=m.rates|length) }} • {{ m.photos|length }} photo(s)
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Actions -->
+                    <div style="display: flex; gap: var(--spacing-xs); align-items: center; flex-wrap: wrap;">
+                        <a href="{{ url_for('machinery.detail', machinery_id=m.id) }}" class="btn btn-outline btn-sm" target="_blank">
+                            👁️ {{ _t('provider.btn_view_public') }}
+                        </a>
+
+                        <a href="{{ url_for('provider.machinery_edit', machinery_id=m.id) }}" class="btn btn-primary btn-sm">
+                            ✏️ {{ _t('provider.btn_edit') }}
+                        </a>
+
+                        <!-- Deactivate / Activate Toggle Form -->
+                        <form action="{{ url_for('provider.machinery_toggle_status', machinery_id=m.id) }}" method="POST" style="display: inline; margin: 0;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            {% if m.is_active %}
+                                <button type="submit" class="btn btn-outline btn-sm" style="color: var(--color-error); border-color: rgba(239, 68, 68, 0.4);"
+                                        onclick="return confirm('Deactivate this machinery listing? It will not be visible to farmers in public search.')">
+                                    {{ _t('provider.btn_deactivate') }}
+                                </button>
+                            {% else %}
+                                <button type="submit" class="btn btn-sm" style="background-color: var(--color-primary); color: white;">
+                                    {{ _t('provider.btn_activate') }}
+                                </button>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="card empty-state-card">
+            <div style="font-size: 3rem; margin-bottom: var(--spacing-sm);">🚜</div>
+            <h2 style="font-size: var(--font-size-lg); color: var(--color-primary-dark); font-weight: 700; margin-bottom: var(--spacing-xs);">
+                {{ _t('provider.no_machinery_title') }}
+            </h2>
+            <p style="color: var(--color-text-muted); max-width: 480px; margin: 0 auto var(--spacing-md);">
+                {{ _t('provider.no_machinery_desc') }}
+            </p>
+            <a href="{{ url_for('provider.machinery_new') }}" class="btn btn-accent btn-sm">
+                + {{ _t('provider.add_new') }}
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
