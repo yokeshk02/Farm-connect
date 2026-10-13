@@ -179,3 +179,15 @@ def test_mock_otp_does_not_log_in_testing(app, capsys):
         provider.send_otp("+919876500008", "999888")
         captured = capsys.readouterr()
         assert "999888" not in captured.out
+
+
+def test_mock_otp_logs_in_development(app, monkeypatch, capsys):
+    """Verify mock provider logs [DEV MOCK SMS] to console when APP_ENV is development and MOCK_OTP_ENABLED is True."""
+    provider = MockDevSMSProvider()
+    with app.app_context():
+        monkeypatch.setitem(app.config, "APP_ENV", "development")
+        monkeypatch.setitem(app.config, "MOCK_OTP_ENABLED", True)
+        provider.send_otp("+919876500009", "123789")
+        captured = capsys.readouterr()
+        assert "[DEV MOCK SMS]" in captured.out
+        assert "123789" in captured.out

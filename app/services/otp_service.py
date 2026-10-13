@@ -27,15 +27,16 @@ class MockDevSMSProvider(BaseSMSProvider):
 
         # Log OTP to the terminal strictly in local development mode
         if app_env == "development" and mock_enabled:
-            print(
-                f"\n{'='*60}\n"
-                f"[FARMCONNECT DEV OTP]\n"
-                f"Phone: {phone}\n"
-                f"OTP Code: {otp_code}\n"
-                f"Valid For: 5 Minutes (Max 3 attempts)\n"
-                f"{'='*60}\n",
-                flush=True,
+            banner = (
+                f"\n{'='*70}\n"
+                f"[DEV MOCK SMS] Phone: {phone} | OTP: {otp_code} | Expires in: 5m\n"
+                f"{'='*70}\n"
             )
+            print(banner, flush=True)
+            try:
+                current_app.logger.info(banner)
+            except Exception:
+                pass
             return True
 
         # In testing mode or other non-dev environments, do not log OTP
