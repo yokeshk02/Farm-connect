@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('contact.title') }}{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: var(--spacing-2xl); margin-bottom: var(--spacing-3xl);">
+    <div style="max-width: 650px; margin: 0 auto;">
+        <div class="card" style="padding: var(--spacing-2xl);">
+            <div style="text-align: center; margin-bottom: var(--spacing-xl);">
+                <div style="font-size: 2.5rem; margin-bottom: var(--spacing-xs);">📞</div>
+                <h1 class="card-title">{{ _t('contact.title') }}</h1>
+                <p class="card-subtitle">{{ _t('contact.subtitle') }}</p>
+            </div>
+
+            <form action="{{ url_for('main.contact') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="form-group" style="margin-bottom: var(--spacing-base);">
+                    <label class="form-label">{{ _t('contact.name') }} *</label>
+                    <input type="text" name="sender_name" class="form-control" required
+                           value="{{ form_data.get('sender_name', '') }}" placeholder="e.g. Ramesh Kumar">
+                </div>
+
+                <div class="form-group" style="margin-bottom: var(--spacing-base);">
+                    <label class="form-label">{{ _t('contact.phone_or_email') }} *</label>
+                    <input type="text" name="contact_phone_or_email" class="form-control" required
+                           value="{{ form_data.get('contact_phone_or_email', '') }}" placeholder="e.g. 9876543210 or ramesh@example.com">
+                </div>
+
+                <div class="form-group" style="margin-bottom: var(--spacing-base);">
+                    <label class="form-label">{{ _t('contact.subject') }} *</label>
+                    <input type="text" name="subject" class="form-control" required
+                           value="{{ form_data.get('subject', '') }}" placeholder="e.g. Question about harvester rental in Thanjavur">
+                </div>
+
+                <div class="form-group" style="margin-bottom: var(--spacing-xl);">
+                    <label class="form-label">{{ _t('contact.message') }} *</label>
+                    <textarea name="message" class="form-control" rows="5" required
+                              placeholder="Please describe how we can assist you...">{{ form_data.get('message', '') }}</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg">
+                    ✉️ {{ _t('contact.submit') }}
+                </button>
+            </form>
+
+            <div style="margin-top: var(--spacing-xl); padding-top: var(--spacing-base); border-top: 1px solid var(--color-border); text-align: center; font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                📍 FarmConnect Support • Serving smallholder farmers & equipment owners across Tamil Nadu
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

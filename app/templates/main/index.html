@@ -3,41 +3,151 @@
 {% block title %}{{ _t('app.name') }} - {{ _t('hero.title') }}{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero">
-    <div class="container">
-        <h1 class="hero-title">{{ _t('hero.title') }}</h1>
-        <p class="hero-subtitle">{{ _t('hero.subtitle') }}</p>
+<!-- 1. Hero Section -->
+<section class="hero-section">
+    <div class="container hero-content">
+        <div class="hero-pill-badge">
+            🌾 {{ _t('hero.badge') }}
+        </div>
+        <h1 class="hero-title">
+            {{ _t('hero.title') }}
+        </h1>
+        <p class="hero-subtitle">
+            {{ _t('hero.subtitle') }}
+        </p>
         <div class="hero-actions">
-            <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-accent">{{ _t('hero.cta_browse') }}</a>
-            {% if session.get('user_id') %}
-                <a href="{{ url_for('auth.profile') }}" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.4);">{{ _t('nav.profile') }}</a>
+            <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-accent btn-lg" id="heroBtnExplore">
+                🔍 {{ _t('hero.cta_browse') }}
+            </a>
+            {% if session.get('user_id') and session.get('user_role') == 'PROVIDER' %}
+                <a href="{{ url_for('provider.machinery_new') }}" class="btn btn-hero-outline btn-lg" id="heroBtnList">
+                    🚜 {{ _t('hero.cta_list') }}
+                </a>
             {% else %}
-                <a href="{{ url_for('auth.register') }}" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.4);">{{ _t('hero.cta_register') }}</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-hero-outline btn-lg" id="heroBtnList">
+                    🚜 {{ _t('hero.cta_list') }}
+                </a>
             {% endif %}
         </div>
     </div>
 </section>
 
-<!-- Features Section -->
-<section class="features-section">
+<!-- 2. Four-Step How It Works Section -->
+<section class="section section-subtle" id="how-it-works">
     <div class="container">
-        <h2 class="section-title">{{ _t('features.title') }}</h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">📍</div>
-                <h3 class="feature-title">{{ _t('features.nearby_title') }}</h3>
-                <p class="feature-desc">{{ _t('features.nearby_desc') }}</p>
+        <div class="section-header">
+            <span class="section-pill">{{ _t('how_it_works.pill') }}</span>
+            <h2 class="section-title">{{ _t('how_it_works.title') }}</h2>
+            <p class="section-desc">{{ _t('how_it_works.subtitle') }}</p>
+        </div>
+
+        <div class="steps-grid">
+            <div class="step-card">
+                <span class="step-number">01</span>
+                <div class="step-icon">📍</div>
+                <h3 class="step-title">{{ _t('how_it_works.step1_title') }}</h3>
+                <p class="step-desc">{{ _t('how_it_works.step1_desc') }}</p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">🚜</div>
-                <h3 class="feature-title">{{ _t('features.flexible_title') }}</h3>
-                <p class="feature-desc">{{ _t('features.flexible_desc') }}</p>
+
+            <div class="step-card">
+                <span class="step-number">02</span>
+                <div class="step-icon">🚜</div>
+                <h3 class="step-title">{{ _t('how_it_works.step2_title') }}</h3>
+                <p class="step-desc">{{ _t('how_it_works.step2_desc') }}</p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">📞</div>
-                <h3 class="feature-title">{{ _t('features.direct_title') }}</h3>
-                <p class="feature-desc">{{ _t('features.direct_desc') }}</p>
+
+            <div class="step-card">
+                <span class="step-number">03</span>
+                <div class="step-icon">💰</div>
+                <h3 class="step-title">{{ _t('how_it_works.step3_title') }}</h3>
+                <p class="step-desc">{{ _t('how_it_works.step3_desc') }}</p>
+            </div>
+
+            <div class="step-card">
+                <span class="step-number">04</span>
+                <div class="step-icon">🤝</div>
+                <h3 class="step-title">{{ _t('how_it_works.step4_title') }}</h3>
+                <p class="step-desc">{{ _t('how_it_works.step4_desc') }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3. Popular Machinery Categories Section -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-pill">{{ _t('categories.pill') }}</span>
+            <h2 class="section-title">{{ _t('categories.title') }}</h2>
+            <p class="section-desc">{{ _t('categories.subtitle') }}</p>
+        </div>
+
+        <div class="categories-grid">
+            <a href="{{ url_for('machinery.catalogue', category='TRACTOR') }}" class="category-card">
+                <div class="category-icon">🚜</div>
+                <div class="category-name">{{ _t('cat.TRACTOR') }}</div>
+                <span class="category-count">40–65 HP Plowing</span>
+            </a>
+
+            <a href="{{ url_for('machinery.catalogue', category='HARVESTER') }}" class="category-card">
+                <div class="category-icon">🌾</div>
+                <div class="category-name">{{ _t('cat.HARVESTER') }}</div>
+                <span class="category-count">Paddy & Multi-Crop</span>
+            </a>
+
+            <a href="{{ url_for('machinery.catalogue', category='TILLER') }}" class="category-card">
+                <div class="category-icon">⚙️</div>
+                <div class="category-name">{{ _t('cat.TILLER') }}</div>
+                <span class="category-count">Power Tillers</span>
+            </a>
+
+            <a href="{{ url_for('machinery.catalogue', category='SPRAYER') }}" class="category-card">
+                <div class="category-icon">💧</div>
+                <div class="category-name">{{ _t('cat.SPRAYER') }}</div>
+                <span class="category-count">Boom & Orchard</span>
+            </a>
+
+            <a href="{{ url_for('machinery.catalogue', category='BALER') }}" class="category-card">
+                <div class="category-icon">📦</div>
+                <div class="category-name">{{ _t('cat.BALER') }}</div>
+                <span class="category-count">Straw & Hay</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- 4. Why Choose FarmConnect Section -->
+<section class="section section-subtle">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-pill">{{ _t('why_choose.pill') }}</span>
+            <h2 class="section-title">{{ _t('why_choose.title') }}</h2>
+            <p class="section-desc">{{ _t('why_choose.subtitle') }}</p>
+        </div>
+
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon">🛡️</div>
+                <div>
+                    <h3 class="benefit-title">{{ _t('why_choose.b1_title') }}</h3>
+                    <p class="benefit-desc">{{ _t('why_choose.b1_desc') }}</p>
+                </div>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon">💵</div>
+                <div>
+                    <h3 class="benefit-title">{{ _t('why_choose.b2_title') }}</h3>
+                    <p class="benefit-desc">{{ _t('why_choose.b2_desc') }}</p>
+                </div>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon">⏱️</div>
+                <div>
+                    <h3 class="benefit-title">{{ _t('why_choose.b3_title') }}</h3>
+                    <p class="benefit-desc">{{ _t('why_choose.b3_desc') }}</p>
+                </div>
             </div>
         </div>
     </div>

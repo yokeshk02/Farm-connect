@@ -3,27 +3,28 @@
 {% block title %}{{ _t('catalogue.title') }} - {{ _t('app.name') }}{% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-2xl);">
-    <!-- Header Section -->
+<div class="container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-3xl);">
+    <!-- Catalogue Header -->
     <div style="margin-bottom: var(--spacing-lg);">
-        <h1 style="color: var(--color-primary-dark); font-size: var(--font-size-2xl); font-weight: 700; margin-bottom: var(--spacing-xs);">
+        <h1 style="color: var(--color-text-heading); font-size: var(--font-size-3xl); font-weight: 800; margin-bottom: var(--spacing-xs); letter-spacing: -0.01em;">
             🚜 {{ _t('catalogue.title') }}
         </h1>
-        <p style="color: var(--color-text-muted); font-size: var(--font-size-base);">
+        <p style="color: var(--color-text-muted); font-size: var(--font-size-base); max-width: 750px;">
             {{ _t('catalogue.subtitle') }}
         </p>
     </div>
 
-    <!-- Filters & Search Toolbar -->
-    <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-xl); background-color: var(--color-bg-card);">
+    <!-- Prominent Search & Filter Card -->
+    <div class="filter-card">
         <form id="filterForm" action="{{ url_for('machinery.catalogue') }}" method="GET">
             <input type="hidden" name="lat" id="gpsLat" value="{{ user_lat or '' }}">
             <input type="hidden" name="lng" id="gpsLng" value="{{ user_lng or '' }}">
 
+            <!-- Primary Search Row -->
             <div class="filter-grid">
                 <!-- Search Keyword -->
-                <div class="form-group" style="grid-column: 1 / -1;">
-                    <label for="searchQuery" class="form-label" style="font-weight: 600;">{{ _t('catalogue.search_placeholder') }}</label>
+                <div class="form-group">
+                    <label for="searchQuery" class="form-label">{{ _t('catalogue.search_placeholder') }}</label>
                     <input type="text" id="searchQuery" name="q" class="form-control" 
                            placeholder="{{ _t('catalogue.search_placeholder') }}" value="{{ q or '' }}">
                 </div>
@@ -64,12 +65,15 @@
                         {% endfor %}
                     </select>
                 </div>
+            </div>
 
+            <!-- Secondary Filters Row -->
+            <div class="filter-grid-secondary">
                 <!-- Village / Town -->
                 <div class="form-group">
                     <label for="villageInput" class="form-label">{{ _t('catalogue.filter_village') }}</label>
                     <input type="text" id="villageInput" name="village" class="form-control" 
-                           placeholder="e.g. Maduranthakam" value="{{ village or '' }}">
+                           placeholder="e.g. Kumbakonam" value="{{ village or '' }}">
                 </div>
 
                 <!-- PIN Code -->
@@ -91,40 +95,32 @@
                         {% endif %}
                     </select>
                 </div>
-            </div>
 
-            <!-- Action Buttons: Filter, Reset, GPS -->
-            <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-sm); align-items: center; justify-content: space-between; margin-top: var(--spacing-sm); padding-top: var(--spacing-sm); border-top: 1px solid var(--color-border);">
-                <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                <!-- Action Controls: Filter, Reset, GPS -->
+                <div style="display: flex; gap: var(--spacing-sm); align-items: flex-end; flex-wrap: wrap;">
                     <button type="submit" class="btn btn-primary btn-sm">
                         🔍 {{ _t('catalogue.btn_filter') }}
                     </button>
                     <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-outline btn-sm">
                         ↺ {{ _t('catalogue.btn_reset') }}
                     </a>
-                </div>
-
-                <!-- Optional GPS button -->
-                <div>
-                    <button type="button" id="btnGps" class="btn btn-sm" 
-                            style="background-color: var(--color-bg-subtle); border: 1px solid var(--color-border); color: var(--color-primary-dark); font-weight: 500;"
-                            onclick="requestUserLocation()">
+                    <button type="button" id="btnGps" class="btn btn-outline btn-sm" onclick="requestUserLocation()">
                         <span id="gpsIcon">📍</span> <span id="gpsText">{{ _t('catalogue.use_gps') }}</span>
                     </button>
-                    <span id="gpsStatus" style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-left: var(--spacing-xs);"></span>
                 </div>
             </div>
+            <div id="gpsStatus" style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: var(--spacing-xs);"></div>
         </form>
     </div>
 
-    <!-- Results Header -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
-        <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); font-weight: 500;">
+    <!-- Results Status Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-base);">
+        <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); font-weight: 600;">
             {{ _t('catalogue.results_count', count=pagination.total_count) }}
         </p>
         {% if user_lat and user_lng %}
-            <span class="badge" style="background-color: rgba(45, 106, 79, 0.1); color: var(--color-primary-dark); border: 1px solid var(--color-primary-light);">
-                📍 GPS Active
+            <span class="badge" style="background-color: var(--color-primary-subtle); color: var(--color-primary-dark); font-weight: 700;">
+                📍 GPS Proximity Sorting Active
             </span>
         {% endif %}
     </div>
@@ -136,13 +132,13 @@
                 {% set m = item.machinery %}
                 <div class="card machinery-card">
                     <!-- Photo Header -->
-                    <div class="machinery-photo-wrapper">
-                        <img src="{{ item.primary_photo_url }}" alt="{{ m.name_en }}" class="machinery-photo" loading="lazy">
-                        <span class="category-badge">
+                    <div class="machinery-img-wrapper">
+                        <img src="{{ item.primary_photo_url }}" alt="{{ m.name_en }}" class="machinery-img" loading="lazy">
+                        <span class="category-pill">
                             {{ _t('cat.' + m.category) }}
                         </span>
                         {% if item.distance_km is not none %}
-                            <span class="distance-badge">
+                            <span class="category-pill" style="left: auto; right: 12px; background-color: rgba(229, 152, 25, 0.9); color: #133826;">
                                 📍 ~{{ item.distance_km }} km
                             </span>
                         {% endif %}
@@ -159,7 +155,7 @@
                         </h2>
 
                         {% if m.make_model %}
-                            <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: var(--spacing-xs);">
+                            <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: 4px;">
                                 {{ m.make_model }} {% if m.model_year %}({{ m.model_year }}){% endif %}
                                 {% if m.horsepower %} • {{ m.horsepower }} HP{% endif %}
                             </p>
@@ -169,17 +165,17 @@
                             📍 {{ m.village_or_town }}, {{ m.district }} ({{ m.pincode }})
                         </p>
 
-                        <!-- Price & Action -->
+                        <!-- Price & Action Footer -->
                         <div class="machinery-card-footer">
                             <div>
                                 {% if item.starting_rate %}
-                                    <span style="font-size: var(--font-size-xs); color: var(--color-text-muted); display: block;">
+                                    <span style="font-size: 11px; color: var(--color-text-muted); display: block;">
                                         {{ _t('catalogue.starts_from') }}
                                     </span>
-                                    <span class="machinery-price">
+                                    <span class="machinery-rate-val">
                                         ₹{{ "%.0f"|format(item.starting_rate) }}
                                     </span>
-                                    <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                                    <span class="machinery-rate-unit">
                                         {% if item.starting_unit == 'hr' %}{{ _t('catalogue.per_hour') }}{% else %}{{ _t('catalogue.per_day') }}{% endif %}
                                     </span>
                                 {% else %}
@@ -200,7 +196,7 @@
 
         <!-- Pagination Controls -->
         {% if pagination.total_pages > 1 %}
-            <div class="pagination-wrapper">
+            <div style="display: flex; justify-content: center; align-items: center; gap: var(--spacing-md); margin-top: var(--spacing-2xl);">
                 {% if pagination.has_prev %}
                     <a href="{{ url_for('machinery.catalogue', q=q, district=district, village=village, pincode=pincode, category=category, package=package, sort=sort, lat=user_lat, lng=user_lng, page=pagination.prev_page) }}" 
                        class="btn btn-outline btn-sm">
@@ -208,7 +204,7 @@
                     </a>
                 {% endif %}
 
-                <span style="font-size: var(--font-size-sm); color: var(--color-text-muted); font-weight: 500;">
+                <span style="font-size: var(--font-size-sm); color: var(--color-text-muted); font-weight: 600;">
                     {{ _t('catalogue.page_info', current=pagination.page, total=pagination.total_pages) }}
                 </span>
 
@@ -223,15 +219,15 @@
 
     {% else %}
         <!-- Empty State -->
-        <div class="card empty-state-card">
-            <div style="font-size: 3rem; margin-bottom: var(--spacing-sm);">🌾</div>
-            <h2 style="font-size: var(--font-size-lg); color: var(--color-primary-dark); font-weight: 700; margin-bottom: var(--spacing-xs);">
+        <div class="card" style="text-align: center; padding: var(--spacing-3xl) var(--spacing-lg);">
+            <div style="font-size: 3.5rem; margin-bottom: var(--spacing-sm);">🌾</div>
+            <h2 style="font-size: var(--font-size-xl); color: var(--color-text-heading); font-weight: 700; margin-bottom: var(--spacing-xs);">
                 {{ _t('catalogue.no_results_title') }}
             </h2>
-            <p style="color: var(--color-text-muted); max-width: 500px; margin: 0 auto var(--spacing-md);">
+            <p style="color: var(--color-text-muted); max-width: 500px; margin: 0 auto var(--spacing-lg);">
                 {{ _t('catalogue.no_results_desc') }}
             </p>
-            <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-primary btn-sm">
+            <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-primary">
                 {{ _t('catalogue.btn_reset') }}
             </a>
         </div>
@@ -250,36 +246,35 @@ function requestUserLocation() {
     const sortSelect = document.getElementById('sortSelect');
 
     if (!navigator.geolocation) {
-        statusText.textContent = "{{ _t('catalogue.gps_denied') }}";
+        statusText.textContent = t('catalogue.gps_denied');
         return;
     }
 
-    statusText.textContent = "{{ _t('catalogue.gps_locating') }}";
+    statusText.textContent = t('catalogue.gps_locating');
     btn.disabled = true;
 
     navigator.geolocation.getCurrentPosition(
         (position) => {
-            latInput.value = position.coords.latitude.toFixed(6);
-            lngInput.value = position.coords.longitude.toFixed(6);
-            statusText.textContent = "✓ Located";
-            // Ensure distance sort option is available and chosen
-            if (sortSelect) {
-                let opt = sortSelect.querySelector('option[value="distance"]');
-                if (!opt) {
-                    opt = document.createElement('option');
-                    opt.value = 'distance';
-                    opt.textContent = "{{ _t('catalogue.sort_distance') }}";
-                    sortSelect.appendChild(opt);
-                }
-                sortSelect.value = 'distance';
+            latInput.value = position.coords.latitude.toFixed(7);
+            lngInput.value = position.coords.longitude.toFixed(7);
+            statusText.textContent = "Location detected. Updating results...";
+            
+            // Add distance option to sort dropdown if not present
+            let distanceOpt = sortSelect.querySelector('option[value="distance"]');
+            if (!distanceOpt) {
+                distanceOpt = document.createElement('option');
+                distanceOpt.value = 'distance';
+                distanceOpt.textContent = t('catalogue.sort_distance');
+                sortSelect.appendChild(distanceOpt);
             }
+            sortSelect.value = 'distance';
             form.submit();
         },
         (error) => {
             btn.disabled = false;
-            statusText.textContent = "{{ _t('catalogue.gps_denied') }}";
+            statusText.textContent = t('catalogue.gps_denied');
         },
-        { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+        { timeout: 10000, enableHighAccuracy: false }
     );
 }
 </script>

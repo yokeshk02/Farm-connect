@@ -9,19 +9,19 @@
 {% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-2xl);">
+<div class="container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-3xl);">
     <!-- Back Link -->
-    <div style="margin-bottom: var(--spacing-md);">
+    <div style="margin-bottom: var(--spacing-base);">
         <a href="{{ url_for('machinery.catalogue') }}" class="back-link">
-            {{ _t('detail.back_catalogue') }}
+            ← {{ _t('detail.back_catalogue') }}
         </a>
     </div>
 
     <div class="detail-layout">
-        <!-- Left Column: Gallery & Details -->
+        <!-- LEFT COLUMN: Gallery, Specifications, Description -->
         <div>
             <!-- Main Gallery Card -->
-            <div class="card" style="padding: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+            <div class="card" style="padding: var(--spacing-base); margin-bottom: var(--spacing-lg);">
                 <div class="detail-gallery-main">
                     {% if photos %}
                         <img id="mainGalleryImg" src="{{ photos[0].photo_url }}" alt="{{ machinery.name_en }}" class="gallery-hero-img">
@@ -41,23 +41,9 @@
                 {% endif %}
             </div>
 
-            <!-- Description Card -->
-            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
-                <h2 style="font-size: var(--font-size-lg); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-sm);">
-                    {{ _t('detail.description') }}
-                </h2>
-                {% if current_lang == 'ta' and machinery.description_ta %}
-                    <p style="color: var(--color-text-main); line-height: 1.6; white-space: pre-line;">{{ machinery.description_ta }}</p>
-                {% elif machinery.description_en %}
-                    <p style="color: var(--color-text-main); line-height: 1.6; white-space: pre-line;">{{ machinery.description_en }}</p>
-                {% else %}
-                    <p style="color: var(--color-text-muted); font-style: italic;">No description provided.</p>
-                {% endif %}
-            </div>
-
             <!-- Specifications Card -->
-            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
-                <h2 style="font-size: var(--font-size-lg); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-md);">
+            <div class="card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-lg);">
+                <h2 style="font-size: var(--font-size-lg); font-weight: 800; color: var(--color-text-heading); margin-bottom: var(--spacing-base);">
                     ⚙️ {{ _t('detail.specifications') }}
                 </h2>
                 <div class="specs-grid">
@@ -83,23 +69,37 @@
                             <span class="spec-val">{{ machinery.horsepower }} HP</span>
                         </div>
                     {% endif %}
-                    <div class="spec-item">
+                    <div class="spec-item" style="grid-column: span 2;">
                         <span class="spec-label">{{ _t('detail.location') }}</span>
-                        <span class="spec-val">📍 {{ machinery.village_or_town }}, {{ machinery.district }} ({{ machinery.pincode }})</span>
+                        <span class="spec-val">📍 {{ machinery.village_or_town }}, {{ machinery.district }} (PIN: {{ machinery.pincode }})</span>
                     </div>
                 </div>
             </div>
+
+            <!-- Description Card -->
+            <div class="card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-lg);">
+                <h2 style="font-size: var(--font-size-lg); font-weight: 800; color: var(--color-text-heading); margin-bottom: var(--spacing-sm);">
+                    📝 {{ _t('detail.description') }}
+                </h2>
+                {% if current_lang == 'ta' and machinery.description_ta %}
+                    <p style="color: var(--color-text-main); line-height: 1.7; white-space: pre-line;">{{ machinery.description_ta }}</p>
+                {% elif machinery.description_en %}
+                    <p style="color: var(--color-text-main); line-height: 1.7; white-space: pre-line;">{{ machinery.description_en }}</p>
+                {% else %}
+                    <p style="color: var(--color-text-muted); font-style: italic;">No description provided by the equipment provider.</p>
+                {% endif %}
+            </div>
         </div>
 
-        <!-- Right Column: Title, Rates & Provider Details -->
+        <!-- RIGHT COLUMN: Title, Pricing Packages, Booking Stepper, Provider Details -->
         <div>
-            <!-- Header Card -->
-            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
-                <span class="category-badge" style="position: static; display: inline-block; margin-bottom: var(--spacing-xs);">
+            <!-- Header Summary Card -->
+            <div class="card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-lg);">
+                <span class="category-pill" style="position: static; display: inline-block; margin-bottom: var(--spacing-xs);">
                     {{ _t('cat.' + machinery.category) }}
                 </span>
 
-                <h1 style="font-size: var(--font-size-2xl); font-weight: 800; color: var(--color-primary-dark); margin-bottom: var(--spacing-xs);">
+                <h1 style="font-size: var(--font-size-2xl); font-weight: 800; color: var(--color-text-heading); margin-bottom: 4px; line-height: 1.25;">
                     {% if current_lang == 'ta' and machinery.name_ta %}
                         {{ machinery.name_ta }}
                     {% else %}
@@ -108,7 +108,7 @@
                 </h1>
 
                 {% if current_lang == 'ta' and machinery.name_ta and machinery.name_en %}
-                    <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--spacing-sm);">
+                    <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--spacing-xs);">
                         {{ machinery.name_en }}
                     </p>
                 {% endif %}
@@ -118,9 +118,9 @@
                 </p>
             </div>
 
-            <!-- Rental Options & Rates Card -->
-            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
-                <h2 style="font-size: var(--font-size-md); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-md);">
+            <!-- Available Rental Options & Pricing -->
+            <div class="card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-lg);">
+                <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin-bottom: var(--spacing-md);">
                     💰 {{ _t('detail.rates_packages') }}
                 </h2>
 
@@ -129,16 +129,14 @@
                         {% set r = rates_by_type.get(opt) %}
                         {% if r %}
                             <div class="rate-tier-box">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xs);">
-                                    <span style="font-weight: 700; font-size: var(--font-size-sm); color: var(--color-primary-dark);">
-                                        {{ _t('pkg.' + opt) }}
-                                    </span>
+                                <div style="font-weight: 700; font-size: var(--font-size-sm); color: var(--color-primary-dark); margin-bottom: var(--spacing-xs);">
+                                    {{ _t('pkg.' + opt) }}
                                 </div>
 
-                                <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap; margin-bottom: var(--spacing-xs);">
+                                <div style="display: flex; gap: var(--spacing-base); flex-wrap: wrap; margin-bottom: var(--spacing-xs);">
                                     {% if r.rate_per_hour %}
                                         <div>
-                                            <span style="font-size: 1.25rem; font-weight: 800; color: var(--color-primary);">
+                                            <span style="font-size: 1.35rem; font-weight: 800; color: var(--color-primary);">
                                                 ₹{{ "%.0f"|format(r.rate_per_hour) }}
                                             </span>
                                             <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">{{ _t('catalogue.per_hour') }}</span>
@@ -146,7 +144,7 @@
                                     {% endif %}
                                     {% if r.rate_per_day %}
                                         <div>
-                                            <span style="font-size: 1.25rem; font-weight: 800; color: var(--color-primary);">
+                                            <span style="font-size: 1.35rem; font-weight: 800; color: var(--color-primary);">
                                                 ₹{{ "%.0f"|format(r.rate_per_day) }}
                                             </span>
                                             <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">{{ _t('catalogue.per_day') }}</span>
@@ -154,7 +152,7 @@
                                     {% endif %}
                                 </div>
 
-                                <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); display: flex; gap: var(--spacing-md);">
+                                <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); display: flex; gap: var(--spacing-base);">
                                     <span>{{ _t('detail.min_duration') }}: <strong>{{ r.min_booking_duration_hours }} {{ _t('detail.hours') }}</strong></span>
                                     {% if r.security_deposit and r.security_deposit > 0 %}
                                         <span>{{ _t('detail.security_deposit') }}: <strong>₹{{ "%.0f"|format(r.security_deposit) }}</strong></span>
@@ -164,25 +162,43 @@
                         {% endif %}
                     {% endfor %}
                 </div>
-
-                </div>
             </div>
 
-            <!-- Booking Section -->
-            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);" id="bookingSection">
-                <h2 style="font-size: var(--font-size-md); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-xs);">
+            <!-- Booking Section with Stepper -->
+            <div class="card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-lg);" id="bookingSection">
+                <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin-bottom: var(--spacing-xs);">
                     📅 {{ _t('booking.book_title') }}
                 </h2>
-                <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: var(--spacing-md);">
+                <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: var(--spacing-lg);">
                     {{ _t('booking.book_subtitle') }}
                 </p>
 
+                <!-- Booking Stepper Indicator -->
+                <div class="booking-stepper">
+                    <div class="step-indicator active">
+                        <div class="step-badge">1</div>
+                        <div class="step-name">{{ _t('stepper.step1') }}</div>
+                    </div>
+                    <div class="step-indicator">
+                        <div class="step-badge">2</div>
+                        <div class="step-name">{{ _t('stepper.step2') }}</div>
+                    </div>
+                    <div class="step-indicator">
+                        <div class="step-badge">3</div>
+                        <div class="step-name">{{ _t('stepper.step3') }}</div>
+                    </div>
+                    <div class="step-indicator">
+                        <div class="step-badge">4</div>
+                        <div class="step-name">{{ _t('stepper.step4') }}</div>
+                    </div>
+                </div>
+
                 {% if not session.get('user_id') %}
-                    <div class="alert alert-info" style="margin-bottom: var(--spacing-md); font-size: var(--font-size-sm);">
+                    <div class="alert alert-info" style="font-size: var(--font-size-sm); margin-bottom: var(--spacing-base);">
                         ℹ️ {{ _t('booking.login_to_book') }}
                     </div>
                     <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary btn-block">
-                        🔐 {{ _t('auth.login_tab') }} / {{ _t('nav.register') }}
+                        🔐 {{ _t('nav.login') }} / {{ _t('nav.register') }}
                     </a>
                 {% elif session.get('user_role') == 'PROVIDER' %}
                     <div class="alert alert-warning" style="font-size: var(--font-size-xs);">
@@ -195,8 +211,8 @@
                         <input type="hidden" id="machineryIdField" value="{{ machinery.id }}">
 
                         <!-- Package selection -->
-                        <div class="form-group" style="margin-bottom: var(--spacing-md);">
-                            <label class="form-label" style="font-weight: 700; font-size: var(--font-size-xs);">
+                        <div class="form-group" style="margin-bottom: var(--spacing-base);">
+                            <label class="form-label">
                                 {{ _t('booking.select_package') }} *
                             </label>
                             <select name="rental_option_type" id="packageSelect" class="form-select" required>
@@ -211,15 +227,15 @@
                         </div>
 
                         <!-- Date/Time Inputs -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm); margin-bottom: var(--spacing-md);">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm); margin-bottom: var(--spacing-base);">
                             <div class="form-group">
-                                <label class="form-label" style="font-weight: 700; font-size: var(--font-size-xs);">
+                                <label class="form-label">
                                     {{ _t('booking.start_time') }} *
                                 </label>
                                 <input type="datetime-local" name="start_time" id="bookingStartTime" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label class="form-label" style="font-weight: 700; font-size: var(--font-size-xs);">
+                                <label class="form-label">
                                     {{ _t('booking.end_time') }} *
                                 </label>
                                 <input type="datetime-local" name="end_time" id="bookingEndTime" class="form-control" required>
@@ -227,8 +243,8 @@
                         </div>
 
                         <!-- Delivery Address -->
-                        <div class="form-group" style="margin-bottom: var(--spacing-md);">
-                            <label class="form-label" style="font-weight: 700; font-size: var(--font-size-xs);">
+                        <div class="form-group" style="margin-bottom: var(--spacing-base);">
+                            <label class="form-label">
                                 {{ _t('booking.delivery_address') }}
                             </label>
                             <input type="text" name="delivery_address" class="form-control" 
@@ -236,8 +252,8 @@
                         </div>
 
                         <!-- Notes -->
-                        <div class="form-group" style="margin-bottom: var(--spacing-md);">
-                            <label class="form-label" style="font-weight: 700; font-size: var(--font-size-xs);">
+                        <div class="form-group" style="margin-bottom: var(--spacing-base);">
+                            <label class="form-label">
                                 {{ _t('booking.notes') }}
                             </label>
                             <textarea name="notes" class="form-control" rows="2" 
@@ -245,7 +261,7 @@
                         </div>
 
                         <!-- Estimate Calculation Preview Box -->
-                        <div style="margin-bottom: var(--spacing-md);">
+                        <div style="margin-bottom: var(--spacing-base);">
                             <button type="button" id="btnCalculateEstimate" class="btn btn-outline btn-sm btn-block" style="margin-bottom: var(--spacing-xs);">
                                 🧮 {{ _t('booking.btn_estimate') }}
                             </button>
@@ -266,8 +282,8 @@
                             <div id="estimateErrorBox" class="alert alert-error" style="display: none; font-size: var(--font-size-xs); margin-top: var(--spacing-xs);"></div>
                         </div>
 
-                        <!-- Offline payment reassurance banner -->
-                        <div class="alert alert-info" style="font-size: 11px; line-height: 1.4; margin-bottom: var(--spacing-md); padding: var(--spacing-xs) var(--spacing-sm);">
+                        <!-- Offline Payment Reassurance -->
+                        <div class="alert alert-info" style="font-size: 11px; line-height: 1.4; margin-bottom: var(--spacing-base); padding: var(--spacing-xs) var(--spacing-sm);">
                             🤝 {{ _t('booking.offline_notice') }}
                         </div>
 
@@ -279,34 +295,34 @@
             </div>
 
             <!-- Provider Contact Card (Safe Public Display) -->
-            <div class="card" style="padding: var(--spacing-lg);">
-                <h2 style="font-size: var(--font-size-md); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-sm);">
+            <div class="card" style="padding: var(--spacing-xl);">
+                <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin-bottom: var(--spacing-sm);">
                     🧑‍🌾 {{ _t('detail.provider_info') }}
                 </h2>
 
                 {% if provider %}
-                    <p style="font-weight: 700; font-size: var(--font-size-base); color: var(--color-text-main); margin-bottom: var(--spacing-xs);">
+                    <p style="font-weight: 700; font-size: var(--font-size-base); color: var(--color-text-main); margin-bottom: var(--spacing-2xs);">
                         {{ provider.business_name or 'Verified Equipment Provider' }}
                     </p>
 
-                    <div style="margin-bottom: var(--spacing-md);">
-                        <span class="badge" style="background-color: rgba(45, 106, 79, 0.1); color: var(--color-primary-dark);">
+                    <div style="margin-bottom: var(--spacing-sm);">
+                        <span class="badge" style="background-color: var(--color-primary-subtle); color: var(--color-primary-dark); font-weight: 700; font-size: 11px;">
                             ✓ {{ _t('detail.verified') }}
                         </span>
                     </div>
 
                     {% if provider.bio_description %}
-                        <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--spacing-md);">
+                        <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); line-height: 1.5; margin-bottom: var(--spacing-base);">
                             {{ provider.bio_description }}
                         </p>
                     {% endif %}
 
                     <!-- Safe Provider Communication: WhatsApp only if explicit provider consent given -->
                     {% if provider.whatsapp_enabled and provider.whatsapp_number %}
-                        <div style="margin-top: var(--spacing-sm);">
+                        <div>
                             <a href="https://wa.me/{{ provider.whatsapp_number|replace('+', '')|replace(' ', '') }}?text=Hello,%20I%20am%20interested%20in%20renting%20{{ machinery.name_en }}%20via%20FarmConnect." 
                                target="_blank" rel="noopener noreferrer" 
-                               class="btn btn-accent btn-block" style="background-color: #25D366; color: white;">
+                               class="btn btn-accent btn-block btn-sm" style="background-color: #25D366; color: white;">
                                 💬 {{ _t('detail.whatsapp_owner') }}
                             </a>
                         </div>
@@ -339,7 +355,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const errorBox = document.getElementById('estimateErrorBox');
     const machineryId = document.getElementById('machineryIdField') ? document.getElementById('machineryIdField').value : null;
 
-    // Set minimum start time to now
     if (startInput) {
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());

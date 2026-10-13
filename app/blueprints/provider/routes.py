@@ -45,6 +45,42 @@ def parse_decimal_safe(val: str | None, default=None):
         raise ValueError(f"Invalid monetary rate value: '{val}'.")
 
 
+@provider_bp.route("/", methods=["GET"])
+@provider_bp.route("/dashboard", methods=["GET"])
+@login_required
+@role_required("PROVIDER")
+def dashboard():
+    """Provider overview dashboard with real metrics, recent bookings, and quick actions."""
+    user = get_current_user()
+    profile = get_or_create_provider_profile(user)
+
+    total_machinery = Machinery.query.filter_by(provider_id=profile.id).count()
+
+    base_booking_query = (
+        Booking.query.join(Machinery, Booking.machinery_id == Machinery.id)
+        .filter(Machinery.provider_id == profile.id)
+    )
+
+    pending_count = base_booking_query.filter(Booking.status == Booking.STATUS_PENDING).count()
+    active_count = base_booking_query.filter(
+        Booking.status.in_([Booking.STATUS_APPROVED, Booking.STATUS_IN_PROGRESS])
+    ).count()
+    completed_count = base_booking_query.filter(Booking.status == Booking.STATUS_COMPLETED).count()
+
+    recent_bookings = base_booking_query.order_by(Booking.created_at.desc()).limit(5).all()
+
+    return render_template(
+        "provider/dashboard.html",
+        profile=profile,
+        user=user,
+        total_machinery=total_machinery,
+        pending_count=pending_count,
+        active_count=active_count,
+        completed_count=completed_count,
+        recent_bookings=recent_bookings,
+    )
+
+
 @provider_bp.route("/machinery/", methods=["GET"])
 @login_required
 @role_required("PROVIDER")

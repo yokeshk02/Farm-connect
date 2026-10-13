@@ -8,12 +8,12 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Main Header & Navigation -->
+    <!-- Main Header & Role-Based Navigation -->
     <header class="navbar">
         <div class="container nav-container">
             <a href="{{ url_for('main.index') }}" class="brand" title="{{ _t('app.name') }}">
                 <span class="brand-icon">🌾</span>
-                <span class="brand-text">{{ _t('app.name') }}</span>
+                <span class="brand-text">Farm<span>Connect</span></span>
             </a>
 
             <nav>
@@ -23,14 +23,13 @@
                     
                     {% if session.get('user_id') %}
                         {% if session.get('user_role') == 'PROVIDER' %}
+                            <li><a href="{{ url_for('provider.dashboard') }}" class="nav-link">{{ _t('nav.provider_dashboard') }}</a></li>
                             <li><a href="{{ url_for('provider.machinery_list') }}" class="nav-link">{{ _t('nav.my_machinery') }}</a></li>
                             <li><a href="{{ url_for('provider.bookings_list') }}" class="nav-link">{{ _t('provider.nav_bookings') }}</a></li>
                         {% elif session.get('user_role') == 'ADMIN' %}
-                            <li><a href="{{ url_for('provider.machinery_list') }}" class="nav-link">{{ _t('nav.my_machinery') }}</a></li>
-                            <li><a href="{{ url_for('provider.bookings_list') }}" class="nav-link">{{ _t('provider.nav_bookings') }}</a></li>
-                            <li><a href="{{ url_for('bookings.my_bookings') }}" class="nav-link">{{ _t('booking.my_bookings_title') }}</a></li>
+                            <li><a href="{{ url_for('provider.dashboard') }}" class="nav-link">{{ _t('nav.admin_dashboard') }}</a></li>
                         {% else %}
-                            <li><a href="{{ url_for('bookings.my_bookings') }}" class="nav-link">{{ _t('booking.my_bookings_title') }}</a></li>
+                            <li><a href="{{ url_for('bookings.my_bookings') }}" class="nav-link">{{ _t('nav.my_bookings') }}</a></li>
                         {% endif %}
                         <li><a href="{{ url_for('auth.profile') }}" class="nav-link">{{ _t('nav.profile') }}</a></li>
                         <li>
@@ -42,17 +41,21 @@
                             </form>
                         </li>
                     {% else %}
+                        <li><a href="{{ url_for('main.index') }}#how-it-works" class="nav-link">{{ _t('nav.how_it_works') }}</a></li>
+                        <li><a href="{{ url_for('main.contact') }}" class="nav-link">{{ _t('nav.contact') }}</a></li>
                         <li><a href="{{ url_for('auth.login') }}" class="nav-link">{{ _t('nav.login') }}</a></li>
                         <li><a href="{{ url_for('auth.register') }}" class="btn btn-accent btn-sm">{{ _t('nav.register') }}</a></li>
                     {% endif %}
 
-                    <!-- Language Switcher -->
+                    <!-- Bilingual Language Switcher -->
                     <li>
                         <div class="lang-switcher" aria-label="{{ _t('nav.language') }}">
                             <a href="{{ url_for('main.set_language', lang='en', next=request.path) }}" 
-                               class="lang-btn {% if current_lang == 'en' %}active{% endif %}">EN</a>
+                               class="lang-btn {% if current_lang == 'en' %}active{% endif %}"
+                               id="langBtnEn">EN</a>
                             <a href="{{ url_for('main.set_language', lang='ta', next=request.path) }}" 
-                               class="lang-btn {% if current_lang == 'ta' %}active{% endif %}">தமிழ்</a>
+                               class="lang-btn {% if current_lang == 'ta' %}active{% endif %}"
+                               id="langBtnTa">தமிழ்</a>
                         </div>
                     </li>
                 </ul>
@@ -63,7 +66,7 @@
     <!-- Main Page Content -->
     <main class="main-content">
         <!-- Flash Messages -->
-        <div class="container">
+        <div class="container" style="margin-top: var(--spacing-base);">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     <div class="flash-messages">
@@ -80,23 +83,66 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
+    <!-- Deep Green Complete Footer -->
     <footer class="footer">
         <div class="container">
-            <div class="footer-content">
+            <div class="footer-grid">
+                <!-- Col 1: Brand & Mission -->
                 <div>
-                    <h3 class="footer-brand">🌾 {{ _t('app.name') }}</h3>
-                    <p>{{ _t('footer.about') }}</p>
+                    <h3 class="brand" style="margin-bottom: var(--spacing-sm); font-size: 1.4rem;">
+                        <span class="brand-icon">🌾</span>
+                        <span class="brand-text">Farm<span>Connect</span></span>
+                    </h3>
+                    <p style="color: #cbd5e1; font-size: var(--font-size-sm); line-height: 1.6; margin-bottom: var(--spacing-base);">
+                        {{ _t('footer.about') }}
+                    </p>
+                    <div style="font-size: var(--font-size-xs); color: #94a3b8;">
+                        Tamil Nadu's dedicated bilingual agricultural machinery rental network.
+                    </div>
                 </div>
+
+                <!-- Col 2: Quick Links -->
                 <div>
-                    <h4>{{ _t('footer.quick_links') }}</h4>
-                    <p><a href="{{ url_for('main.index') }}" style="color: white;">{{ _t('nav.home') }}</a></p>
-                    <p><a href="{{ url_for('auth.login') }}" style="color: white;">{{ _t('nav.login') }}</a></p>
-                    <p><a href="{{ url_for('auth.register') }}" style="color: white;">{{ _t('nav.register') }}</a></p>
+                    <h4 class="footer-col-title">{{ _t('footer.quick_links') }}</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('main.index') }}">{{ _t('nav.home') }}</a></li>
+                        <li><a href="{{ url_for('machinery.catalogue') }}">{{ _t('nav.machinery') }}</a></li>
+                        <li><a href="{{ url_for('main.index') }}#how-it-works">{{ _t('nav.how_it_works') }}</a></li>
+                        <li><a href="{{ url_for('main.contact') }}">{{ _t('nav.contact') }}</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Provider Services -->
+                <div>
+                    <h4 class="footer-col-title">Provider Services</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('auth.register') }}">{{ _t('hero.cta_list') }}</a></li>
+                        <li><a href="{{ url_for('machinery.catalogue') }}">{{ _t('nav.machinery') }}</a></li>
+                        <li><a href="{{ url_for('auth.login') }}">{{ _t('nav.login') }}</a></li>
+                        <li><a href="{{ url_for('main.contact') }}">{{ _t('nav.contact') }}</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Rural Support & Coverage -->
+                <div>
+                    <h4 class="footer-col-title">Coverage & Helpline</h4>
+                    <p style="color: #cbd5e1; font-size: var(--font-size-sm); margin-bottom: var(--spacing-xs);">
+                        📍 Serving all 38 Districts across Tamil Nadu
+                    </p>
+                    <p style="color: #cbd5e1; font-size: var(--font-size-sm); margin-bottom: var(--spacing-base);">
+                        🤝 Offline Direct Settlement • Zero Middlemen
+                    </p>
+                    <a href="{{ url_for('main.contact') }}" class="btn btn-sm btn-accent" style="display: inline-block;">
+                        📞 {{ _t('nav.contact') }}
+                    </a>
                 </div>
             </div>
+
             <div class="footer-bottom">
                 <p>&copy; 2026 {{ _t('app.name') }}. {{ _t('footer.rights') }}</p>
+                <div style="display: flex; gap: var(--spacing-base);">
+                    <span>English & தமிழ் Bilingual Platform</span>
+                </div>
             </div>
         </div>
     </footer>

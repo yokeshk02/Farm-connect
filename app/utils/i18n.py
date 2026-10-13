@@ -19,6 +19,26 @@ TRANSLATIONS = {
         "en": "Machinery Rentals",
         "ta": "இயந்திரங்கள்",
     },
+    "nav.how_it_works": {
+        "en": "How It Works",
+        "ta": "எப்படி செயல்படுகிறது",
+    },
+    "nav.contact": {
+        "en": "Contact Us",
+        "ta": "தொடர்புக்கு",
+    },
+    "nav.provider_dashboard": {
+        "en": "Provider Dashboard",
+        "ta": "கட்டுப்பாட்டகம்",
+    },
+    "nav.admin_dashboard": {
+        "en": "Admin Dashboard",
+        "ta": "நிர்வாகக் கட்டுப்பாட்டகம்",
+    },
+    "nav.my_bookings": {
+        "en": "My Bookings",
+        "ta": "என் முன்பதிவுகள்",
+    },
     "nav.login": {
         "en": "Sign In",
         "ta": "உள்நுழைக",
@@ -41,21 +61,241 @@ TRANSLATIONS = {
     },
 
     # Landing Page Hero and Content
+    "hero.badge": {
+        "en": "Smart Agricultural Equipment Rental Platform",
+        "ta": "நவீன விவசாய இயந்திர வாடகை தளம்",
+    },
     "hero.title": {
-        "en": "Find & Rent Agricultural Machinery Nearby",
-        "ta": "உங்களுக்கு அருகிலுள்ள விவசாய இயந்திரங்களை வாடகைக்கு பெறுங்கள்",
+        "en": "Connecting Farmers with Modern Machinery",
+        "ta": "விவசாயிகளையும் நவீன இயந்திரங்களையும் இணைக்கும் தளம்",
     },
     "hero.subtitle": {
-        "en": "Connect directly with verified equipment owners across Tamil Nadu. Rent tractors, harvesters, tillers, and sprayers with or without operators.",
-        "ta": "தமிழ்நாடு முழுவதும் உள்ள சரிபார்க்கப்பட்ட இயந்திர உரிமையாளர்களுடன் நேரடியாக இணையுங்கள். டிராக்டர்கள், அறுவடை இயந்திரங்கள் மற்றும் உழவு இயந்திரங்களை உடனடியாக வாடகைக்கு எடுங்கள்.",
+        "en": "Rent tractors, harvesters, tillers, and sprayers directly from verified equipment owners in your district.",
+        "ta": "உங்கள் மாவட்டத்தில் உள்ள சரிபார்க்கப்பட்ட உரிமையாளர்களிடம் இருந்து டிராக்டர், அறுவடை இயந்திரங்களை நேரடியாக வாடகைக்கு பெறுங்கள்.",
     },
     "hero.cta_browse": {
         "en": "Explore Machinery",
         "ta": "இயந்திரங்களை காண்க",
     },
+    "hero.cta_list": {
+        "en": "List Your Machinery",
+        "ta": "இயந்திரத்தைப் பட்டியலிடுங்கள்",
+    },
     "hero.cta_register": {
         "en": "Join as Farmer / Provider",
         "ta": "விவசாயி / உரிமையாளராக இணையுங்கள்",
+    },
+
+    # 4-Step How It Works Section
+    "how_it_works.pill": {
+        "en": "Simple 4-Step Process",
+        "ta": "4 எளிய படிகள்",
+    },
+    "how_it_works.title": {
+        "en": "How FarmConnect Works",
+        "ta": "எவ்வாறு செயல்படுகிறது",
+    },
+    "how_it_works.subtitle": {
+        "en": "Four simple steps to find, book, and deploy machinery on your farm.",
+        "ta": "இயந்திரங்களை எளிதில் கண்டறிந்து வாடகைக்கு பெற நான்கு எளிய படிகள்.",
+    },
+    "how_it_works.step1_title": {
+        "en": "1. Discover Equipment",
+        "ta": "1. இயந்திரங்களைத் தேடுங்கள்",
+    },
+    "how_it_works.step1_desc": {
+        "en": "Search nearby equipment by district, village, PIN code, or optional browser GPS.",
+        "ta": "மாவட்டம், கிராமம் அல்லது GPS மூலம் அருகில் உள்ள இயந்திரங்களை கண்டறியவும்.",
+    },
+    "how_it_works.step2_title": {
+        "en": "2. Choose Rental Tier",
+        "ta": "2. வாடகைத் தொகுப்பைத் தேர்ந்தெடுக்கவும்",
+    },
+    "how_it_works.step2_desc": {
+        "en": "Pick Machine Only, Machine + Operator, or Machine + Operator + Field Labour.",
+        "ta": "இயந்திரம் மட்டும், ஓட்டுநருடன், அல்லது கூடுதல் களப்பணியாளருடன் தேர்வு செய்யவும்.",
+    },
+    "how_it_works.step3_title": {
+        "en": "3. Transparent Estimate",
+        "ta": "3. வெளிப்படையான கட்டணம்",
+    },
+    "how_it_works.step3_desc": {
+        "en": "Review upfront hourly and daily rate estimates without hidden fees or middleman markups.",
+        "ta": "மறைமுகக் கட்டணங்கள் இன்றி கணக்கிடப்பட்ட கட்டண மதிப்பீட்டை சரிபார்க்கவும்.",
+    },
+    "how_it_works.step4_title": {
+        "en": "4. Confirm & Settle",
+        "ta": "4. முன்பதிவு & நேரடி தீர்வு",
+    },
+    "how_it_works.step4_desc": {
+        "en": "Owner confirms booking to lock the slot; settle payment directly upon job fulfillment.",
+        "ta": "உரிமையாளர் ஏற்றுக்கொண்டு உறுதிசெய்ததும், பணி முடிந்ததும் நேரடியாக பணம் செலுத்தலாம்.",
+    },
+
+    # Popular Machinery Categories
+    "categories.pill": {
+        "en": "Machinery Categories",
+        "ta": "இயந்திர வகைகள்",
+    },
+    "categories.title": {
+        "en": "Popular Machinery Categories",
+        "ta": "பிரபலமான இயந்திர வகைகள்",
+    },
+    "categories.subtitle": {
+        "en": "Browse mechanized equipment tailored for every farming requirement.",
+        "ta": "உங்கள் விவசாயத் தேவைக்கேற்ப சிறந்த இயந்திரங்களைத் தேர்வு செய்யுங்கள்.",
+    },
+
+    # Why Choose FarmConnect Section
+    "why_choose.pill": {
+        "en": "Trust & Transparency",
+        "ta": "நம்பகத்தன்மை & வெளிப்படைத்தன்மை",
+    },
+    "why_choose.title": {
+        "en": "Why Farmers & Owners Choose FarmConnect",
+        "ta": "விவசாயிகளும் உரிமையாளர்களும் ஏன் எங்களை தேர்வு செய்கிறார்கள்",
+    },
+    "why_choose.subtitle": {
+        "en": "Empowering rural communities with transparent equipment sharing.",
+        "ta": "வெளிப்படையான இயந்திர பகிர்வு மூலம் கிராமப்புற விவசாயத்தை மேம்படுத்துகிறோம்.",
+    },
+    "why_choose.b1_title": {
+        "en": "Verified Local Providers",
+        "ta": "சரிபார்க்கப்பட்ட உள்ளூர் உரிமையாளர்கள்",
+    },
+    "why_choose.b1_desc": {
+        "en": "All machinery listings belong to verified equipment owners across Tamil Nadu.",
+        "ta": "அனைத்து இயந்திரங்களும் தமிழ்நாடு முழுவதும் உள்ள சரிபார்க்கப்பட்ட உரிமையாளர்களுக்கு சொந்தமானவை.",
+    },
+    "why_choose.b2_title": {
+        "en": "Zero Middlemen Markups",
+        "ta": "இடைத்தரகர் இல்லாத நேரடி சேவை",
+    },
+    "why_choose.b2_desc": {
+        "en": "Direct coordination between farmers and equipment providers with offline payment settlement.",
+        "ta": "விவசாயிகளுக்கும் உரிமையாளர்களுக்கும் இடையேயான நேரடி தொடர்பு மற்றும் கட்டணம்.",
+    },
+    "why_choose.b3_title": {
+        "en": "Double-Booking Prevention",
+        "ta": "இரட்டை முன்பதிவு தடுப்பு",
+    },
+    "why_choose.b3_desc": {
+        "en": "Database exclusion constraints prevent conflicting overlapping bookings on any machine.",
+        "ta": "கால அட்டவணை முரண்பாடுகளை தடுக்கும் பாதுகாப்பான தொழில்நுட்ப அமைப்பு.",
+    },
+
+    # Stepper
+    "stepper.step1": {
+        "en": "Package",
+        "ta": "தொகுப்பு",
+    },
+    "stepper.step2": {
+        "en": "Schedule",
+        "ta": "தேதிகள்",
+    },
+    "stepper.step3": {
+        "en": "Estimate",
+        "ta": "கட்டணம்",
+    },
+    "stepper.step4": {
+        "en": "Confirm",
+        "ta": "உறுதிசெய்க",
+    },
+
+    # Provider Dashboard
+    "dashboard.welcome": {
+        "en": "Welcome Back",
+        "ta": "மீண்டும் வருக",
+    },
+    "dashboard.subtitle": {
+        "en": "Manage your agricultural machinery fleet, incoming booking requests, and rental earnings.",
+        "ta": "உங்கள் இயந்திரங்கள், பெறப்பட்ட வாடகைக் கோரிக்கைகள் மற்றும் வருவாயை நிர்வகிக்கவும்.",
+    },
+    "dashboard.total_machinery": {
+        "en": "Total Machinery",
+        "ta": "மொத்த இயந்திரங்கள்",
+    },
+    "dashboard.pending_requests": {
+        "en": "Pending Requests",
+        "ta": "நிலுவைக் கோரிக்கைகள்",
+    },
+    "dashboard.active_bookings": {
+        "en": "Active Bookings",
+        "ta": "நடப்பு முன்பதிவுகள்",
+    },
+    "dashboard.completed_bookings": {
+        "en": "Completed Bookings",
+        "ta": "நிறைவடைந்த முன்பதிவுகள்",
+    },
+    "dashboard.quick_actions": {
+        "en": "Quick Actions",
+        "ta": "விரைவுச் செயல்கள்",
+    },
+    "dashboard.action_my_machinery": {
+        "en": "My Machinery Fleet",
+        "ta": "என் இயந்திரங்கள்",
+    },
+    "dashboard.action_my_machinery_desc": {
+        "en": "View, edit, or adjust pricing for listed equipment.",
+        "ta": "இயந்திரங்களின் விவரங்கள் மற்றும் வாடகையை திருத்தவும்.",
+    },
+    "dashboard.action_add_machinery": {
+        "en": "List New Machinery",
+        "ta": "புதிய இயந்திரம் சேர்க்க",
+    },
+    "dashboard.action_add_machinery_desc": {
+        "en": "Add a tractor, harvester, or tiller for rent.",
+        "ta": "வாடகைக்கு புதிய இயந்திரத்தை சேர்க்கவும்.",
+    },
+    "dashboard.action_requests": {
+        "en": "Booking Requests",
+        "ta": "முன்பதிவுக் கோரிக்கைகள்",
+    },
+    "dashboard.action_requests_desc": {
+        "en": "Approve, start, or manage incoming rental orders.",
+        "ta": "பெறப்பட்ட வாடகை முன்பதிவுகளை நிர்வகிக்கவும்.",
+    },
+    "dashboard.recent_requests": {
+        "en": "Recent Booking Requests",
+        "ta": "சமீபத்திய முன்பதிவுக் கோரிக்கைகள்",
+    },
+    "dashboard.view_all": {
+        "en": "View All Requests",
+        "ta": "அனைத்தையும் காண்க",
+    },
+
+    # Contact Us Page
+    "contact.title": {
+        "en": "Contact FarmConnect Support",
+        "ta": "உதவி மையத்தைத் தொடர்பு கொள்க",
+    },
+    "contact.subtitle": {
+        "en": "Have questions, feedback, or need assistance? Our rural agricultural support team is here to help.",
+        "ta": "கேள்விகள் அல்லது உதவி தேவையா? எங்கள் குழு உங்களுக்கு உதவ தயாராக உள்ளது.",
+    },
+    "contact.name": {
+        "en": "Your Full Name",
+        "ta": "உங்கள் முழுப் பெயர்",
+    },
+    "contact.phone_or_email": {
+        "en": "Phone Number or Email Address",
+        "ta": "மொபைல் எண் அல்லது மின்னஞ்சல்",
+    },
+    "contact.subject": {
+        "en": "Subject / Topic",
+        "ta": "பொருள் / தலைப்பு",
+    },
+    "contact.message": {
+        "en": "Message",
+        "ta": "உங்கள் செய்தி",
+    },
+    "contact.submit": {
+        "en": "Submit Enquiry",
+        "ta": "செய்தியை அனுப்புக",
+    },
+    "contact.success": {
+        "en": "Thank you! Your enquiry has been received. Our team will contact you shortly.",
+        "ta": "நன்றி! உங்கள் செய்தி பெறப்பட்டது. எங்கள் குழு விரைவில் தொடர்பு கொள்ளும்.",
     },
     "features.title": {
         "en": "Why Choose FarmConnect?",
