@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('profile.title') }} - {{ _t('app.name') }}{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; margin: var(--spacing-2xl) auto;">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="card-title">{{ _t('profile.title') }}</h1>
+            <p class="card-subtitle">{{ user.full_name or 'Farmer' }}</p>
+        </div>
+
+        <form action="{{ url_for('auth.profile') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label class="form-label">{{ _t('profile.phone') }}</label>
+                <input type="text" class="form-control" value="{{ user.phone }}" readonly style="background-color: var(--color-bg-subtle);">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">{{ _t('profile.role') }}</label>
+                <input type="text" class="form-control" value="{{ user.role }}" readonly style="background-color: var(--color-bg-subtle); font-weight: 600;">
+            </div>
+
+            <div class="form-group">
+                <label for="full_name" class="form-label">{{ _t('auth.name_label') }}</label>
+                <input type="text" id="full_name" name="full_name" class="form-control" value="{{ user.full_name or '' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="preferred_language" class="form-label">{{ _t('auth.preferred_lang_label') }}</label>
+                <select id="preferred_language" name="preferred_language" class="form-select">
+                    <option value="ta" {% if user.preferred_language == 'ta' %}selected{% endif %}>தமிழ் (Tamil)</option>
+                    <option value="en" {% if user.preferred_language == 'en' %}selected{% endif %}>English</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                {{ _t('profile.save') }}
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

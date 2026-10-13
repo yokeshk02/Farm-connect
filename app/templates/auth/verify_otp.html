@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('auth.verify_title') }} - {{ _t('app.name') }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-wrapper">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="card-title">{{ _t('auth.verify_title') }}</h1>
+                <p class="card-subtitle">
+                    {{ _t('auth.verify_subtitle') }} <strong>{{ pending_phone }}</strong>
+                </p>
+            </div>
+
+            <!-- OTP Verification Form -->
+            <form action="{{ url_for('auth.verify_otp') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="form-group">
+                    <label for="otp_code" class="form-label">{{ _t('auth.otp_label') }}</label>
+                    <input type="text" id="otp_code" name="otp_code" class="form-control" 
+                           placeholder="{{ _t('auth.otp_placeholder') }}" maxlength="6" 
+                           pattern="\d{6}" required autofocus 
+                           style="letter-spacing: 0.3em; text-align: center; font-size: 1.4rem; font-weight: 700;">
+                    <p class="form-tip">{{ _t('auth.dev_tip') }}</p>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    {{ _t('auth.btn_verify') }}
+                </button>
+            </form>
+
+            <!-- Resend Form -->
+            <div style="margin-top: var(--spacing-lg); text-align: center; border-top: 1px solid var(--color-border); padding-top: var(--spacing-md);">
+                <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--spacing-xs);">
+                    {{ _t('auth.resend_text') }}
+                </p>
+                <form action="{{ url_for('auth.resend_otp') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-outline btn-sm">
+                        {{ _t('auth.btn_resend') }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

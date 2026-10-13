@@ -1,0 +1,65 @@
+:root {
+    /* Agricultural Color Palette */
+    --color-primary: #2D6A4F;
+    --color-primary-dark: #1B4332;
+    --color-primary-light: #52B788;
+    --color-primary-subtle: #D8F3DC;
+
+    --color-accent-gold: #DDA15E;
+    --color-accent-gold-dark: #BC6C25;
+    --color-accent-gold-light: #FEFAE0;
+
+    --color-bg-main: #F8F9FA;
+    --color-bg-card: #FFFFFF;
+    --color-bg-subtle: #EDF2F7;
+
+    --color-text-main: #1A202C;
+    --color-text-muted: #718096;
+    --color-text-inverse: #FFFFFF;
+
+    --color-border: #E2E8F0;
+    --color-border-focus: #2D6A4F;
+
+    --color-status-success: #2D6A4F;
+    --color-status-success-bg: #E8F5E9;
+    --color-status-warning: #B7791F;
+    --color-status-warning-bg: #FEFCBF;
+    --color-status-error: #C53030;
+    --color-status-error-bg: #FFF5F5;
+    --color-status-info: #2B6CB0;
+    --color-status-info-bg: #EBF8FF;
+
+    /* Typography */
+    --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Mukta Malar", "Latha", sans-serif;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 2rem;
+    --font-size-4xl: 2.5rem;
+
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+
+    /* Borders & Shadows */
+    --border-radius-sm: 0.375rem;
+    --border-radius-md: 0.5rem;
+    --border-radius-lg: 0.75rem;
+    --border-radius-xl: 1rem;
+    --border-radius-full: 9999px;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.25s ease;
+}

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('auth.login_title') }} - {{ _t('app.name') }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-wrapper">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="card-title">{{ _t('auth.login_title') }}</h1>
+                <p class="card-subtitle">{{ _t('auth.login_subtitle') }}</p>
+            </div>
+
+            <!-- Tabs: Phone OTP vs Password -->
+            <div class="tabs-nav">
+                <div class="tab-link active" id="tabOtpLink" onclick="switchLoginTab('otp')">
+                    {{ _t('auth.otp_login_tab') }}
+                </div>
+                <div class="tab-link" id="tabPassLink" onclick="switchLoginTab('password')">
+                    {{ _t('auth.admin_login_tab') }}
+                </div>
+            </div>
+
+            <!-- OTP Login Form -->
+            <form id="otpLoginForm" action="{{ url_for('auth.login') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="login_type" value="otp">
+
+                <div class="form-group">
+                    <label for="phone" class="form-label">{{ _t('auth.phone_label') }}</label>
+                    <input type="tel" id="phone" name="phone" class="form-control" 
+                           placeholder="{{ _t('auth.phone_placeholder') }}" required autofocus>
+                    <p class="form-tip">{{ _t('auth.dev_tip') }}</p>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    {{ _t('auth.btn_send_otp') }}
+                </button>
+            </form>
+
+            <!-- Password Login Form (Admin / Fallback) -->
+            <form id="passLoginForm" action="{{ url_for('auth.login') }}" method="POST" style="display: none;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="login_type" value="password">
+
+                <div class="form-group">
+                    <label for="passPhone" class="form-label">{{ _t('auth.phone_label') }}</label>
+                    <input type="tel" id="passPhone" name="phone" class="form-control" 
+                           placeholder="{{ _t('auth.phone_placeholder') }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">{{ _t('auth.password_label') }}</label>
+                    <input type="password" id="password" name="password" class="form-control" 
+                           placeholder="••••••••">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    {{ _t('auth.btn_login_password') }}
+                </button>
+            </form>
+
+            <div style="margin-top: var(--spacing-lg); text-align: center; font-size: var(--font-size-sm);">
+                <span>{{ _t('auth.no_account') }}</span>
+                <a href="{{ url_for('auth.register') }}" style="font-weight: 600;">{{ _t('auth.register_now') }}</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchLoginTab(type) {
+    const otpForm = document.getElementById('otpLoginForm');
+    const passForm = document.getElementById('passLoginForm');
+    const tabOtp = document.getElementById('tabOtpLink');
+    const tabPass = document.getElementById('tabPassLink');
+
+    if (type === 'password') {
+        otpForm.style.display = 'none';
+        passForm.style.display = 'block';
+        tabOtp.classList.remove('active');
+        tabPass.classList.add('active');
+    } else {
+        otpForm.style.display = 'block';
+        passForm.style.display = 'none';
+        tabOtp.classList.add('active');
+        tabPass.classList.remove('active');
+    }
+}
+</script>
+{% endblock %}

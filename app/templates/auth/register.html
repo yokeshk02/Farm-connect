@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('auth.register_title') }} - {{ _t('app.name') }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-wrapper">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="card-title">{{ _t('auth.register_title') }}</h1>
+                <p class="card-subtitle">{{ _t('auth.register_subtitle') }}</p>
+            </div>
+
+            <form action="{{ url_for('auth.register') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="form-group">
+                    <label for="full_name" class="form-label">{{ _t('auth.name_label') }}</label>
+                    <input type="text" id="full_name" name="full_name" class="form-control" 
+                           placeholder="{{ _t('auth.name_placeholder') }}" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone" class="form-label">{{ _t('auth.phone_label') }}</label>
+                    <input type="tel" id="phone" name="phone" class="form-control" 
+                           placeholder="{{ _t('auth.phone_placeholder') }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="role" class="form-label">{{ _t('auth.role_label') }}</label>
+                    <select id="role" name="role" class="form-select" required>
+                        <option value="FARMER">{{ _t('auth.role_farmer') }}</option>
+                        <option value="PROVIDER">{{ _t('auth.role_provider') }}</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="preferred_language" class="form-label">{{ _t('auth.preferred_lang_label') }}</label>
+                    <select id="preferred_language" name="preferred_language" class="form-select">
+                        <option value="ta" {% if current_lang == 'ta' %}selected{% endif %}>தமிழ் (Tamil)</option>
+                        <option value="en" {% if current_lang == 'en' %}selected{% endif %}>English</option>
+                    </select>
+                </div>
+
+                <p class="form-tip" style="margin-bottom: var(--spacing-md);">{{ _t('auth.dev_tip') }}</p>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    {{ _t('auth.btn_register') }}
+                </button>
+            </form>
+
+            <div style="margin-top: var(--spacing-lg); text-align: center; font-size: var(--font-size-sm);">
+                <span>{{ _t('auth.have_account') }}</span>
+                <a href="{{ url_for('auth.login') }}" style="font-weight: 600;">{{ _t('auth.login_link') }}</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

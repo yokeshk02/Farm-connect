@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('app.name') }} - {{ _t('hero.title') }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <h1 class="hero-title">{{ _t('hero.title') }}</h1>
+        <p class="hero-subtitle">{{ _t('hero.subtitle') }}</p>
+        <div class="hero-actions">
+            {% if session.get('user_id') %}
+                <a href="{{ url_for('auth.profile') }}" class="btn btn-accent">{{ _t('nav.profile') }}</a>
+            {% else %}
+                <a href="{{ url_for('auth.register') }}" class="btn btn-accent">{{ _t('hero.cta_register') }}</a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.4);">{{ _t('nav.login') }}</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <h2 class="section-title">{{ _t('features.title') }}</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📍</div>
+                <h3 class="feature-title">{{ _t('features.nearby_title') }}</h3>
+                <p class="feature-desc">{{ _t('features.nearby_desc') }}</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚜</div>
+                <h3 class="feature-title">{{ _t('features.flexible_title') }}</h3>
+                <p class="feature-desc">{{ _t('features.flexible_desc') }}</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📞</div>
+                <h3 class="feature-title">{{ _t('features.direct_title') }}</h3>
+                <p class="feature-desc">{{ _t('features.direct_desc') }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
