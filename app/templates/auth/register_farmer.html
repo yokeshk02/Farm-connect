@@ -53,13 +53,7 @@
         <!-- Right Side: Dedicated Farmer Registration Card -->
         <div class="auth-card-side">
             <div class="card auth-form-card">
-                <div style="margin-bottom: var(--spacing-base);">
-                    <a href="{{ url_for('auth.register') }}" class="role-back-link" id="linkBackToSelection">
-                        {{ _t('auth.switch_role_link') }}
-                    </a>
-                </div>
-
-                <div class="card-header" style="margin-bottom: var(--spacing-lg);">
+                <div class="card-header" style="margin-bottom: var(--spacing-sm);">
                     <div style="display: flex; align-items: center; gap: var(--spacing-xs); margin-bottom: var(--spacing-xs);">
                         <span class="badge" style="background-color: rgba(45, 106, 79, 0.12); color: var(--color-primary-dark); font-weight: 700;">
                             🧑‍🌾 {{ _t('auth.register_farmer_title') }}
@@ -67,6 +61,16 @@
                     </div>
                     <h1 class="card-title">{{ _t('auth.register_farmer_title') }}</h1>
                     <p class="card-subtitle">{{ _t('auth.register_farmer_subtitle') }}</p>
+                </div>
+
+                <!-- Farmer & Provider Pill Slider (Based on Reference Design) -->
+                <div id="regRoleSwitchContainer" class="reg-role-switch-container" role="tablist" aria-label="Registration Role Selector">
+                    <span class="reg-role-switch-btn active" id="formRoleFarmerActive" aria-selected="true">
+                        🧑‍🌾 {{ _t('auth.role_tab_farmer') }}
+                    </span>
+                    <a href="{{ url_for('auth.register_provider') }}" class="reg-role-switch-btn" id="formRoleSwitchProvider" aria-selected="false">
+                        🚜 {{ _t('auth.role_tab_provider') }}
+                    </a>
                 </div>
 
                 <form action="{{ url_for('auth.register_farmer') }}" method="POST" id="farmerRegistrationForm">

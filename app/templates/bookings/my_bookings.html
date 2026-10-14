@@ -135,6 +135,10 @@
                             <div class="booking-date-range">
                                 <div>📅 <strong>{{ b.start_time.strftime('%d %b %Y, %I:%M %p') }}</strong></div>
                                 <div style="color: var(--color-text-muted); font-size: 11px;">to {{ b.end_time.strftime('%d %b %Y, %I:%M %p') }}</div>
+                                {% set duration_hrs = ((b.end_time - b.start_time).total_seconds() / 3600)|round|int %}
+                                <div style="font-size: 11px; font-weight: 700; color: #087A45; margin-top: 2px;">
+                                    ⏱️ {% if duration_hrs >= 24 %}{{ duration_hrs // 24 }} day(s){% if duration_hrs % 24 > 0 %} {{ duration_hrs % 24 }} hr(s){% endif %} ({{ duration_hrs }} hours){% else %}{{ duration_hrs }} {{ 'hour' if duration_hrs == 1 else 'hours' }}{% endif %}
+                                </div>
                             </div>
                         </div>
 

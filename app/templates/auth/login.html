@@ -50,39 +50,34 @@
         <!-- Right Side: Clean Login Card -->
         <div class="auth-card-side">
             <div class="card auth-form-card">
-                {% if selected_role %}
-                <!-- Selected Role Indicator Badge -->
-                <div class="login-role-banner role-banner-{{ selected_role }}" id="roleIndicatorBanner">
+                {% if selected_role == 'admin' %}
+                <!-- Admin Mode Indicator Badge -->
+                <div class="login-role-banner role-banner-admin" id="roleIndicatorBanner">
                     <div class="role-banner-content">
-                        {% if selected_role == 'farmer' %}
-                            <span class="role-banner-icon">🧑‍🌾</span>
-                            <div class="role-banner-text">
-                                <span class="role-banner-title">{{ _t('auth.role_indicator_farmer') }}</span>
-                                <span class="role-banner-desc">{{ _t('auth.role_indicator_farmer_sub') }}</span>
-                            </div>
-                        {% elif selected_role == 'provider' %}
-                            <span class="role-banner-icon">🚜</span>
-                            <div class="role-banner-text">
-                                <span class="role-banner-title">{{ _t('auth.role_indicator_provider') }}</span>
-                                <span class="role-banner-desc">{{ _t('auth.role_indicator_provider_sub') }}</span>
-                            </div>
-                        {% elif selected_role == 'admin' %}
-                            <span class="role-banner-icon">⚙️</span>
-                            <div class="role-banner-text">
-                                <span class="role-banner-title">{{ _t('auth.role_indicator_admin') }}</span>
-                                <span class="role-banner-desc">{{ _t('auth.role_indicator_admin_sub') }}</span>
-                            </div>
-                        {% endif %}
+                        <span class="role-banner-icon">⚙️</span>
+                        <div class="role-banner-text">
+                            <span class="role-banner-title">{{ _t('auth.role_indicator_admin') }}</span>
+                            <span class="role-banner-desc">{{ _t('auth.role_indicator_admin_sub') }}</span>
+                        </div>
                     </div>
-                    <a href="{{ url_for('auth.register') }}" class="role-banner-switch-btn" title="{{ _t('auth.switch_role') }}">
-                        🔄 {{ _t('auth.switch_role') }}
-                    </a>
                 </div>
                 {% endif %}
 
                 <div class="card-header">
-                    <h1 class="card-title">{{ _t('auth.login_title') }}</h1>
-                    <p class="card-subtitle">{{ _t('auth.login_subtitle') }}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                        <div>
+                            <h1 class="card-title">{{ _t('auth.login_title') }}</h1>
+                            <p class="card-subtitle">{{ _t('auth.login_subtitle') }}</p>
+                        </div>
+                        {% if selected_role != 'admin' %}
+                            <a href="{{ url_for('auth.login', role='admin', tab='password') }}" 
+                                id="adminLoginHeaderBtn" 
+                                class="admin-login-header-btn"
+                                title="System Administrator Sign In">
+                                ⚙️ {{ _t('auth.admin_login_link') }}
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <!-- Segmented Toggle: Login with OTP vs Login with Password -->
@@ -160,9 +155,27 @@
                     </div>
                 </form>
 
-                <div style="margin-top: var(--spacing-xl); text-align: center; font-size: var(--font-size-sm); border-top: 1px solid var(--color-border); padding-top: var(--spacing-md);">
-                    <span>{{ _t('auth.no_account') }}</span>
-                    <a href="{{ url_for('auth.register') }}" style="font-weight: 700; color: var(--color-primary);">{{ _t('auth.register_now') }}</a>
+                <div style="margin-top: var(--spacing-xl); text-align: center; font-size: var(--font-size-sm); border-top: 1px solid var(--color-border); padding-top: var(--spacing-md); display: flex; flex-direction: column; gap: 10px;">
+                    <div>
+                        <span>{{ _t('auth.no_account') }}</span>
+                        <a href="{{ url_for('auth.register') }}" style="font-weight: 700; color: var(--color-primary);">{{ _t('auth.register_now') }}</a>
+                    </div>
+
+                    {% if selected_role == 'admin' %}
+                        <div>
+                            <a href="{{ url_for('auth.login') }}" id="returnToRegularLoginLink" class="return-regular-login-link">
+                                ← {{ _t('auth.regular_login_link') }}
+                            </a>
+                        </div>
+                    {% else %}
+                        <div>
+                            <a href="{{ url_for('auth.login', role='admin', tab='password') }}" id="adminLoginLink" class="admin-login-link" title="System Administrator Sign In">
+                                <span>⚙️</span>
+                                <span>{{ _t('auth.admin_login_link') }}</span>
+                                <span>&rarr;</span>
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

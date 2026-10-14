@@ -27,6 +27,7 @@ def dashboard():
 
     recent_enquiries = ContactEnquiry.query.order_by(ContactEnquiry.created_at.desc()).limit(5).all()
     providers_list = ProviderProfile.query.order_by(ProviderProfile.created_at.desc()).limit(5).all()
+    recent_bookings = Booking.query.order_by(Booking.created_at.desc()).limit(5).all()
 
     # Calculate machinery count for each provider using SQLAlchemy aggregation
     provider_ids = [p.id for p in providers_list]
@@ -44,9 +45,12 @@ def dashboard():
     for p in providers_list:
         p.machinery_count = provider_machinery_counts[p.id]
 
+    total_users = total_farmers + total_providers + (1 if user and user.role == "ADMIN" else 0)
+
     return render_template(
         "admin/dashboard.html",
         user=user,
+        total_users=total_users,
         total_farmers=total_farmers,
         total_providers=total_providers,
         total_machinery=total_machinery,
@@ -54,6 +58,7 @@ def dashboard():
         total_bookings=total_bookings,
         total_enquiries=total_enquiries,
         recent_enquiries=recent_enquiries,
+        recent_bookings=recent_bookings,
         providers_list=providers_list,
         provider_machinery_counts=provider_machinery_counts,
     )

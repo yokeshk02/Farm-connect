@@ -47,6 +47,7 @@ MACHINERY_CATEGORIES = [
     "TRACTOR",
     "HARVESTER",
     "ROTAVATOR",
+    "CULTIVATOR",
     "TILLER",
     "BACKHOE",
     "THRESHER",

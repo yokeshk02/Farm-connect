@@ -118,7 +118,9 @@ def submit_booking(machinery_id):
         return redirect(url_for("machinery.detail", machinery_id=machinery_id))
 
 
-@bookings_bp.route("/", methods=["GET"])
+@bookings_bp.route("", methods=["GET"])
+@bookings_bp.route("/", methods=["GET"], strict_slashes=False)
+@bookings_bp.route("/my", methods=["GET"])
 @login_required
 def my_bookings():
     """List all booking requests placed by the logged-in farmer."""

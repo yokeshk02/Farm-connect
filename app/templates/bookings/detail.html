@@ -3,190 +3,231 @@
 {% block title %}{{ _t('booking.detail_title') }} - {{ booking.booking_reference }}{% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-2xl);">
+<div class="container" style="max-width: 1100px; margin-top: var(--spacing-xl); margin-bottom: var(--spacing-3xl);">
     <!-- Back Link -->
     <div style="margin-bottom: var(--spacing-md);">
         {% if is_owner_provider %}
-            <a href="{{ url_for('provider.bookings_list') }}" class="back-link">
-                ← {{ _t('provider.bookings_title') }}
+            <a href="{{ url_for('provider.bookings_list') }}" class="back-link" style="color: #087A45; text-decoration: none; font-weight: 600; font-size: var(--font-size-sm);">
+                {{ _t('booking.back_incoming') }}
             </a>
         {% else %}
-            <a href="{{ url_for('bookings.my_bookings') }}" class="back-link">
-                ← {{ _t('booking.my_bookings_title') }}
+            <a href="{{ url_for('bookings.my_bookings') }}" class="back-link" style="color: #087A45; text-decoration: none; font-weight: 600; font-size: var(--font-size-sm);">
+                {{ _t('booking.back_my_bookings') }}
             </a>
         {% endif %}
     </div>
 
-    <!-- Header Summary Card -->
-    <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--spacing-md);">
-            <div>
-                <span class="badge status-badge status-{{ booking.status|lower }}" style="margin-bottom: var(--spacing-xs);">
-                    {{ _t('status.' + booking.status) }}
-                </span>
-                <h1 style="font-size: var(--font-size-2xl); font-weight: 800; color: var(--color-primary-dark); font-family: monospace; margin-bottom: var(--spacing-2xs);">
-                    {{ booking.booking_reference }}
-                </h1>
-                <p style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
-                    Placed on {{ booking.created_at.strftime('%d %b %Y at %I:%M %p') }}
-                </p>
-            </div>
-            <div style="text-align: right;">
-                <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">{{ _t('booking.total_cost') }}</div>
-                <div style="font-size: 2rem; font-weight: 800; color: var(--color-primary);">
-                    ₹{{ "%.2f"|format(booking.estimated_total_cost) }}
-                </div>
-            </div>
+    <!-- Top Reference & Status Row -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg);">
+        <div>
+            <h1 style="font-size: 1.75rem; font-weight: 800; color: var(--color-text-heading); font-family: monospace; margin: 0 0 2px 0;">
+                {{ booking.booking_reference }}
+            </h1>
+            <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                Booking Reference Number • Placed on {{ booking.created_at.strftime('%d %b %Y, %I:%M %p') }}
+            </span>
         </div>
-
-        {% if can_cancel %}
-            <div style="margin-top: var(--spacing-md); border-top: 1px solid rgba(0, 0, 0, 0.05); padding-top: var(--spacing-md);">
+        <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
+            <span class="status-badge status-{{ booking.status|lower }}" style="font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 20px;">
+                {{ _t('status.' + booking.status) }}
+            </span>
+            {% if can_cancel %}
                 <form action="{{ url_for('bookings.cancel_booking', booking_id=booking.id) }}" method="POST" 
                       onsubmit="return confirm('{{ _t('booking.cancel_confirm') }}');" style="display: inline;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button type="submit" class="btn btn-outline btn-sm" style="color: #dc3545; border-color: #dc3545;">
+                    <button type="submit" class="btn btn-outline btn-sm" style="color: #dc3545; border-color: #dc3545; padding: 6px 12px; font-size: 12px;">
                         ✕ {{ _t('booking.btn_cancel') }}
                     </button>
                 </form>
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
 
-    <div class="detail-layout">
-        <!-- Left: Equipment & Price Breakdown -->
-        <div>
-            <!-- Equipment Details Card -->
-            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
-                <h2 style="font-size: var(--font-size-lg); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-md);">
-                    🚜 {{ _t('booking.equipment_info') }}
-                </h2>
-                <div style="display: flex; gap: var(--spacing-md); align-items: center; margin-bottom: var(--spacing-md);">
+    <!-- Two-Column Layout (Matching Reference Image Panel 7) -->
+    <div style="display: grid; grid-template-columns: 1fr 1.15fr; gap: var(--spacing-xl); align-items: start;" class="booking-detail-grid">
+        <!-- LEFT COLUMN: Machinery Photo & Provider Profile -->
+        <div style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+            <!-- Machinery Card -->
+            <div class="card" style="padding: var(--spacing-base); border-radius: var(--border-radius-lg); overflow: hidden;">
+                <div style="width: 100%; height: 230px; border-radius: var(--border-radius-md); overflow: hidden; background-color: var(--color-bg-subtle); margin-bottom: var(--spacing-md);">
                     {% if booking.machinery.photos and booking.machinery.photos[0] %}
-                        <img src="{{ booking.machinery.photos[0].photo_url }}" alt="{{ booking.machinery.name_en }}" 
-                             style="width: 100px; height: 80px; object-fit: cover; border-radius: var(--border-radius-sm);">
+                        <img src="{{ booking.machinery.photos[0].photo_url }}" alt="{{ booking.machinery.name_en }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% elif booking.machinery.category|lower in ['tractor', 'harvester', 'rotavator', 'cultivator', 'thresher'] %}
+                        <img src="{{ url_for('static', filename='images/categories/' + booking.machinery.category|lower + '.jpg') }}" alt="{{ booking.machinery.name_en }}" style="width: 100%; height: 100%; object-fit: cover;">
                     {% else %}
-                        <img src="/static/images/placeholder_machinery.svg" alt="Equipment" 
-                             style="width: 100px; height: 80px; object-fit: cover; border-radius: var(--border-radius-sm);">
+                        <img src="{{ url_for('static', filename='images/categories/tractor.jpg') }}" alt="{{ booking.machinery.name_en }}" style="width: 100%; height: 100%; object-fit: cover;">
                     {% endif %}
-                    <div>
-                        <h3 style="font-size: var(--font-size-base); font-weight: 700; color: var(--color-text-main); margin-bottom: 2px;">
-                            {% if current_lang == 'ta' and booking.machinery.name_ta %}
-                                {{ booking.machinery.name_ta }}
-                            {% else %}
-                                {{ booking.machinery.name_en }}
-                            {% endif %}
-                        </h3>
-                        <p style="font-size: var(--font-size-xs); color: var(--color-text-muted);">
-                            {{ _t('cat.' + booking.machinery.category) }} • 📍 {{ booking.machinery.village_or_town }}, {{ booking.machinery.district }}
-                        </p>
-                        <a href="{{ url_for('machinery.detail', machinery_id=booking.machinery_id) }}" 
-                           class="btn-link" style="font-size: var(--font-size-xs);">
-                            {{ _t('catalogue.view_details') }} →
-                        </a>
-                    </div>
                 </div>
 
-                <div class="specs-grid">
-                    <div class="spec-item">
-                        <span class="spec-label">{{ _t('booking.package') }}</span>
-                        <span class="spec-val"><strong>{{ _t('pkg.' + booking.rental_option_type) }}</strong></span>
-                    </div>
-                    <div class="spec-item">
-                        <span class="spec-label">{{ _t('booking.dates') }}</span>
-                        <span class="spec-val">
-                            {{ booking.start_time.strftime('%d %b %Y, %I:%M %p') }} <br>
-                            to {{ booking.end_time.strftime('%d %b %Y, %I:%M %p') }}
-                        </span>
-                    </div>
-                    {% if booking.delivery_address %}
-                        <div class="spec-item" style="grid-column: span 2;">
-                            <span class="spec-label">{{ _t('booking.delivery_address') }}</span>
-                            <span class="spec-val">{{ booking.delivery_address }}</span>
-                        </div>
+                <div style="padding: 0 var(--spacing-xs) var(--spacing-xs) var(--spacing-xs);">
+                    <span style="font-size: 11px; font-weight: 700; color: #087A45; background-color: #EAF5EE; padding: 3px 10px; border-radius: 4px; display: inline-block; margin-bottom: 6px;">
+                        {{ _t('cat.' + booking.machinery.category) }}
+                    </span>
+                    <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--color-text-heading); margin-bottom: 4px;">
+                        {% if current_lang == 'ta' and booking.machinery.name_ta %}
+                            {{ booking.machinery.name_ta }}
+                        {% else %}
+                            {{ booking.machinery.name_en }}
+                        {% endif %}
+                    </h2>
+                    {% if booking.machinery.make_model %}
+                        <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: 8px;">
+                            {{ booking.machinery.make_model }}
+                        </p>
                     {% endif %}
-                    {% if booking.notes %}
-                        <div class="spec-item" style="grid-column: span 2;">
-                            <span class="spec-label">{{ _t('booking.notes') }}</span>
-                            <span class="spec-val">{{ booking.notes }}</span>
-                        </div>
-                    {% endif %}
+                    <a href="{{ url_for('machinery.detail', machinery_id=booking.machinery_id) }}" style="font-size: var(--font-size-xs); color: #087A45; font-weight: 700; text-decoration: none;">
+                        View Full Machinery Details &rarr;
+                    </a>
                 </div>
             </div>
 
-            <!-- Price Breakdown Card -->
-            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
-                <h2 style="font-size: var(--font-size-lg); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-md);">
-                    💰 {{ _t('booking.price_breakdown') }}
-                </h2>
-                {% if pricing %}
-                    <div style="display: flex; flex-direction: column; gap: var(--spacing-xs);">
-                        <div style="display: flex; justify-content: space-between; font-size: var(--font-size-sm);">
-                            <span style="color: var(--color-text-muted);">{{ _t('booking.billable_duration') }}:</span>
-                            <span style="font-weight: 600;">
-                                {% if pricing.full_days > 0 %}
-                                    {{ pricing.full_days }} day(s) + {{ pricing.remaining_hours }} hr(s) ({{ pricing.billable_hours }} total hrs)
-                                {% else %}
-                                    {{ pricing.billable_hours }} billable hour(s)
-                                {% endif %}
-                            </span>
-                        </div>
-                        {% if pricing.rate_per_day and pricing.full_days > 0 %}
-                            <div style="display: flex; justify-content: space-between; font-size: var(--font-size-sm);">
-                                <span style="color: var(--color-text-muted);">Daily Rate:</span>
-                                <span>{{ pricing.full_days }} × ₹{{ "%.2f"|format(pricing.rate_per_day) }} = ₹{{ "%.2f"|format(pricing.daily_cost) }}</span>
-                            </div>
-                        {% endif %}
-                        {% if pricing.hourly_cost > 0 %}
-                            <div style="display: flex; justify-content: space-between; font-size: var(--font-size-sm);">
-                                <span style="color: var(--color-text-muted);">Hourly Rate:</span>
-                                <span>₹{{ "%.2f"|format(pricing.hourly_cost) }}</span>
-                            </div>
-                        {% endif %}
-                        {% if pricing.security_deposit > 0 %}
-                            <div style="display: flex; justify-content: space-between; font-size: var(--font-size-sm); color: var(--color-text-muted);">
-                                <span>{{ _t('detail.security_deposit') }} (offline):</span>
-                                <span>₹{{ "%.2f"|format(pricing.security_deposit) }}</span>
-                            </div>
-                        {% endif %}
-                        <div style="border-top: 1px solid rgba(0, 0, 0, 0.1); margin-top: var(--spacing-xs); padding-top: var(--spacing-xs); display: flex; justify-content: space-between; font-weight: 800; font-size: var(--font-size-md);">
-                            <span>Total Estimate:</span>
-                            <span style="color: var(--color-primary);">₹{{ "%.2f"|format(booking.estimated_total_cost) }}</span>
-                        </div>
+            <!-- Provider Info Card -->
+            <div class="card" style="padding: var(--spacing-lg); border-radius: var(--border-radius-lg);">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--spacing-base);">
+                    <div style="width: 46px; height: 46px; border-radius: 50%; background-color: #EAF5EE; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                        👨‍🌾
                     </div>
-                {% else %}
-                    <div style="font-size: var(--font-size-lg); font-weight: 800; color: var(--color-primary);">
-                        ₹{{ "%.2f"|format(booking.estimated_total_cost) }}
+                    <div>
+                        <h3 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin: 0 0 2px 0;">
+                            {{ booking.machinery.provider.business_name or 'Verified Provider' }}
+                        </h3>
+                        <span style="font-size: 11px; color: #087A45; font-weight: 700;">
+                            ✓ Verified Machinery Provider
+                        </span>
                     </div>
-                {% endif %}
-
-                <div class="alert alert-info" style="margin-top: var(--spacing-md); font-size: 11px;">
-                    🤝 {{ _t('booking.offline_notice') }}
                 </div>
+
+                <div style="font-size: var(--font-size-sm); color: var(--color-text-muted); display: flex; flex-direction: column; gap: 6px; margin-bottom: var(--spacing-base);">
+                    <div>📍 {{ booking.machinery.village_or_town }}, {{ booking.machinery.district }}</div>
+                    {% if booking.machinery.provider.whatsapp_number %}
+                        <div>📞 {{ booking.machinery.provider.whatsapp_number }}</div>
+                    {% endif %}
+                </div>
+
+                {% if booking.machinery.provider.whatsapp_enabled and booking.machinery.provider.whatsapp_number %}
+                    <a href="https://wa.me/{{ booking.machinery.provider.whatsapp_number|replace('+', '')|replace(' ', '') }}?text=Hello,%20regarding%20booking%20{{ booking.booking_reference }}%20for%20{{ booking.machinery.name_en }}." 
+                       target="_blank" rel="noopener noreferrer" 
+                       class="btn btn-sm btn-block" style="background-color: #25D366; color: white; font-weight: 700; justify-content: center; border-radius: 8px;">
+                        💬 Chat with Provider on WhatsApp
+                    </a>
+                {% endif %}
             </div>
         </div>
 
-        <!-- Right: Status Timeline & Provider Info -->
-        <div>
-            <!-- Status Timeline Card -->
-            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
-                <h2 style="font-size: var(--font-size-md); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-md);">
-                    ⏱️ {{ _t('booking.timeline') }}
+        <!-- RIGHT COLUMN: Booking Details & Pricing & Timeline -->
+        <div style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+            <!-- Booking Details Specifications Card -->
+            <div class="card" style="padding: var(--spacing-xl); border-radius: var(--border-radius-lg);">
+                <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin-bottom: var(--spacing-base); padding-bottom: var(--spacing-xs); border-bottom: 1px solid var(--color-border);">
+                    {{ _t('booking.detail_title') }}
                 </h2>
+
+                <div style="display: flex; flex-direction: column; gap: 12px; font-size: var(--font-size-sm);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--color-text-muted);">{{ _t('booking.date_time') }}</span>
+                        <strong style="text-align: right;">{{ booking.start_time.strftime('%d %b %Y, %I:%M %p') }}</strong>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--color-text-muted);">{{ _t('booking.duration') }}</span>
+                        <div style="text-align: right;">
+                            <strong id="bookingDurationDisplay" style="color: var(--color-text-heading);">
+                                {% if pricing %}
+                                    {% if pricing.full_days > 0 %}
+                                        {{ pricing.full_days }} day(s){% if pricing.remaining_hours > 0 %} + {{ pricing.remaining_hours }} hr(s){% endif %} ({{ pricing.billable_hours }} hours)
+                                    {% else %}
+                                        {{ pricing.billable_hours }} {{ 'hour' if pricing.billable_hours == 1 else 'hours' }}
+                                    {% endif %}
+                                {% else %}
+                                    {% set calc_hrs = ((booking.end_time - booking.start_time).total_seconds() / 3600)|round|int %}
+                                    {{ calc_hrs }} {{ 'hour' if calc_hrs == 1 else 'hours' }}
+                                {% endif %}
+                            </strong>
+                            <div style="font-size: 11px; color: var(--color-text-muted);">
+                                {{ booking.start_time.strftime('%I:%M %p') }} - {{ booking.end_time.strftime('%I:%M %p') }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--color-text-muted);">{{ _t('booking.rental_package') }}</span>
+                        <span class="badge" style="background-color: #EAF5EE; color: #087A45; font-weight: 700; font-size: 12px;">
+                            {{ _t('pkg.' + booking.rental_option_type) }}
+                        </span>
+                    </div>
+
+                    {% if pricing %}
+                        {% if pricing.rate_per_hour and (pricing.remaining_hours > 0 or pricing.full_days == 0) %}
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--color-text-muted);">{{ _t('booking.rental_rate') }}</span>
+                                <span style="font-weight: 600;">₹{{ "%.0f"|format(pricing.rate_per_hour) }}/hour</span>
+                            </div>
+                        {% elif pricing.rate_per_day %}
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--color-text-muted);">{{ _t('booking.rental_rate') }}</span>
+                                <span style="font-weight: 600;">₹{{ "%.0f"|format(pricing.rate_per_day) }}/day</span>
+                            </div>
+                        {% endif %}
+
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: var(--color-text-muted);">{{ _t('booking.estimated_price') }}</span>
+                            <span style="font-weight: 600;">₹{{ "%.2f"|format(pricing.hourly_cost + pricing.daily_cost) }}</span>
+                        </div>
+
+                        {% if pricing.security_deposit > 0 %}
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--color-text-muted);">{{ _t('detail.security_deposit') }}</span>
+                                <span style="font-weight: 600;">₹{{ "%.2f"|format(pricing.security_deposit) }}</span>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--spacing-xs); padding-top: var(--spacing-sm); border-top: 2px dashed var(--color-border);">
+                        <strong style="font-size: var(--font-size-base); color: var(--color-text-heading);">{{ _t('booking.total_amount') }}</strong>
+                        <strong style="font-size: 1.5rem; color: #087A45;">₹{{ "%.2f"|format(booking.estimated_total_cost) }}</strong>
+                    </div>
+
+                    {% if booking.delivery_address %}
+                        <div style="margin-top: var(--spacing-xs); padding-top: var(--spacing-xs); border-top: 1px solid var(--color-border);">
+                            <span style="color: var(--color-text-muted); font-size: 12px; display: block;">{{ _t('booking.delivery_address') }}</span>
+                            <span style="font-size: 13px;">{{ booking.delivery_address }}</span>
+                        </div>
+                    {% endif %}
+
+                    {% if booking.notes %}
+                        <div style="margin-top: 4px;">
+                            <span style="color: var(--color-text-muted); font-size: 12px; display: block;">{{ _t('booking.notes') }}</span>
+                            <span style="font-size: 13px; font-style: italic;">{{ booking.notes }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="alert alert-info" style="margin-top: var(--spacing-lg); font-size: 12px; margin-bottom: 0;">
+                    🤝 <strong>Offline Settlement:</strong> {{ _t('booking.offline_notice') }}
+                </div>
+            </div>
+
+            <!-- Booking Status History Timeline Card -->
+            <div class="card" style="padding: var(--spacing-xl); border-radius: var(--border-radius-lg);">
+                <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin-bottom: var(--spacing-base); padding-bottom: var(--spacing-xs); border-bottom: 1px solid var(--color-border);">
+                    {{ _t('booking.status_history') }}
+                </h2>
+
                 <div class="timeline" style="display: flex; flex-direction: column; gap: var(--spacing-md);">
                     {% for h in booking.status_history %}
                         <div style="display: flex; gap: var(--spacing-sm); align-items: flex-start;">
-                            <div style="width: 12px; height: 12px; border-radius: 50%; background-color: var(--color-primary); margin-top: 4px; flex-shrink: 0;"></div>
-                            <div>
-                                <div style="display: flex; gap: var(--spacing-xs); align-items: center; flex-wrap: wrap;">
-                                    <span class="badge status-badge status-{{ h.to_status|lower }}" style="font-size: 10px; padding: 2px 6px;">
-                                        {{ _t('status.' + h.to_status) }}
+                            <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #087A45; margin-top: 4px; flex-shrink: 0; box-shadow: 0 0 0 3px #EAF5EE;"></div>
+                            <div style="flex: 1;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;">
+                                    <span style="font-size: var(--font-size-xs); font-weight: 700; color: var(--color-text-heading);">
+                                        {{ h.changed_at.strftime('%d %b %Y %H:%M') }}
                                     </span>
-                                    <span style="font-size: 11px; color: var(--color-text-muted);">
-                                        {{ h.changed_at.strftime('%d %b, %I:%M %p') }}
+                                    <span class="status-badge status-{{ h.to_status|lower }}" style="font-size: 10px; padding: 2px 8px; border-radius: 12px;">
+                                        {{ _t('status.' + h.to_status) }}
                                     </span>
                                 </div>
                                 {% if h.reason_or_comment %}
-                                    <div style="font-size: var(--font-size-xs); color: var(--color-text-main); margin-top: 2px;">
+                                    <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: 4px;">
                                         {{ h.reason_or_comment }}
                                     </div>
                                 {% endif %}
@@ -194,27 +235,6 @@
                         </div>
                     {% endfor %}
                 </div>
-            </div>
-
-            <!-- Provider Info Card -->
-            <div class="card" style="padding: var(--spacing-lg);">
-                <h2 style="font-size: var(--font-size-md); font-weight: 700; color: var(--color-primary-dark); margin-bottom: var(--spacing-sm);">
-                    🧑‍🌾 {{ _t('booking.provider_info') }}
-                </h2>
-                <div style="font-weight: 700; color: var(--color-text-main); margin-bottom: 2px;">
-                    {{ booking.machinery.provider.business_name or 'Verified Provider' }}
-                </div>
-                <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: var(--spacing-sm);">
-                    📍 {{ booking.machinery.village_or_town }}, {{ booking.machinery.district }}
-                </div>
-
-                {% if booking.machinery.provider.whatsapp_enabled and booking.machinery.provider.whatsapp_number %}
-                    <a href="https://wa.me/{{ booking.machinery.provider.whatsapp_number|replace('+', '')|replace(' ', '') }}?text=Hello,%20regarding%20booking%20{{ booking.booking_reference }}%20for%20{{ booking.machinery.name_en }}." 
-                       target="_blank" rel="noopener noreferrer" 
-                       class="btn btn-accent btn-block btn-sm" style="background-color: #25D366; color: white;">
-                        💬 {{ _t('detail.whatsapp_owner') }}
-                    </a>
-                {% endif %}
             </div>
         </div>
     </div>

@@ -1,185 +1,294 @@
 {% extends "base.html" %}
 
-{% block title %}{{ _t('nav.provider_dashboard') }} - {{ _t('app.name') }}{% endblock %}
+{% block title %}Provider Dashboard - {{ _t('app.name') }}{% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-3xl);">
-    <!-- Personalized Welcome Header -->
-    <div style="margin-bottom: var(--spacing-xl);">
-        <span class="section-pill">{{ _t('nav.provider_dashboard') }}</span>
-        <h1 style="color: var(--color-text-heading); font-size: var(--font-size-3xl); font-weight: 800; margin-bottom: var(--spacing-xs); letter-spacing: -0.01em;">
-            {{ _t('dashboard.welcome') }}, {{ profile.business_name or user.full_name }}! 👋
-        </h1>
-        <p style="color: var(--color-text-muted); font-size: var(--font-size-base);">
-            {{ _t('dashboard.subtitle') }}
-        </p>
-    </div>
-
-    <!-- 4 Real-Count Metric Cards -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon">🚜</div>
-            <div>
-                <div class="stat-value">{{ total_machinery }}</div>
-                <div class="stat-label">{{ _t('dashboard.total_machinery') }}</div>
+<div class="container" style="max-width: 1320px;">
+    <div class="dashboard-container">
+        <!-- LEFT SIDEBAR (Dark Green Reference Design) -->
+        <aside class="dashboard-sidebar">
+            <div class="brand-badge">
+                <span>🌾</span>
+                <span>Farm<strong style="color: #6ee7b7;">Connect</strong></span>
             </div>
-        </div>
 
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: var(--color-status-pending-bg);">⏳</div>
-            <div>
-                <div class="stat-value" style="color: var(--color-status-pending);">{{ pending_count }}</div>
-                <div class="stat-label">{{ _t('dashboard.pending_requests') }}</div>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: var(--color-status-in_progress-bg);">🚀</div>
-            <div>
-                <div class="stat-value" style="color: var(--color-status-in_progress);">{{ active_count }}</div>
-                <div class="stat-label">{{ _t('dashboard.active_bookings') }}</div>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: var(--color-status-completed-bg);">★</div>
-            <div>
-                <div class="stat-value" style="color: var(--color-status-completed);">{{ completed_count }}</div>
-                <div class="stat-label">{{ _t('dashboard.completed_bookings') }}</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Action Cards -->
-    <div style="margin-bottom: var(--spacing-2xl);">
-        <h2 style="font-size: var(--font-size-lg); font-weight: 800; color: var(--color-text-heading); margin-bottom: var(--spacing-base);">
-            ⚡ {{ _t('dashboard.quick_actions') }}
-        </h2>
-        <div class="quick-actions-grid">
-            <a href="{{ url_for('provider.machinery_list') }}" class="quick-action-card">
-                <div class="quick-action-icon">🚜</div>
-                <div>
-                    <h3 class="quick-action-title">{{ _t('dashboard.action_my_machinery') }}</h3>
-                    <p class="quick-action-desc">{{ _t('dashboard.action_my_machinery_desc') }}</p>
+            <!-- Provider Profile Summary -->
+            <div class="dashboard-user-card">
+                <div class="dashboard-user-avatar">
+                    🚜
                 </div>
-            </a>
-
-            <a href="{{ url_for('provider.machinery_new') }}" class="quick-action-card">
-                <div class="quick-action-icon">➕</div>
-                <div>
-                    <h3 class="quick-action-title">{{ _t('dashboard.action_add_machinery') }}</h3>
-                    <p class="quick-action-desc">{{ _t('dashboard.action_add_machinery_desc') }}</p>
+                <div class="dashboard-user-info">
+                    <div class="dashboard-user-name">{{ profile.business_name or user.full_name }}</div>
+                    <div class="dashboard-user-role">Machinery Provider</div>
                 </div>
-            </a>
-
-            <a href="{{ url_for('provider.machinery_list') }}" class="quick-action-card">
-                <div class="quick-action-icon" style="background-color: rgba(221, 161, 94, 0.2);">💰</div>
-                <div>
-                    <h3 class="quick-action-title">{{ _t('dashboard.manage_rental_prices') }}</h3>
-                    <p class="quick-action-desc">{{ _t('dashboard.manage_rental_prices_desc') }}</p>
-                </div>
-            </a>
-
-            <a href="{{ url_for('provider.bookings_list') }}" class="quick-action-card">
-                <div class="quick-action-icon">📋</div>
-                <div>
-                    <h3 class="quick-action-title">{{ _t('dashboard.incoming_requests') }}</h3>
-                    <p class="quick-action-desc">{{ _t('dashboard.action_requests_desc') }}</p>
-                </div>
-            </a>
-
-            <a href="{{ url_for('auth.profile') }}" class="quick-action-card">
-                <div class="quick-action-icon" style="background-color: rgba(45, 106, 79, 0.12);">👤</div>
-                <div>
-                    <h3 class="quick-action-title">{{ _t('nav.profile') }}</h3>
-                    <p class="quick-action-desc">{{ _t('dashboard.farmer_profile_desc') }}</p>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <!-- Recent Booking Requests Table -->
-    <div class="table-card">
-        <div class="table-header">
-            <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading);">
-                ⏱️ {{ _t('dashboard.recent_requests') }}
-            </h2>
-            <a href="{{ url_for('provider.bookings_list') }}" class="btn btn-outline btn-sm">
-                {{ _t('dashboard.view_all') }} →
-            </a>
-        </div>
-
-        {% if not recent_bookings %}
-            <div style="text-align: center; padding: var(--spacing-2xl); color: var(--color-text-muted);">
-                <div style="font-size: 2.5rem; margin-bottom: var(--spacing-xs);">📭</div>
-                <p style="font-size: var(--font-size-sm);">{{ _t('provider.no_requests') }}</p>
             </div>
-        {% else %}
-            <div style="overflow-x: auto;">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>{{ _t('booking.ref') }}</th>
-                            <th>{{ _t('booking.machinery') }}</th>
-                            <th>{{ _t('booking.farmer_info') }}</th>
-                            <th>{{ _t('booking.dates') }}</th>
-                            <th>{{ _t('booking.total_cost') }}</th>
-                            <th>{{ _t('booking.status') }}</th>
-                            <th style="text-align: right;">{{ _t('booking.actions') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for b in recent_bookings %}
-                            <tr>
-                                <td style="font-weight: 700; font-family: monospace;">
-                                    <a href="{{ url_for('provider.booking_detail', booking_id=b.id) }}" style="color: var(--color-primary);">
-                                        {{ b.booking_reference }}
-                                    </a>
-                                </td>
-                                <td>
-                                    <div style="font-weight: 700;">{{ b.machinery.name_en }}</div>
-                                    <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">{{ _t('pkg.' + b.rental_option_type) }}</div>
-                                </td>
-                                <td>
-                                    <div>{{ b.farmer.full_name or 'Farmer' }}</div>
-                                    {% if b.contact_phone_snapshot %}
-                                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">📞 {{ b.contact_phone_snapshot }}</div>
-                                    {% endif %}
-                                </td>
-                                <td style="font-size: var(--font-size-xs);">
-                                    <div>{{ b.start_time.strftime('%d %b %Y, %I:%M %p') }}</div>
-                                    <div style="color: var(--color-text-muted);">to {{ b.end_time.strftime('%d %b %Y, %I:%M %p') }}</div>
-                                </td>
-                                <td style="font-weight: 800; color: var(--color-primary);">
-                                    ₹{{ "%.2f"|format(b.estimated_total_cost) }}
-                                </td>
-                                <td>
-                                    <span class="status-badge status-{{ b.status|lower }}">
-                                        {{ _t('status.' + b.status) }}
-                                    </span>
-                                </td>
-                                <td style="text-align: right; white-space: nowrap;">
-                                    <div style="display: inline-flex; gap: var(--spacing-xs); align-items: center; justify-content: flex-end;">
-                                        <a href="{{ url_for('provider.booking_detail', booking_id=b.id) }}" class="btn btn-sm btn-outline">
-                                            {{ _t('booking.view_details') }}
-                                        </a>
-                                        {% if b.status == 'PENDING' %}
-                                            <form action="{{ url_for('provider.booking_approve', booking_id=b.id) }}" method="POST" 
-                                                  onsubmit="return confirm('{{ _t('provider.approve_confirm') }}');" style="margin: 0; display: inline;">
-                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                <button type="submit" class="btn btn-sm btn-primary">
-                                                    ✓ {{ _t('provider.btn_approve') }}
-                                                </button>
-                                            </form>
-                                        {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+
+            <!-- Provider Navigation Links -->
+            <ul class="dashboard-nav-list">
+                <li class="dashboard-nav-item active">
+                    <a href="{{ url_for('provider.dashboard') }}">
+                        <span>📊</span>
+                        <span>Provider Dashboard</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="{{ url_for('provider.machinery_list') }}">
+                        <span>🚜</span>
+                        <span>My Machinery</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="{{ url_for('provider.machinery_new') }}">
+                        <span>➕</span>
+                        <span>Add Machinery</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="{{ url_for('provider.bookings_list') }}">
+                        <span>📥</span>
+                        <span>Incoming Booking Requests</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="{{ url_for('provider.machinery_list') }}">
+                        <span>💰</span>
+                        <span>Manage Rental Prices</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="{{ url_for('auth.profile') }}">
+                        <span>👤</span>
+                        <span>My Profile</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="{{ url_for('main.set_language', lang='ta' if current_lang == 'en' else 'en', next=request.path) }}">
+                        <span>🌐</span>
+                        <span>Language: {% if current_lang == 'ta' %}English{% else %}தமிழ்{% endif %}</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item" style="margin-top: var(--spacing-sm); padding-top: var(--spacing-sm); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                    <form action="{{ url_for('auth.logout') }}" method="POST" style="margin: 0; width: 100%;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" style="display: flex; align-items: center; gap: 12px; width: 100%; color: #fca5a5;">
+                            <span>🚪</span>
+                            <span>Sign Out</span>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- MAIN DASHBOARD CONTENT AREA -->
+        <main>
+            <!-- Personalized Welcome Header -->
+            <div style="margin-bottom: var(--spacing-xl);">
+                <h1 style="color: var(--color-text-heading); font-size: 1.85rem; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.01em;">
+                    Welcome back, {{ profile.business_name or user.full_name }}! 👋
+                </h1>
+                <p style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin: 0;">
+                    Here's your business overview and equipment performance.
+                </p>
             </div>
-        {% endif %}
+
+            <!-- 4 Real-Count KPI Metric Cards -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--spacing-base); margin-bottom: var(--spacing-xl);" class="provider-stats-grid">
+                <!-- Total Machinery -->
+                <div class="card" style="padding: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; border-radius: var(--border-radius-lg);">
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+                            Total Machinery
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: #087A45; line-height: 1;">
+                            {{ total_machinery }}
+                        </div>
+                    </div>
+                    <div style="width: 42px; height: 42px; border-radius: 10px; background-color: #EAF5EE; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                        🚜
+                    </div>
+                </div>
+
+                <!-- Active Listings / Active Bookings -->
+                <div class="card" style="padding: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; border-radius: var(--border-radius-lg);">
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+                            Active Bookings
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: #087A45; line-height: 1;">
+                            {{ active_count }}
+                        </div>
+                    </div>
+                    <div style="width: 42px; height: 42px; border-radius: 10px; background-color: #EAF5EE; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                        ⚡
+                    </div>
+                </div>
+
+                <!-- Pending Requests -->
+                <div class="card" style="padding: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; border-radius: var(--border-radius-lg);">
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+                            Pending Requests
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: #d97706; line-height: 1;">
+                            {{ pending_count }}
+                        </div>
+                    </div>
+                    <div style="width: 42px; height: 42px; border-radius: 10px; background-color: #FEF3C7; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                        ⏳
+                    </div>
+                </div>
+
+                <!-- Completed Bookings -->
+                <div class="card" style="padding: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; border-radius: var(--border-radius-lg);">
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+                            Completed Bookings
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: #087A45; line-height: 1;">
+                            {{ completed_count }}
+                        </div>
+                    </div>
+                    <div style="width: 42px; height: 42px; border-radius: 10px; background-color: #EAF5EE; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                        ★
+                    </div>
+                </div>
+            </div>
+
+            <!-- Incoming Booking Requests Card -->
+            <div class="card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); border-radius: var(--border-radius-lg);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-base); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--color-border);">
+                    <div>
+                        <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin: 0;">
+                            📥 Incoming Booking Requests
+                        </h2>
+                    </div>
+                    <a href="{{ url_for('provider.bookings_list') }}" style="font-size: var(--font-size-xs); color: #087A45; font-weight: 700; text-decoration: none;">
+                        View All &rarr;
+                    </a>
+                </div>
+
+                {% if not recent_bookings %}
+                    <div style="text-align: center; padding: var(--spacing-2xl) var(--spacing-base); color: var(--color-text-muted);">
+                        <div style="font-size: 2.2rem; margin-bottom: 8px;">📭</div>
+                        <p style="font-size: var(--font-size-sm); font-weight: 600; margin-bottom: 4px;">No incoming booking requests</p>
+                        <p style="font-size: var(--font-size-xs);">Incoming equipment requests from farmers will appear here immediately.</p>
+                    </div>
+                {% else %}
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--color-border); text-align: left; font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                                    <th style="padding: 10px 12px; font-weight: 600;">Reference</th>
+                                    <th style="padding: 10px 12px; font-weight: 600;">Machinery</th>
+                                    <th style="padding: 10px 12px; font-weight: 600;">Farmer</th>
+                                    <th style="padding: 10px 12px; font-weight: 600;">Date & Time</th>
+                                    <th style="padding: 10px 12px; font-weight: 600;">Est. Cost</th>
+                                    <th style="padding: 10px 12px; font-weight: 600;">Status</th>
+                                    <th style="padding: 10px 12px; text-align: right; font-weight: 600;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in recent_bookings %}
+                                    <tr style="border-bottom: 1px solid var(--color-border); font-size: var(--font-size-sm);">
+                                        <td style="padding: 12px; font-family: monospace; font-weight: 700; color: #087A45;">
+                                            <a href="{{ url_for('provider.booking_detail', booking_id=b.id) }}" style="color: #087A45; text-decoration: none;">
+                                                {{ b.booking_reference }}
+                                            </a>
+                                        </td>
+                                        <td style="padding: 12px; font-weight: 600; color: var(--color-text-heading);">
+                                            {{ b.machinery.name_en }}
+                                            <div style="font-size: 11px; color: var(--color-text-muted); font-weight: normal;">{{ _t('pkg.' + b.rental_option_type) }}</div>
+                                        </td>
+                                        <td style="padding: 12px;">
+                                            <div style="font-weight: 600;">{{ b.farmer.full_name or 'Farmer' }}</div>
+                                            {% if b.contact_phone_snapshot %}
+                                                <div style="font-size: 11px; color: var(--color-text-muted);">📞 {{ b.contact_phone_snapshot }}</div>
+                                            {% endif %}
+                                        </td>
+                                        <td style="padding: 12px; font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                                            {{ b.start_time.strftime('%d %b %Y') }}<br>
+                                            {{ b.start_time.strftime('%I:%M %p') }} - {{ b.end_time.strftime('%I:%M %p') }}
+                                        </td>
+                                        <td style="padding: 12px; font-weight: 800; color: #087A45;">
+                                            ₹{{ "%.2f"|format(b.estimated_total_cost) }}
+                                        </td>
+                                        <td style="padding: 12px;">
+                                            <span class="status-badge status-{{ b.status|lower }}" style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">
+                                                {{ _t('status.' + b.status) }}
+                                            </span>
+                                        </td>
+                                        <td style="padding: 12px; text-align: right; white-space: nowrap;">
+                                            <div style="display: inline-flex; gap: 6px; align-items: center; justify-content: flex-end;">
+                                                <a href="{{ url_for('provider.booking_detail', booking_id=b.id) }}" class="btn btn-sm btn-outline" style="padding: 4px 10px; font-size: 12px;">
+                                                    View
+                                                </a>
+                                                {% if b.status == 'PENDING' %}
+                                                    <form action="{{ url_for('provider.booking_approve', booking_id=b.id) }}" method="POST" 
+                                                          onsubmit="return confirm('{{ _t('provider.approve_confirm') }}');" style="margin: 0; display: inline;">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                        <button type="submit" class="btn btn-sm btn-primary" style="padding: 4px 10px; font-size: 12px; background-color: #087A45;">
+                                                            ✓ Approve
+                                                        </button>
+                                                    </form>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Quick Action Cards Section -->
+            <div class="card" style="padding: var(--spacing-xl); border-radius: var(--border-radius-lg);">
+                <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin-bottom: var(--spacing-base);">
+                    ⚡ Quick Actions &amp; Equipment Tools
+                </h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--spacing-base);">
+                    <a href="{{ url_for('provider.machinery_list') }}" class="quick-action-card" style="border-radius: var(--border-radius-md);">
+                        <div class="quick-action-icon" style="font-size: 1.5rem;">🚜</div>
+                        <div>
+                            <h3 class="quick-action-title" style="font-size: 14px;">My Machinery</h3>
+                            <p class="quick-action-desc">View and manage listed equipment</p>
+                        </div>
+                    </a>
+
+                    <a href="{{ url_for('provider.machinery_new') }}" class="quick-action-card" style="border-radius: var(--border-radius-md);">
+                        <div class="quick-action-icon" style="font-size: 1.5rem;">➕</div>
+                        <div>
+                            <h3 class="quick-action-title" style="font-size: 14px;">Add Machinery</h3>
+                            <p class="quick-action-desc">List new tractor or implement</p>
+                        </div>
+                    </a>
+
+                    <a href="{{ url_for('provider.machinery_list') }}" class="quick-action-card" style="border-radius: var(--border-radius-md);">
+                        <div class="quick-action-icon" style="font-size: 1.5rem;">💰</div>
+                        <div>
+                            <h3 class="quick-action-title" style="font-size: 14px;">Manage Rental Prices</h3>
+                            <p class="quick-action-desc">Update hourly and daily rates</p>
+                        </div>
+                    </a>
+
+                    <a href="{{ url_for('provider.bookings_list') }}" class="quick-action-card" style="border-radius: var(--border-radius-md);">
+                        <div class="quick-action-icon" style="font-size: 1.5rem;">📋</div>
+                        <div>
+                            <h3 class="quick-action-title" style="font-size: 14px;">Booking Requests</h3>
+                            <p class="quick-action-desc">Manage rental confirmations</p>
+                        </div>
+                    </a>
+
+                    <a href="{{ url_for('auth.profile') }}" class="quick-action-card" style="border-radius: var(--border-radius-md);">
+                        <div class="quick-action-icon" style="font-size: 1.5rem;">👤</div>
+                        <div>
+                            <h3 class="quick-action-title" style="font-size: 14px;">My Profile</h3>
+                            <p class="quick-action-desc">Business details &amp; WhatsApp</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </main>
     </div>
 </div>
 {% endblock %}

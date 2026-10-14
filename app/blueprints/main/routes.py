@@ -15,8 +15,8 @@ def index():
 @main_bp.route("/roles")
 @main_bp.route("/portal")
 def roles_portal():
-    """Unified 3-column role selection portal displaying Farmer, Provider, and Admin."""
-    return render_template("auth/register_select.html")
+    """Redirect legacy role portal routes to the new registration experience."""
+    return redirect(url_for("auth.register"))
 
 
 @main_bp.route("/contact", methods=["GET", "POST"])

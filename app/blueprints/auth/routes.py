@@ -5,6 +5,7 @@ from app.blueprints.auth import auth_bp
 from app.extensions import db
 from app.models.user import User, ProviderProfile
 from app.services.otp_service import otp_service
+from app.utils.i18n import t
 from app.utils.security import (
     normalize_phone_number,
     login_user_session,
@@ -134,7 +135,7 @@ def _process_registration(default_role: str = "FARMER"):
 
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
-    """Registration role selection screen or direct registration form."""
+    """Main registration experience featuring the FarmConnect brand split layout and role switcher."""
     if session.get("user_id"):
         return redirect(url_for("auth.profile"))
 
@@ -142,12 +143,11 @@ def register():
         return _process_registration()
 
     role_param = (request.args.get("role") or "").strip().lower()
-    if role_param == "farmer":
-        return render_template("auth/register_farmer.html", form_data={})
-    elif role_param == "provider":
+    if role_param == "provider":
         return render_template("auth/register_provider.html", form_data={})
 
-    return render_template("auth/register_select.html")
+    # Default to Farmer registration with role switcher pill tabs
+    return render_template("auth/register_farmer.html", form_data={})
 
 
 @auth_bp.route("/register/farmer", methods=["GET", "POST"])
@@ -218,6 +218,17 @@ def login():
             user = User.query.filter_by(phone=phone).first()
 
             if user and user.password_hash and user.check_password(password):
+                # Verify that accounts accessing the Admin login entry point hold the ADMIN role
+                if selected_role == "admin" and user.role != "ADMIN":
+                    record_password_failure(phone)
+                    flash(t("auth.admin_access_denied", lang=session.get("lang", "en")), "error")
+                    return render_template(
+                        "auth/login.html", 
+                        active_tab="password", 
+                        phone=phone_val, 
+                        selected_role="admin"
+                    )
+
                 if not user.is_active:
                     flash("This account is currently suspended. Please contact support.", "error")
                     return render_template(
@@ -231,13 +242,21 @@ def login():
                 user.last_login_at = datetime.utcnow()
                 db.session.commit()
                 login_user_session(user)
-                flash(f"Welcome back, {user.full_name or 'Farmer'}!", "success")
+                flash(f"Welcome back, {user.full_name or 'User'}!", "success")
 
                 next_url = request.args.get("next") or request.form.get("next")
                 if next_url:
-                    if is_safe_redirect_url(next_url):
+                    if not is_safe_redirect_url(next_url):
+                        return redirect(url_for("auth.profile"))
+                    if next_url.startswith("/admin") and user.role != "ADMIN":
+                        pass
+                    elif next_url.startswith("/provider") and user.role != "PROVIDER":
+                        pass
+                    elif next_url.startswith("/farmer") and user.role != "FARMER":
+                        pass
+                    else:
                         return redirect(next_url)
-                    return redirect(url_for("auth.profile"))
+
                 if user.role == "PROVIDER":
                     return redirect(url_for("provider.dashboard"))
                 elif user.role == "ADMIN":
@@ -254,6 +273,17 @@ def login():
                 )
 
         # Default OTP login flow
+        if selected_role == "admin":
+            admin_cand = User.query.filter_by(phone=phone).first()
+            if not admin_cand or admin_cand.role != "ADMIN":
+                flash(t("auth.admin_access_denied", lang=session.get("lang", "en")), "error")
+                return render_template(
+                    "auth/login.html", 
+                    active_tab="otp", 
+                    phone=phone_val, 
+                    selected_role="admin"
+                )
+
         success, msg = otp_service.request_otp(phone, purpose="LOGIN")
         if not success:
             flash(msg, "warning")
@@ -269,6 +299,10 @@ def login():
             session["next_url"] = next_url
 
         session["pending_login_phone"] = phone
+        if selected_role == "admin":
+            session["pending_login_role"] = "admin"
+        else:
+            session.pop("pending_login_role", None)
         session.pop("pending_registration", None)
         flash(msg, "info")
         return redirect(url_for("auth.verify_otp"))
@@ -349,6 +383,12 @@ def verify_otp():
         else:
             # Login verification
             user = User.query.filter_by(phone=pending_phone).first()
+            if session.get("pending_login_role") == "admin" and (not user or user.role != "ADMIN"):
+                session.pop("pending_login_phone", None)
+                session.pop("pending_login_role", None)
+                flash(t("auth.admin_access_denied", lang=session.get("lang", "en")), "error")
+                return redirect(url_for("auth.login", role="admin"))
+
             if not user:
                 # First-time OTP sign in defaults to Farmer
                 user = User(
@@ -366,10 +406,21 @@ def verify_otp():
             next_url = session.get("next_url") or request.args.get("next") or request.form.get("next")
             db.session.commit()
             session.pop("pending_login_phone", None)
+            session.pop("pending_login_role", None)
             login_user_session(user)
             flash("Signed in successfully!", "success")
-            if next_url and is_safe_redirect_url(next_url):
-                return redirect(next_url)
+            if next_url:
+                if not is_safe_redirect_url(next_url):
+                    return redirect(url_for("auth.profile"))
+                if next_url.startswith("/admin") and user.role != "ADMIN":
+                    pass
+                elif next_url.startswith("/provider") and user.role != "PROVIDER":
+                    pass
+                elif next_url.startswith("/farmer") and user.role != "FARMER":
+                    pass
+                else:
+                    return redirect(next_url)
+
             if user.role == "PROVIDER":
                 return redirect(url_for("provider.dashboard"))
             elif user.role == "ADMIN":

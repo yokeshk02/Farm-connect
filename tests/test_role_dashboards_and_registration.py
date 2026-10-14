@@ -19,70 +19,54 @@ def set_user_session(client, user):
 # 1. SEPARATE REGISTRATION OPTIONS TESTS
 # ==============================================================================
 
-def test_register_selection_screen_renders_three_columns(client):
-    """Verify unified role-selection page displays Farmer, Provider, and Admin as three separate columns."""
-    for url in ["/auth/register", "/roles", "/portal"]:
-        res = client.get(url)
-        assert res.status_code == 200
-        html = res.data.decode("utf-8")
+def test_registration_screen_uses_new_slider_design_and_removes_old_portals(client):
+    """Verify registration screen uses the new Registration & Login split design with Farmer/Provider slider,
+    and confirm the old 3-card Role Portals UI is removed from the active user flow."""
+    # 1. Main registration route renders the new Registration design with Farmer active by default
+    res = client.get("/auth/register")
+    assert res.status_code == 200
+    html = res.data.decode("utf-8")
 
-        # Layout grid class
-        assert "roles-columns-grid" in html
+    # Confirm new split design
+    assert "auth-split-wrapper" in html
+    assert "auth-brand-side" in html
+    assert "auth-card-side" in html
 
-        # 1. Farmer Column
-        assert "cardFarmer" in html or "cardRegisterFarmer" in html
-        assert "Farmer" in html
-        assert "🧑‍🌾" in html
-        assert "Search Machinery" in html
-        assert "View Rental Prices" in html
-        assert "My Bookings" in html
-        assert "My Profile" in html
-        assert "Register as Farmer" in html
-        assert "Sign In as Farmer" in html
-        assert "/auth/register/farmer" in html
-        assert "role=farmer" in html
+    # Confirm Farmer/Provider pill slider is present with Farmer active
+    assert "regRoleSwitchContainer" in html
+    assert "formRoleFarmerActive" in html
+    assert "formRoleSwitchProvider" in html
+    assert "/auth/register/provider" in html
 
-        # 2. Machinery Provider / Renter Column
-        assert "cardProvider" in html or "cardRegisterProvider" in html
-        assert "Machinery Provider" in html or "Provider" in html
-        assert "🚜" in html
-        assert "Add Machinery" in html
-        assert "Manage My Machinery" in html
-        assert "Set Rental Prices" in html
-        assert "Incoming Booking Requests" in html
-        assert "Register as Provider" in html
-        assert "Sign In as Provider" in html
-        assert "/auth/register/provider" in html
-        assert "role=provider" in html
+    # Confirm form elements
+    assert 'name="full_name"' in html
+    assert 'name="phone"' in html
+    assert 'name="password"' in html
+    assert "btnContinueOtp" in html
 
-        # 3. Admin Column
-        assert "cardAdmin" in html
-        assert "Admin" in html
-        assert "⚙️" in html
-        assert "Manage Users" in html
-        assert "Review Listings" in html
-        assert "Monitor Bookings" in html
-        assert "Manage Enquiries" in html
-        assert "Admin Sign In" in html
-        assert "role=admin" in html
-        assert "Authorized Accounts Only" in html
+    # Confirm OLD three-card role portals UI is NOT in the active flow
+    assert "roles-columns-grid" not in html
+    assert "cardAdmin" not in html
+    assert "Authorized Accounts Only" not in html
+
+    # 2. Legacy portal routes redirect to the new registration experience
+    for legacy_url in ["/roles", "/portal"]:
+        res_legacy = client.get(legacy_url)
+        assert res_legacy.status_code in (301, 302)
+        assert "/auth/register" in res_legacy.headers["Location"]
 
 
-def test_login_screen_role_indication(client):
-    """Verify /auth/login clearly indicates the selected role when role parameter is passed."""
-    # Farmer role indication
-    res_farmer = client.get("/auth/login?role=farmer")
-    assert res_farmer.status_code == 200
-    html_farmer = res_farmer.data.decode("utf-8")
-    assert "role-banner-farmer" in html_farmer
-    assert "Signing in as Farmer" in html_farmer
-
-    # Provider role indication
-    res_provider = client.get("/auth/login?role=provider")
-    assert res_provider.status_code == 200
-    html_provider = res_provider.data.decode("utf-8")
-    assert "role-banner-provider" in html_provider
-    assert "Signing in as Machinery Provider" in html_provider
+def test_login_screen_admin_mode_and_clean_layout(client):
+    """Verify /auth/login does not display role selection chips for normal users,
+    and Admin login entry point displays admin indicator when ?role=admin."""
+    # Regular login: No role chips or role selection bar
+    res = client.get("/auth/login")
+    assert res.status_code == 200
+    html = res.data.decode("utf-8")
+    assert "loginRoleSelectionBar" not in html
+    assert "loginRoleFarmerBtn" not in html
+    assert "loginRoleProviderBtn" not in html
+    assert "adminLoginHeaderBtn" in html
 
     # Admin role indication (defaults to password tab)
     res_admin = client.get("/auth/login?role=admin")
@@ -91,6 +75,7 @@ def test_login_screen_role_indication(client):
     assert "role-banner-admin" in html_admin
     assert "Signing in as System Administrator" in html_admin
     assert 'id="passLoginForm"' in html_admin
+    assert "returnToRegularLoginLink" in html_admin
 
 
 def test_farmer_registration_form_rendering(client):
@@ -481,3 +466,100 @@ def test_unauthenticated_cannot_access_farmer_dashboard(client):
     res = client.get("/farmer/dashboard")
     assert res.status_code == 302
     assert "/auth/login" in res.headers["Location"]
+
+
+def test_login_page_role_chips_removed_and_auto_redirects(client, db_session):
+    """Verify Farmer and Provider role chips are removed from /auth/login,
+    and authenticated accounts automatically redirect to their respective dashboards based on database role."""
+    # 1. Verify chips are absent on login page, while Admin entry points remain
+    res = client.get("/auth/login")
+    assert res.status_code == 200
+    html = res.data.decode("utf-8")
+    assert "loginRoleSelectionBar" not in html
+    assert "loginRoleFarmerBtn" not in html
+    assert "loginRoleProviderBtn" not in html
+    assert "adminLoginHeaderBtn" in html
+    assert "adminLoginLink" in html
+
+    # 2. Farmer authenticates via regular login -> reaches farmer dashboard
+    farmer = User(phone="+919876599001", full_name="Role Detection Farmer", role="FARMER", is_phone_verified=True)
+    farmer.set_password("FarmerPass123")
+    db_session.add(farmer)
+    db_session.commit()
+
+    res_f = client.post("/auth/login", data={
+        "login_type": "password",
+        "phone": "+919876599001",
+        "password": "FarmerPass123",
+    })
+    assert res_f.status_code == 302
+    assert res_f.headers["Location"].startswith("/farmer")
+
+    # Clear session for next user login test
+    client.post("/auth/logout")
+
+    # 3. Provider authenticates via regular login -> reaches provider dashboard
+    provider = User(phone="+919876599002", full_name="Role Detection Provider", role="PROVIDER", is_phone_verified=True)
+    provider.set_password("ProviderPass123")
+    db_session.add(provider)
+    db_session.commit()
+
+    res_p = client.post("/auth/login", data={
+        "login_type": "password",
+        "phone": "+919876599002",
+        "password": "ProviderPass123",
+    })
+    assert res_p.status_code == 302
+    assert res_p.headers["Location"].startswith("/provider")
+
+    # Clear session for next user login test
+    client.post("/auth/logout")
+
+    # 4. Admin authenticates via admin login -> reaches admin dashboard
+    admin = User(phone="+919876599003", full_name="Role Detection Admin", role="ADMIN", is_phone_verified=True)
+    admin.set_password("AdminPass123")
+    db_session.add(admin)
+    db_session.commit()
+
+    res_a = client.post("/auth/login?role=admin", data={
+        "login_type": "password",
+        "phone": "+919876599003",
+        "password": "AdminPass123",
+        "selected_role": "admin",
+    })
+    assert res_a.status_code == 302
+    assert res_a.headers["Location"].startswith("/admin")
+
+
+def test_registration_selection_and_role_switching_tabs(client):
+    """Verify registration entry point defaults to Farmer with role switcher pill tabs,
+    and switching between Farmer and Provider forms functions properly."""
+    # 1. Main registration screen defaults to Farmer with pill slider
+    res_select = client.get("/auth/register")
+    assert res_select.status_code == 200
+    html_select = res_select.data.decode("utf-8")
+
+    assert "regRoleSwitchContainer" in html_select
+    assert "formRoleFarmerActive" in html_select
+    assert "formRoleSwitchProvider" in html_select
+    assert "/auth/register/provider" in html_select
+
+    # 2. Dedicated Farmer registration screen
+    res_farmer_reg = client.get("/auth/register/farmer")
+    assert res_farmer_reg.status_code == 200
+    html_farmer_reg = res_farmer_reg.data.decode("utf-8")
+    assert "regRoleSwitchContainer" in html_farmer_reg
+    assert "formRoleFarmerActive" in html_farmer_reg
+    assert "formRoleSwitchProvider" in html_farmer_reg
+    assert "/auth/register/provider" in html_farmer_reg
+
+    # 3. Dedicated Provider registration screen
+    res_provider_reg = client.get("/auth/register/provider")
+    assert res_provider_reg.status_code == 200
+    html_provider_reg = res_provider_reg.data.decode("utf-8")
+    assert "regRoleSwitchContainer" in html_provider_reg
+    assert "formRoleProviderActive" in html_provider_reg
+    assert "formRoleSwitchFarmer" in html_provider_reg
+    assert "/auth/register/farmer" in html_provider_reg
+
+

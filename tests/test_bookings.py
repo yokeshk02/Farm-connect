@@ -317,11 +317,11 @@ def test_adjacent_non_overlapping_intervals_allowed(db_session):
     """Verify adjacent bookings [09:00, 13:00) and [13:00, 17:00) do NOT conflict."""
     farmer, provider_user, _, tractor = create_sample_machinery_and_users(db_session)
 
-    b1_start = datetime(2026, 11, 15, 9, 0)
-    b1_end = datetime(2026, 11, 15, 13, 0)
+    b1_start = datetime(2026, 12, 15, 9, 0)
+    b1_end = datetime(2026, 12, 15, 13, 0)
 
-    b2_start = datetime(2026, 11, 15, 13, 0)  # Starts exactly when b1 ends
-    b2_end = datetime(2026, 11, 15, 17, 0)
+    b2_start = datetime(2026, 12, 15, 13, 0)  # Starts exactly when b1 ends
+    b2_end = datetime(2026, 12, 15, 17, 0)
 
     booking1 = create_booking_request(
         farmer=farmer, machinery=tractor, package_type="MACHINE_ONLY",
@@ -415,3 +415,139 @@ def test_cross_provider_access_denied(client, db_session):
     # Attempt to reject
     reject_resp = client.post(f"/provider/bookings/{booking.id}/reject", data={"rejection_reason": "No reason"})
     assert reject_resp.status_code == 403
+
+
+def test_booking_details_duration_and_currency_display(client, db_session):
+    """Verify that booking details correctly distinguish numeric duration from monetary amounts.
+    Duration must NEVER be prefixed with a rupee symbol (₹).
+    Rental rate, security deposit, and total must have correct currency and units."""
+    farmer, provider_user, _, tractor = create_sample_machinery_and_users(db_session)
+
+    # 4-hour booking: 09:00 to 13:00 (MACHINE_ONLY rate: 600/hr, deposit: 2000)
+    # Estimated rental price = 4 * 600 = 2400
+    # Security deposit = 2000
+    # Total = 4400
+    start = datetime(2026, 11, 28, 9, 0)
+    end = datetime(2026, 11, 28, 13, 0)
+
+    booking = create_booking_request(
+        farmer=farmer,
+        machinery=tractor,
+        package_type="MACHINE_ONLY",
+        start_time=start,
+        end_time=end,
+    )
+
+    with client.session_transaction() as sess:
+        sess["user_id"] = str(farmer.id)
+        sess["user_role"] = "FARMER"
+        sess["user_phone"] = farmer.phone
+        sess["user_name"] = farmer.full_name
+
+    # 1. Booking Details Page
+    resp = client.get(f"/bookings/{booking.id}")
+    assert resp.status_code == 200
+    html = resp.data.decode("utf-8")
+
+    # Duration must display measured in hours WITHOUT rupee symbol
+    assert "4 hours" in html or "4 hour" in html
+    assert "₹4 hours" not in html
+    assert "₹4 hour" not in html
+    assert "₹ 4 hours" not in html
+
+    # Rental Rate must display with currency and /hour unit
+    assert "₹600/hour" in html or "₹600.00/hour" in html or "600/hour" in html
+
+    # Estimated Rental Price, Security Deposit, and Total Amount must have ₹
+    assert "₹2400.00" in html or "₹2,400.00" in html
+    assert "₹2000.00" in html or "₹2,000.00" in html
+
+    # 2. My Bookings Card
+    my_resp = client.get("/bookings/my")
+    assert my_resp.status_code == 200
+    my_html = my_resp.data.decode("utf-8")
+    assert "4 hours" in my_html
+    assert "₹4 hours" not in my_html
+    assert "₹2400.00" in my_html
+
+    # 3. Farmer Dashboard
+    dash_resp = client.get("/farmer/dashboard")
+    assert dash_resp.status_code == 200
+    dash_html = dash_resp.data.decode("utf-8")
+    assert "4 hours" in dash_html
+    assert "₹4 hours" not in dash_html
+    assert "₹2400.00" in dash_html
+
+
+def test_provider_booking_details_rate_vs_cost_display(client, db_session):
+    """Verify provider booking details clearly distinguishes hourly rate from hourly cost."""
+    farmer, provider_user, _, tractor = create_sample_machinery_and_users(db_session)
+
+    start = datetime(2026, 11, 28, 9, 0)
+    end = datetime(2026, 11, 28, 13, 0)
+
+    booking = create_booking_request(
+        farmer=farmer,
+        machinery=tractor,
+        package_type="MACHINE_ONLY",
+        start_time=start,
+        end_time=end,
+    )
+
+    with client.session_transaction() as sess:
+        sess["user_id"] = str(provider_user.id)
+        sess["user_role"] = "PROVIDER"
+        sess["user_phone"] = provider_user.phone
+        sess["user_name"] = provider_user.full_name
+
+    resp = client.get(f"/provider/bookings/{booking.id}")
+    assert resp.status_code == 200
+    html = resp.data.decode("utf-8")
+
+    # Billable duration without ₹
+    assert "4 billable hour(s)" in html
+    assert "₹4 billable hour" not in html
+
+    # Hourly Rate: ₹600.00/hour
+    assert "₹600.00/hour" in html
+
+    # Hourly Cost: 4 hrs × ₹600.00 = ₹2400.00
+    assert "4 hrs × ₹600.00 = ₹2400.00" in html
+
+    # Total estimate with ₹
+    assert "₹2400.00" in html
+
+
+def test_bilingual_booking_units_and_category(client, db_session):
+    """Verify Tamil translation displays correct units, labels, and category translations."""
+    farmer, provider_user, _, tractor = create_sample_machinery_and_users(db_session)
+
+    booking = create_booking_request(
+        farmer=farmer,
+        machinery=tractor,
+        package_type="MACHINE_ONLY",
+        start_time=datetime(2026, 11, 28, 9, 0),
+        end_time=datetime(2026, 11, 28, 13, 0),
+    )
+
+    with client.session_transaction() as sess:
+        sess["user_id"] = str(farmer.id)
+        sess["user_role"] = "FARMER"
+
+    # Switch to Tamil
+    lang_resp = client.get("/set-language/ta", follow_redirects=True)
+    assert lang_resp.status_code == 200
+
+    resp = client.get(f"/bookings/{booking.id}")
+    assert resp.status_code == 200
+    html = resp.data.decode("utf-8")
+
+    # Tamil labels for booking details
+    assert "கால அளவு" in html  # Duration
+    assert "வாடகைத் தொகுப்பு" in html  # Rental Package
+    assert "இயந்திரம் மட்டும்" in html  # Machine Only
+    assert "வாடகைக் கட்டணம்" in html  # Rental Rate
+    assert "மதிப்பிடப்பட்ட வாடகைக் கட்டணம்" in html  # Estimated Rental Price
+    assert "மொத்தத் தொகை" in html  # Total Amount
+    assert "முன்பதிவு விவரங்கள்" in html  # Booking Details
+

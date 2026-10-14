@@ -156,9 +156,20 @@
                                 <span>{{ pricing.full_days }} × ₹{{ "%.2f"|format(pricing.rate_per_day) }} = ₹{{ "%.2f"|format(pricing.daily_cost) }}</span>
                             </div>
                         {% endif %}
-                        {% if pricing.hourly_cost > 0 %}
+                        {% if pricing.rate_per_hour and (pricing.remaining_hours > 0 or pricing.full_days == 0) %}
                             <div style="display: flex; justify-content: space-between; font-size: var(--font-size-sm);">
                                 <span style="color: var(--color-text-muted);">Hourly Rate:</span>
+                                <span>₹{{ "%.2f"|format(pricing.rate_per_hour) }}/hour</span>
+                            </div>
+                            {% if pricing.hourly_cost > 0 %}
+                                <div style="display: flex; justify-content: space-between; font-size: var(--font-size-sm);">
+                                    <span style="color: var(--color-text-muted);">Hourly Cost:</span>
+                                    <span>{{ pricing.remaining_hours if pricing.full_days > 0 else pricing.billable_hours }} hrs × ₹{{ "%.2f"|format(pricing.rate_per_hour) }} = ₹{{ "%.2f"|format(pricing.hourly_cost) }}</span>
+                                </div>
+                            {% endif %}
+                        {% elif pricing.hourly_cost > 0 %}
+                            <div style="display: flex; justify-content: space-between; font-size: var(--font-size-sm);">
+                                <span style="color: var(--color-text-muted);">Hourly Cost:</span>
                                 <span>₹{{ "%.2f"|format(pricing.hourly_cost) }}</span>
                             </div>
                         {% endif %}

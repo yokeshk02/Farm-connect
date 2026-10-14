@@ -14,79 +14,132 @@
         </p>
     </div>
 
-    <!-- Prominent Search & Filter Card -->
-    <div class="filter-card">
-        <form id="filterForm" action="{{ url_for('machinery.catalogue') }}" method="GET">
+    <!-- Prominent Top Search Bar -->
+    <div class="catalogue-search-bar">
+        <form id="filterForm" action="{{ url_for('machinery.catalogue') }}" method="GET" class="catalogue-search-form">
             <input type="hidden" name="lat" id="gpsLat" value="{{ user_lat or '' }}">
             <input type="hidden" name="lng" id="gpsLng" value="{{ user_lng or '' }}">
+            <input type="hidden" name="package" id="packageHidden" value="{{ package or '' }}">
+            <input type="hidden" name="sort" id="sortHidden" value="{{ sort or 'newest' }}">
 
-            <!-- Primary Search Row -->
-            <div class="filter-grid">
-                <!-- Search Keyword -->
-                <div class="form-group">
-                    <label for="searchQuery" class="form-label">{{ _t('catalogue.search_placeholder') }}</label>
-                    <input type="text" id="searchQuery" name="q" class="form-control" 
-                           placeholder="{{ _t('catalogue.search_placeholder') }}" value="{{ q or '' }}">
-                </div>
-
-                <!-- District Filter -->
-                <div class="form-group">
-                    <label for="districtSelect" class="form-label">{{ _t('catalogue.filter_district') }}</label>
-                    <select id="districtSelect" name="district" class="form-select">
-                        <option value="">{{ _t('catalogue.all_districts') }}</option>
-                        {% for d in districts %}
-                            <option value="{{ d }}" {% if district == d %}selected{% endif %}>{{ d }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Category Filter -->
-                <div class="form-group">
-                    <label for="categorySelect" class="form-label">{{ _t('catalogue.filter_category') }}</label>
-                    <select id="categorySelect" name="category" class="form-select">
-                        <option value="">{{ _t('catalogue.all_categories') }}</option>
-                        {% for c in categories %}
-                            <option value="{{ c }}" {% if category == c %}selected{% endif %}>
-                                {{ _t('cat.' + c) }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Rental Package Filter -->
-                <div class="form-group">
-                    <label for="packageSelect" class="form-label">{{ _t('catalogue.filter_package') }}</label>
-                    <select id="packageSelect" name="package" class="form-select">
-                        <option value="">{{ _t('catalogue.all_packages') }}</option>
-                        {% for p in packages %}
-                            <option value="{{ p }}" {% if package == p %}selected{% endif %}>
-                                {{ _t('pkg.' + p) }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
+            <!-- Search Keyword -->
+            <div class="search-input-group">
+                <input type="text" id="searchQuery" name="q" class="form-control" 
+                       placeholder="{{ _t('catalogue.search_placeholder') }}" value="{{ q or '' }}">
             </div>
 
-            <!-- Secondary Filters Row -->
-            <div class="filter-grid-secondary">
-                <!-- Village / Town -->
-                <div class="form-group">
-                    <label for="villageInput" class="form-label">{{ _t('catalogue.filter_village') }}</label>
-                    <input type="text" id="villageInput" name="village" class="form-control" 
-                           placeholder="e.g. Kumbakonam" value="{{ village or '' }}">
-                </div>
+            <!-- Category Filter -->
+            <div class="search-select-group">
+                <select id="categorySelect" name="category" class="form-select">
+                    <option value="">{{ _t('catalogue.all_categories') }}</option>
+                    {% for c in categories %}
+                        <option value="{{ c }}" {% if category == c %}selected{% endif %}>
+                            {{ _t('cat.' + c) }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-                <!-- PIN Code -->
-                <div class="form-group">
-                    <label for="pincodeInput" class="form-label">{{ _t('catalogue.filter_pincode') }}</label>
-                    <input type="text" id="pincodeInput" name="pincode" class="form-control" 
-                           placeholder="6 Digits" maxlength="6" value="{{ pincode or '' }}">
-                </div>
+            <!-- District Filter -->
+            <div class="search-select-group">
+                <select id="districtSelect" name="district" class="form-select">
+                    <option value="">{{ _t('catalogue.all_districts') }}</option>
+                    {% for d in districts %}
+                        <option value="{{ d }}" {% if district == d %}selected{% endif %}>{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-                <!-- Sort By -->
-                <div class="form-group">
-                    <label for="sortSelect" class="form-label">{{ _t('catalogue.sort_by') }}</label>
-                    <select id="sortSelect" name="sort" class="form-select">
+            <!-- Search CTA Button -->
+            <button type="submit" class="btn-search">
+                🔍 {{ _t('catalogue.btn_filter') }}
+            </button>
+        </form>
+    </div>
+
+    <!-- Main Two-Column Layout -->
+    <div class="catalogue-layout">
+        <!-- LEFT SIDEBAR: Filters -->
+        <aside class="catalogue-sidebar">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-sm); border-bottom: 2px solid var(--color-border);">
+                <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin: 0;">
+                    ⚙️ Filters
+                </h2>
+                <a href="{{ url_for('machinery.catalogue') }}" style="font-size: var(--font-size-xs); color: var(--color-primary); font-weight: 600; text-decoration: none;">
+                    ↺ {{ _t('catalogue.btn_reset') }}
+                </a>
+            </div>
+
+            <!-- Category Filter Section -->
+            <div class="filter-section">
+                <div class="filter-heading">
+                    <span>{{ _t('catalogue.filter_category') }}</span>
+                </div>
+                <ul class="filter-list">
+                    <li class="filter-list-item {% if not category %}active{% endif %}">
+                        <a href="{{ url_for('machinery.catalogue', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}">
+                            <span>🌟 {{ _t('cat.ALL') }}</span>
+                        </a>
+                    </li>
+                    {% for c in ['TRACTOR', 'HARVESTER', 'ROTAVATOR', 'CULTIVATOR', 'THRESHER', 'TILLER', 'BACKHOE', 'SPRAYER', 'BALER', 'OTHER'] %}
+                        <li class="filter-list-item {% if category == c %}active{% endif %}">
+                            <a href="{{ url_for('machinery.catalogue', category=c, q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}">
+                                <span>{{ _t('cat.' + c) }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- District Filter Section -->
+            <div class="filter-section">
+                <div class="filter-heading">
+                    <span>{{ _t('catalogue.filter_district') }}</span>
+                </div>
+                <ul class="filter-list" style="max-height: 200px; overflow-y: auto;">
+                    <li class="filter-list-item {% if not district %}active{% endif %}">
+                        <a href="{{ url_for('machinery.catalogue', q=q, category=category, package=package, sort=sort, lat=user_lat, lng=user_lng) }}">
+                            <span>{{ _t('catalogue.all_districts') }}</span>
+                        </a>
+                    </li>
+                    {% for d in districts %}
+                        <li class="filter-list-item {% if district == d %}active{% endif %}">
+                            <a href="{{ url_for('machinery.catalogue', district=d, q=q, category=category, package=package, sort=sort, lat=user_lat, lng=user_lng) }}">
+                                <span>{{ d }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Rental Package Filter Section -->
+            <div class="filter-section">
+                <div class="filter-heading">
+                    <span>{{ _t('catalogue.filter_package') }}</span>
+                </div>
+                <ul class="filter-list">
+                    <li class="filter-list-item {% if not package %}active{% endif %}">
+                        <a href="{{ url_for('machinery.catalogue', q=q, district=district, category=category, sort=sort, lat=user_lat, lng=user_lng) }}">
+                            <span>{{ _t('catalogue.all_packages') }}</span>
+                        </a>
+                    </li>
+                    {% for p in packages %}
+                        <li class="filter-list-item {% if package == p %}active{% endif %}">
+                            <a href="{{ url_for('machinery.catalogue', package=p, q=q, district=district, category=category, sort=sort, lat=user_lat, lng=user_lng) }}">
+                                <span>{{ _t('pkg.' + p) }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Sorting & GPS Section -->
+            <div class="filter-section">
+                <div class="filter-heading">
+                    <span>{{ _t('catalogue.sort_by') }}</span>
+                </div>
+                <div class="form-group" style="margin-bottom: var(--spacing-sm);">
+                    <select id="sortSelect" class="form-select" onchange="document.getElementById('sortHidden').value=this.value; document.getElementById('filterForm').submit();">
                         <option value="newest" {% if sort == 'newest' %}selected{% endif %}>{{ _t('catalogue.sort_newest') }}</option>
                         <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>{{ _t('catalogue.sort_price_asc') }}</option>
                         <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>{{ _t('catalogue.sort_price_desc') }}</option>
@@ -96,193 +149,151 @@
                     </select>
                 </div>
 
-                <!-- Action Controls: Filter, Reset, GPS -->
-                <div style="display: flex; gap: var(--spacing-sm); align-items: flex-end; flex-wrap: wrap;">
-                    <button type="submit" class="btn btn-primary btn-sm">
-                        🔍 {{ _t('catalogue.btn_filter') }}
-                    </button>
-                    <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-outline btn-sm">
-                        ↺ {{ _t('catalogue.btn_reset') }}
-                    </a>
-                    <button type="button" id="btnGps" class="btn btn-outline btn-sm" onclick="requestUserLocation()">
-                        <span id="gpsIcon">📍</span> <span id="gpsText">{{ _t('catalogue.use_gps') }}</span>
-                    </button>
-                </div>
+                <button type="button" id="btnGps" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center;" onclick="requestUserLocation()">
+                    <span id="gpsIcon">📍</span> <span id="gpsText">{{ _t('catalogue.use_gps') }}</span>
+                </button>
+                <div id="gpsStatus" style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: 6px; text-align: center;"></div>
             </div>
-            <div id="gpsStatus" style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: var(--spacing-xs);"></div>
-        </form>
-    </div>
+        </aside>
 
-    <!-- Category Shortcuts: Horizontally Scrollable Category Chips -->
-    <div class="category-chips-bar" role="navigation" aria-label="Category shortcuts">
-        <a href="{{ url_for('machinery.catalogue', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
-           class="category-chip {% if not category %}active{% endif %}">
-            🌟 {{ _t('cat.ALL') }}
-        </a>
-        <a href="{{ url_for('machinery.catalogue', category='TRACTOR', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
-           class="category-chip {% if category == 'TRACTOR' %}active{% endif %}">
-            🚜 {{ _t('cat.TRACTOR') }}
-        </a>
-        <a href="{{ url_for('machinery.catalogue', category='HARVESTER', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
-           class="category-chip {% if category == 'HARVESTER' %}active{% endif %}">
-            🌾 {{ _t('cat.HARVESTER') }}
-        </a>
-        <a href="{{ url_for('machinery.catalogue', category='ROTAVATOR', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
-           class="category-chip {% if category == 'ROTAVATOR' %}active{% endif %}">
-            ⚙️ {{ _t('cat.ROTAVATOR') }}
-        </a>
-        <a href="{{ url_for('machinery.catalogue', category='BACKHOE', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
-           class="category-chip {% if category == 'BACKHOE' %}active{% endif %}">
-            🏗️ {{ _t('cat.BACKHOE') }}
-        </a>
-        <a href="{{ url_for('machinery.catalogue', category='THRESHER', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
-           class="category-chip {% if category == 'THRESHER' %}active{% endif %}">
-            🌾 {{ _t('cat.THRESHER') }}
-        </a>
-        <a href="{{ url_for('machinery.catalogue', category='TILLER', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
-           class="category-chip {% if category == 'TILLER' %}active{% endif %}">
-            ⚙️ {{ _t('cat.TILLER') }}
-        </a>
-        <a href="{{ url_for('machinery.catalogue', category='SPRAYER', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
-           class="category-chip {% if category == 'SPRAYER' %}active{% endif %}">
-            💧 {{ _t('cat.SPRAYER') }}
-        </a>
-        <a href="{{ url_for('machinery.catalogue', category='BALER', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
-           class="category-chip {% if category == 'BALER' %}active{% endif %}">
-            📦 {{ _t('cat.BALER') }}
-        </a>
-        <a href="{{ url_for('machinery.catalogue', category='OTHER', q=q, district=district, village=village, pincode=pincode, package=package, sort=sort, lat=user_lat, lng=user_lng) }}" 
-           class="category-chip {% if category == 'OTHER' %}active{% endif %}">
-            📦 {{ _t('cat.OTHER') }}
-        </a>
-    </div>
+        <!-- RIGHT MAIN AREA: Results & Grid -->
+        <main>
+            <!-- Results Status Bar -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-base); background: #FFFFFF; padding: 10px 16px; border-radius: var(--border-radius-md); border: 1px solid var(--color-border);">
+                <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); font-weight: 600; margin: 0;">
+                    {{ _t('catalogue.results_count', count=pagination.total_count) }}
+                </p>
+                {% if user_lat and user_lng %}
+                    <span class="badge" style="background-color: var(--color-primary-subtle); color: var(--color-primary-dark); font-weight: 700;">
+                        📍 GPS Proximity Sorting Active
+                    </span>
+                {% endif %}
+            </div>
 
-    <!-- Results Status Bar -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-base);">
-        <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); font-weight: 600;">
-            {{ _t('catalogue.results_count', count=pagination.total_count) }}
-        </p>
-        {% if user_lat and user_lng %}
-            <span class="badge" style="background-color: var(--color-primary-subtle); color: var(--color-primary-dark); font-weight: 700;">
-                📍 GPS Proximity Sorting Active
-            </span>
-        {% endif %}
-    </div>
-
-    <!-- Machinery Cards Grid -->
-    {% if items %}
-        <div class="machinery-grid">
-            {% for item in items %}
-                {% set m = item.machinery %}
-                <div class="card machinery-card">
-                    <!-- Photo Header -->
-                    <div class="machinery-img-wrapper">
-                        <img src="{{ item.primary_photo_url }}" alt="{{ m.name_en }}" class="machinery-img" loading="lazy">
-                        <span class="category-pill">
-                            {{ _t('cat.' + m.category) }}
-                        </span>
-                        {% if item.distance_km is not none %}
-                            <span class="category-pill" style="left: auto; right: 12px; background-color: rgba(229, 152, 25, 0.9); color: #133826;">
-                                📍 ~{{ item.distance_km }} km
-                            </span>
-                        {% endif %}
-                    </div>
-
-                    <!-- Card Body -->
-                    <div class="machinery-card-body">
-                        <h2 class="machinery-title">
-                            {% if current_lang == 'ta' and m.name_ta %}
-                                {{ m.name_ta }}
-                            {% else %}
-                                {{ m.name_en }}
-                            {% endif %}
-                        </h2>
-
-                        {% if m.make_model %}
-                            <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: 4px;">
-                                {{ m.make_model }} {% if m.model_year %}({{ m.model_year }}){% endif %}
-                                {% if m.horsepower %} • {{ m.horsepower }} HP{% endif %}
-                            </p>
-                        {% endif %}
-
-                        <p class="machinery-location">
-                            📍 {{ m.village_or_town }}, {{ m.district }} ({{ m.pincode }})
-                        </p>
-
-                        <!-- Price & Action Footer -->
-                        <div class="machinery-card-footer">
-                            <div>
-                                {% if item.starting_rate %}
-                                    <span style="font-size: 11px; color: var(--color-text-muted); display: block;">
-                                        {{ _t('catalogue.starts_from') }}
-                                    </span>
-                                    <div style="display: flex; align-items: baseline; gap: 4px;">
-                                        <span class="machinery-rate-val">
-                                            ₹{{ "%.0f"|format(item.starting_rate) }}
-                                        </span>
-                                        <span class="machinery-rate-unit">
-                                            {% if item.starting_unit == 'hr' %}{{ _t('catalogue.per_hour') }}{% else %}{{ _t('catalogue.per_day') }}{% endif %}
-                                        </span>
-                                    </div>
-                                    {% if item.daily_rate and item.starting_unit == 'hr' %}
-                                        <span style="font-size: 11px; color: var(--color-primary-light); font-weight: 600; display: block; margin-top: 2px;">
-                                            ₹{{ "%.0f"|format(item.daily_rate) }} / day
-                                        </span>
-                                    {% endif %}
+            <!-- Machinery Cards Grid -->
+            {% if items %}
+                <div class="machinery-grid">
+                    {% for item in items %}
+                        {% set m = item.machinery %}
+                        <div class="card machinery-card">
+                            <!-- Photo Header -->
+                            <div class="machinery-img-wrapper">
+                                {% if item.primary_photo_url and 'placeholder' not in item.primary_photo_url %}
+                                    <img src="{{ item.primary_photo_url }}" alt="{{ m.name_en }}" class="machinery-img" loading="lazy">
+                                {% elif m.category|lower in ['tractor', 'harvester', 'rotavator', 'cultivator', 'thresher'] %}
+                                    <img src="{{ url_for('static', filename='images/categories/' + m.category|lower + '.jpg') }}" alt="{{ m.name_en }}" class="machinery-img" loading="lazy">
                                 {% else %}
-                                    <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">
-                                        Flexible Pricing
+                                    <img src="{{ url_for('static', filename='images/categories/tractor.jpg') }}" alt="{{ m.name_en }}" class="machinery-img" loading="lazy">
+                                {% endif %}
+                                <span class="category-pill" style="background-color: #EAF5EE; color: #087A45; font-weight: 700; border: 1px solid #C3E6D0;">
+                                    {{ _t('cat.' + m.category) }}
+                                </span>
+                                {% if item.distance_km is not none %}
+                                    <span class="category-pill" style="left: auto; right: 12px; background-color: rgba(229, 152, 25, 0.95); color: #133826;">
+                                        📍 ~{{ item.distance_km }} km
                                     </span>
                                 {% endif %}
                             </div>
 
-                            <a href="{{ url_for('machinery.detail', machinery_id=m.id) }}" class="btn btn-primary btn-sm">
-                                {{ _t('catalogue.view_details') }} &rarr;
-                            </a>
+                            <!-- Card Body -->
+                            <div class="machinery-card-body">
+                                <h2 class="machinery-title">
+                                    {% if current_lang == 'ta' and m.name_ta %}
+                                        {{ m.name_ta }}
+                                    {% else %}
+                                        {{ m.name_en }}
+                                    {% endif %}
+                                </h2>
+
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+                                    <span style="font-size: 11px; font-weight: 700; color: #087A45; background: #EAF5EE; padding: 2px 8px; border-radius: 4px;">
+                                        {{ _t('cat.' + m.category) }}
+                                    </span>
+                                    <span class="machinery-location" style="margin-bottom: 0;">
+                                        📍 {{ m.district }}
+                                    </span>
+                                </div>
+
+                                {% if m.make_model %}
+                                    <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: 8px;">
+                                        {{ m.make_model }} {% if m.model_year %}({{ m.model_year }}){% endif %}
+                                        {% if m.horsepower %} • {{ m.horsepower }} HP{% endif %}
+                                    </p>
+                                {% endif %}
+
+                                <!-- Price & Action Footer -->
+                                <div class="machinery-card-footer" style="flex-direction: column; align-items: stretch; gap: 10px; margin-top: auto; padding-top: var(--spacing-sm);">
+                                    <div>
+                                        {% if item.starting_rate %}
+                                            <div style="display: flex; align-items: baseline; gap: 4px;">
+                                                <span class="machinery-rate-val" style="font-size: 1.3rem; font-weight: 800; color: #087A45;">
+                                                    ₹{{ "%.0f"|format(item.starting_rate) }}
+                                                </span>
+                                                <span class="machinery-rate-unit" style="font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                                                    {% if item.starting_unit == 'hr' %}{{ _t('catalogue.per_hour') }}{% else %}{{ _t('catalogue.per_day') }}{% endif %}
+                                                </span>
+                                            </div>
+                                            {% if item.daily_rate and item.starting_unit == 'hr' %}
+                                                <span style="font-size: 11px; color: var(--color-primary-light); font-weight: 600; display: block; margin-top: 1px;">
+                                                    ₹{{ "%.0f"|format(item.daily_rate) }} {{ _t('catalogue.per_day') }}
+                                                </span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                                                Flexible Pricing
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <a href="{{ url_for('machinery.detail', machinery_id=m.id) }}" class="btn btn-primary" style="width: 100%; text-align: center; justify-content: center; padding: 9px 16px; font-weight: 700; border-radius: 8px; background-color: #087A45;">
+                                        {{ _t('catalogue.view_details') }}
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
-        </div>
 
-        <!-- Pagination Controls -->
-        {% if pagination.total_pages > 1 %}
-            <div style="display: flex; justify-content: center; align-items: center; gap: var(--spacing-md); margin-top: var(--spacing-2xl);">
-                {% if pagination.has_prev %}
-                    <a href="{{ url_for('machinery.catalogue', q=q, district=district, village=village, pincode=pincode, category=category, package=package, sort=sort, lat=user_lat, lng=user_lng, page=pagination.prev_page) }}" 
-                       class="btn btn-outline btn-sm">
-                        &larr; {{ _t('catalogue.prev') }}
-                    </a>
+                <!-- Pagination Controls -->
+                {% if pagination.total_pages > 1 %}
+                    <div style="display: flex; justify-content: center; align-items: center; gap: var(--spacing-md); margin-top: var(--spacing-2xl);">
+                        {% if pagination.has_prev %}
+                            <a href="{{ url_for('machinery.catalogue', q=q, district=district, village=village, pincode=pincode, category=category, package=package, sort=sort, lat=user_lat, lng=user_lng, page=pagination.prev_page) }}" 
+                               class="btn btn-outline btn-sm">
+                                &larr; {{ _t('catalogue.prev') }}
+                            </a>
+                        {% endif %}
+
+                        <span style="font-size: var(--font-size-sm); color: var(--color-text-muted); font-weight: 600;">
+                            {{ _t('catalogue.page_info', current=pagination.page, total=pagination.total_pages) }}
+                        </span>
+
+                        {% if pagination.has_next %}
+                            <a href="{{ url_for('machinery.catalogue', q=q, district=district, village=village, pincode=pincode, category=category, package=package, sort=sort, lat=user_lat, lng=user_lng, page=pagination.next_page) }}" 
+                               class="btn btn-outline btn-sm">
+                                {{ _t('catalogue.next') }} &rarr;
+                            </a>
+                        {% endif %}
+                    </div>
                 {% endif %}
 
-                <span style="font-size: var(--font-size-sm); color: var(--color-text-muted); font-weight: 600;">
-                    {{ _t('catalogue.page_info', current=pagination.page, total=pagination.total_pages) }}
-                </span>
-
-                {% if pagination.has_next %}
-                    <a href="{{ url_for('machinery.catalogue', q=q, district=district, village=village, pincode=pincode, category=category, package=package, sort=sort, lat=user_lat, lng=user_lng, page=pagination.next_page) }}" 
-                       class="btn btn-outline btn-sm">
-                        {{ _t('catalogue.next') }} &rarr;
+            {% else %}
+                <!-- Empty State -->
+                <div class="card" style="text-align: center; padding: var(--spacing-3xl) var(--spacing-lg);">
+                    <div style="font-size: 3.5rem; margin-bottom: var(--spacing-sm);">🌾</div>
+                    <h2 style="font-size: var(--font-size-xl); color: var(--color-text-heading); font-weight: 700; margin-bottom: var(--spacing-xs);">
+                        {{ _t('catalogue.no_results_title') }}
+                    </h2>
+                    <p style="color: var(--color-text-muted); max-width: 500px; margin: 0 auto var(--spacing-lg);">
+                        {{ _t('catalogue.no_results_desc') }}
+                    </p>
+                    <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-primary">
+                        {{ _t('catalogue.btn_reset') }}
                     </a>
-                {% endif %}
-            </div>
-        {% endif %}
-
-    {% else %}
-        <!-- Empty State -->
-        <div class="card" style="text-align: center; padding: var(--spacing-3xl) var(--spacing-lg);">
-            <div style="font-size: 3.5rem; margin-bottom: var(--spacing-sm);">🌾</div>
-            <h2 style="font-size: var(--font-size-xl); color: var(--color-text-heading); font-weight: 700; margin-bottom: var(--spacing-xs);">
-                {{ _t('catalogue.no_results_title') }}
-            </h2>
-            <p style="color: var(--color-text-muted); max-width: 500px; margin: 0 auto var(--spacing-lg);">
-                {{ _t('catalogue.no_results_desc') }}
-            </p>
-            <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-primary">
-                {{ _t('catalogue.btn_reset') }}
-            </a>
-        </div>
-    {% endif %}
+                </div>
+            {% endif %}
+        </main>
+    </div>
 </div>
 {% endblock %}
 

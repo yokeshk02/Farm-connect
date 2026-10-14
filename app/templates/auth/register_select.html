@@ -17,6 +17,22 @@
         </p>
     </header>
 
+    <!-- Dedicated Registration Role Selector Tabs -->
+    <div class="registration-role-tabs-wrapper" id="regRoleTabsWrapper">
+        <div style="background: var(--color-bg-card); padding: 6px; border: 1.5px solid var(--color-border); border-radius: 32px; display: inline-flex; gap: 6px; box-shadow: var(--shadow-sm); max-width: 100%;">
+            <a href="{{ url_for('auth.register_farmer') }}" class="reg-role-tab-pill active" id="tabSelectFarmer" title="{{ _t('portal.btn_register_farmer') }}">
+                <span>🧑‍🌾</span>
+                <span>{{ _t('portal.btn_register_farmer') }}</span>
+                <span>&rarr;</span>
+            </a>
+            <a href="{{ url_for('auth.register_provider') }}" class="reg-role-tab-pill" id="tabSelectProvider" title="{{ _t('portal.btn_register_provider') }}">
+                <span>🚜</span>
+                <span>{{ _t('portal.btn_register_provider') }}</span>
+                <span>&rarr;</span>
+            </a>
+        </div>
+    </div>
+
     <!-- Unified Three Columns Grid (Desktop: Side-by-Side 3 Columns, Mobile: Stacked) -->
     <div class="roles-columns-grid" id="rolesPortalGrid">
         
@@ -37,6 +53,13 @@
                 <p class="role-portal-desc">
                     {{ _t('portal.farmer_desc') }}
                 </p>
+                <div class="role-portal-cta-top">
+                    <a href="{{ url_for('auth.register_farmer') }}" class="btn btn-primary btn-block btn-lg" id="btnRegisterFarmerMain" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; box-shadow: 0 4px 12px rgba(8, 122, 69, 0.25);">
+                        <span>✍️</span>
+                        <span>{{ _t('portal.btn_register_farmer') }}</span>
+                        <span>→</span>
+                    </a>
+                </div>
             </div>
 
             <!-- Farmer Actions -->
@@ -104,6 +127,13 @@
                 <p class="role-portal-desc">
                     {{ _t('portal.provider_desc') }}
                 </p>
+                <div class="role-portal-cta-top">
+                    <a href="{{ url_for('auth.register_provider') }}" class="btn btn-accent btn-block btn-lg" id="btnRegisterProviderMain" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; box-shadow: 0 4px 12px rgba(221, 161, 94, 0.25);">
+                        <span>✍️</span>
+                        <span>{{ _t('portal.btn_register_provider') }}</span>
+                        <span>→</span>
+                    </a>
+                </div>
             </div>
 
             <!-- Provider Actions -->

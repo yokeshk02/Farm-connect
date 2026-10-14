@@ -514,3 +514,84 @@ def test_safe_redirect_with_legitimate_next_url(client, db_session):
     assert res_verify.headers["Location"] == "/bookings/my"
 
 
+def test_login_page_renders_admin_login_link(client):
+    """Verify that the login page displays a clearly visible Admin Login entry point."""
+    res = client.get("/auth/login")
+    assert res.status_code == 200
+    html = res.data.decode("utf-8")
+
+    assert "adminLoginLink" in html or "adminLoginHeaderBtn" in html
+    assert "Admin Login" in html
+    assert "role=admin" in html
+
+
+def test_admin_login_success_redirects_to_admin_dashboard(client, db_session):
+    """Verify authorized ADMIN account logging in via Admin entry point reaches Admin Dashboard."""
+    phone = "+919876508888"
+    admin_user = User(phone=phone, full_name="System Admin User", role="ADMIN", is_phone_verified=True)
+    admin_user.set_password("AdminSecurePass123")
+    db_session.add(admin_user)
+    db_session.commit()
+
+    res = client.post("/auth/login?role=admin", data={
+        "login_type": "password",
+        "phone": phone,
+        "password": "AdminSecurePass123",
+        "selected_role": "admin",
+    })
+    assert res.status_code == 302
+    assert res.headers["Location"].startswith("/admin")
+
+    with client.session_transaction() as sess:
+        assert sess.get("user_role") == "ADMIN"
+        assert sess.get("user_phone") == phone
+
+
+def test_farmer_login_via_admin_entry_point_denied(client, db_session):
+    """Verify that a FARMER attempting to authenticate via Admin entry point is strictly denied."""
+    phone = "+919876509999"
+    farmer = User(phone=phone, full_name="Trespassing Farmer", role="FARMER", is_phone_verified=True)
+    farmer.set_password("FarmerSecretPass123")
+    db_session.add(farmer)
+    db_session.commit()
+
+    res = client.post("/auth/login?role=admin", data={
+        "login_type": "password",
+        "phone": phone,
+        "password": "FarmerSecretPass123",
+        "selected_role": "admin",
+    })
+    assert res.status_code == 200
+    html = res.data.decode("utf-8")
+    assert ("Access denied" in html) or ("administrator privileges" in html)
+
+    # Must NOT establish an authenticated admin session
+    with client.session_transaction() as sess:
+        assert sess.get("user_role") != "ADMIN"
+        assert sess.get("user_id") is None
+
+
+def test_provider_login_via_admin_entry_point_denied(client, db_session):
+    """Verify that a PROVIDER attempting to authenticate via Admin entry point is strictly denied."""
+    phone = "+919876509998"
+    provider = User(phone=phone, full_name="Trespassing Provider", role="PROVIDER", is_phone_verified=True)
+    provider.set_password("ProviderSecretPass123")
+    db_session.add(provider)
+    db_session.commit()
+
+    res = client.post("/auth/login?role=admin", data={
+        "login_type": "password",
+        "phone": phone,
+        "password": "ProviderSecretPass123",
+        "selected_role": "admin",
+    })
+    assert res.status_code == 200
+    html = res.data.decode("utf-8")
+    assert ("Access denied" in html) or ("administrator privileges" in html)
+
+    with client.session_transaction() as sess:
+        assert sess.get("user_role") != "ADMIN"
+        assert sess.get("user_id") is None
+
+
+

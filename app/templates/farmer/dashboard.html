@@ -1,380 +1,341 @@
 {% extends "base.html" %}
 
-{% block title %}{{ _t('nav.farmer_dashboard') }} - {{ _t('app.name') }}{% endblock %}
+{% block title %}Farmer Dashboard - {{ _t('app.name') }}{% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-3xl);">
-    <!-- Personalized Welcome Banner -->
-    <div style="margin-bottom: var(--spacing-xl);">
-        <span class="section-pill">{{ _t('nav.farmer_dashboard') }}</span>
-        <h1 style="color: var(--color-text-heading); font-size: var(--font-size-3xl); font-weight: 800; margin-bottom: var(--spacing-xs); letter-spacing: -0.01em;">
-            {{ _t('dashboard.welcome') }}, {{ user.full_name or 'Farmer' }}! 🌾
-        </h1>
-        <p style="color: var(--color-text-muted); font-size: var(--font-size-base);">
-            {{ _t('dashboard.farmer_subtitle') }}
-        </p>
-    </div>
-
-    <!-- Farmer Booking Metric Cards -->
-    <div class="stats-grid" style="margin-bottom: var(--spacing-2xl);">
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: var(--color-status-in_progress-bg);">🚀</div>
-            <div>
-                <div class="stat-value" style="color: var(--color-status-in_progress);">{{ active_count }}</div>
-                <div class="stat-label">{{ _t('dashboard.active_rentals') }}</div>
+<div class="container" style="max-width: 1320px;">
+    <div class="dashboard-container">
+        <!-- LEFT SIDEBAR (Dark Green Reference Design) -->
+        <aside class="dashboard-sidebar">
+            <div class="brand-badge">
+                <span>🌾</span>
+                <span>Farm<strong style="color: #6ee7b7;">Connect</strong></span>
             </div>
-        </div>
 
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: var(--color-status-pending-bg);">⏳</div>
-            <div>
-                <div class="stat-value" style="color: var(--color-status-pending);">{{ pending_count }}</div>
-                <div class="stat-label">{{ _t('dashboard.pending_bookings') }}</div>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: var(--color-status-completed-bg);">★</div>
-            <div>
-                <div class="stat-value" style="color: var(--color-status-completed);">{{ completed_count }}</div>
-                <div class="stat-label">{{ _t('dashboard.completed_rentals') }}</div>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: rgba(45, 106, 79, 0.12);">📋</div>
-            <div>
-                <div class="stat-value" style="color: var(--color-primary-dark);">{{ total_bookings }}</div>
-                <div class="stat-label">{{ _t('dashboard.total_bookings') }}</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- FEATURE 1: Search Machinery -->
-    <div class="card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-2xl); border-top: 4px solid var(--color-primary);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-base); flex-wrap: wrap; gap: var(--spacing-sm);">
-            <div>
-                <h2 style="font-size: var(--font-size-xl); font-weight: 800; color: var(--color-text-heading); margin-bottom: 4px;">
-                    🔍 {{ _t('dashboard.search_machinery') }}
-                </h2>
-                <p style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin: 0;">
-                    Find tractors, combine harvesters, rotavators, and implements available across Tamil Nadu.
-                </p>
-            </div>
-            <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-outline btn-sm">
-                {{ _t('dashboard.view_all') }} Machinery →
-            </a>
-        </div>
-
-        <form action="{{ url_for('machinery.catalogue') }}" method="GET" class="farmer-search-form" id="farmerSearchForm">
-            <div class="farmer-search-grid">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label for="farmerSearchQuery" class="form-label" style="font-size: var(--font-size-xs);">Keyword / Model</label>
-                    <input type="text" id="farmerSearchQuery" name="q" class="form-control" 
-                           placeholder="e.g. Mahindra 575, John Deere, Harvester...">
+            <!-- User Profile Summary -->
+            <div class="dashboard-user-card">
+                <div class="dashboard-user-avatar">
+                    🧑‍🌾
                 </div>
-
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label for="farmerSearchDistrict" class="form-label" style="font-size: var(--font-size-xs);">District</label>
-                    <select id="farmerSearchDistrict" name="district" class="form-select">
-                        <option value="">All 38 Districts</option>
-                        {% for d in districts %}
-                            <option value="{{ d }}">{{ d }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label for="farmerSearchCategory" class="form-label" style="font-size: var(--font-size-xs);">Machinery Category</label>
-                    <select id="farmerSearchCategory" name="category" class="form-select">
-                        <option value="">All Categories</option>
-                        {% for cat in categories %}
-                            <option value="{{ cat }}">{{ _t('cat.' + cat) }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div style="display: flex; align-items: flex-end;">
-                    <button type="submit" class="btn btn-primary btn-block" style="height: 42px;" id="btnFarmerSearch">
-                        🔍 {{ _t('dashboard.search_machinery') }}
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <!-- FEATURE 2: Browse Machinery Listings -->
-    <div style="margin-bottom: var(--spacing-2xl);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-base); flex-wrap: wrap; gap: var(--spacing-sm);">
-            <div>
-                <h2 style="font-size: var(--font-size-xl); font-weight: 800; color: var(--color-text-heading); margin-bottom: 4px;">
-                    🚜 {{ _t('dashboard.browse_listings') }}
-                </h2>
-                <p style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin: 0;">
-                    Verified agricultural machinery available for rent from registered providers.
-                </p>
-            </div>
-            <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-outline btn-sm">
-                Browse Full Catalogue ({{ featured_machinery|length }}+) →
-            </a>
-        </div>
-
-        <!-- Category Shortcut Pills -->
-        <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap; margin-bottom: var(--spacing-lg);">
-            <a href="{{ url_for('machinery.catalogue', category='TRACTOR') }}" class="category-pill-btn">
-                🚜 Tractors
-            </a>
-            <a href="{{ url_for('machinery.catalogue', category='HARVESTER') }}" class="category-pill-btn">
-                🌾 Combine Harvesters
-            </a>
-            <a href="{{ url_for('machinery.catalogue', category='POWER_TILLER') }}" class="category-pill-btn">
-                ⚙️ Power Tillers
-            </a>
-            <a href="{{ url_for('machinery.catalogue', category='ROTAVATOR') }}" class="category-pill-btn">
-                🌱 Rotavators
-            </a>
-            <a href="{{ url_for('machinery.catalogue', category='SPRAYER') }}" class="category-pill-btn">
-                💧 Sprayers
-            </a>
-            <a href="{{ url_for('machinery.catalogue') }}" class="category-pill-btn" style="background-color: var(--color-primary-subtle); color: var(--color-primary-dark); font-weight: 700;">
-                All Machinery →
-            </a>
-        </div>
-
-        {% if not featured_machinery %}
-            <div class="card" style="padding: var(--spacing-2xl); text-align: center; color: var(--color-text-muted);">
-                <div style="font-size: 2.5rem; margin-bottom: var(--spacing-xs);">🚜</div>
-                <p style="font-size: var(--font-size-base); font-weight: 600;">No machinery listings currently active.</p>
-                <p style="font-size: var(--font-size-sm);">Check back soon as local providers add new equipment daily.</p>
-            </div>
-        {% else %}
-            <div class="machinery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--spacing-lg);">
-                {% for item in featured_machinery %}
-                    <div class="card machinery-card" style="display: flex; flex-direction: column; overflow: hidden; border-radius: var(--border-radius-lg); transition: transform 0.2s, box-shadow 0.2s;">
-                        <div style="position: relative; width: 100%; height: 180px; background-color: var(--color-bg-muted); overflow: hidden;">
-                            <img src="{{ item.primary_photo_url }}" alt="{{ item.machinery.name_en }}" style="width: 100%; height: 100%; object-fit: cover;">
-                            <span class="badge" style="position: absolute; top: var(--spacing-sm); left: var(--spacing-sm); background-color: rgba(27, 67, 50, 0.85); color: #fff; font-size: var(--font-size-xs);">
-                                {{ _t('cat.' + item.machinery.category) }}
-                            </span>
-                        </div>
-                        <div style="padding: var(--spacing-base); flex: 1; display: flex; flex-direction: column;">
-                            <h3 style="font-size: var(--font-size-base); font-weight: 700; color: var(--color-text-heading); margin-bottom: 4px;">
-                                {{ item.machinery.name_en }}
-                            </h3>
-                            <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: var(--spacing-sm);">
-                                📍 {{ item.machinery.village_or_town }}, {{ item.machinery.district }}
-                            </div>
-
-                            <div style="margin-top: auto; padding-top: var(--spacing-sm); border-top: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between;">
-                                <div>
-                                    <span style="font-size: var(--font-size-xs); color: var(--color-text-muted); display: block;">Starting at</span>
-                                    <span style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-primary);">
-                                        {% if item.starting_rate %}
-                                            ₹{{ "%.0f"|format(item.starting_rate) }}<small style="font-size: 0.75rem; font-weight: normal; color: var(--color-text-muted);">/{{ item.starting_unit }}</small>
-                                        {% else %}
-                                            Contact
-                                        {% endif %}
-                                    </span>
-                                </div>
-                                <a href="{{ url_for('machinery.detail', machinery_id=item.machinery.id) }}" class="btn btn-sm btn-primary">
-                                    View Details →
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
-
-    <!-- FEATURE 3: View Rental Prices -->
-    <div class="card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-2xl); background: linear-gradient(135deg, #ffffff 0%, #f7faf7 100%); border-left: 4px solid var(--color-accent);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-base); flex-wrap: wrap; gap: var(--spacing-sm);">
-            <div>
-                <h2 style="font-size: var(--font-size-xl); font-weight: 800; color: var(--color-text-heading); margin-bottom: 4px;">
-                    💰 {{ _t('dashboard.view_prices') }}
-                </h2>
-                <p style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin: 0;">
-                    Transparent pricing model with clear rates for every farming requirement. Zero middleman markups.
-                </p>
-            </div>
-            <a href="{{ url_for('machinery.catalogue', sort='price_asc') }}" class="btn btn-outline btn-sm">
-                Compare Lowest Rates →
-            </a>
-        </div>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--spacing-base); margin-top: var(--spacing-md);">
-            <div style="padding: var(--spacing-base); background-color: #fff; border: 1px solid var(--color-border); border-radius: var(--border-radius-base);">
-                <div style="font-size: 1.5rem; margin-bottom: var(--spacing-xs);">🚜</div>
-                <h3 style="font-size: var(--font-size-base); font-weight: 700; color: var(--color-primary-dark); margin-bottom: 4px;">
-                    Machine Only
-                </h3>
-                <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: var(--spacing-sm);">
-                    You operate the machinery yourself. Ideal for experienced tractor drivers who supply their own fuel.
-                </p>
-                <div style="font-weight: 700; color: var(--color-primary); font-size: var(--font-size-sm);">
-                    From ₹500 - ₹800 / hour
+                <div class="dashboard-user-info">
+                    <div class="dashboard-user-name">{{ user.full_name or 'Farmer' }}</div>
+                    <div class="dashboard-user-role">Farmer Dashboard</div>
                 </div>
             </div>
 
-            <div style="padding: var(--spacing-base); background-color: #fff; border: 1px solid var(--color-border); border-radius: var(--border-radius-base);">
-                <div style="font-size: 1.5rem; margin-bottom: var(--spacing-xs);">👨‍🌾</div>
-                <h3 style="font-size: var(--font-size-base); font-weight: 700; color: var(--color-primary-dark); margin-bottom: 4px;">
-                    Machine + Operator
-                </h3>
-                <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: var(--spacing-sm);">
-                    Equipment provided with a skilled, licensed machine operator so you can focus on field supervision.
-                </p>
-                <div style="font-weight: 700; color: var(--color-primary); font-size: var(--font-size-sm);">
-                    From ₹800 - ₹1,400 / hour
-                </div>
-            </div>
-
-            <div style="padding: var(--spacing-base); background-color: #fff; border: 1px solid var(--color-border); border-radius: var(--border-radius-base);">
-                <div style="font-size: 1.5rem; margin-bottom: var(--spacing-xs);">⛽</div>
-                <h3 style="font-size: var(--font-size-base); font-weight: 700; color: var(--color-primary-dark); margin-bottom: 4px;">
-                    Fuel Included Package
-                </h3>
-                <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: var(--spacing-sm);">
-                    All-inclusive rental with diesel/fuel and operator covered by the equipment provider.
-                </p>
-                <div style="font-weight: 700; color: var(--color-primary); font-size: var(--font-size-sm);">
-                    From ₹1,200 - ₹2,500 / hour
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- FEATURE 4: My Bookings & FEATURE 5: My Profile Grid -->
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: var(--spacing-xl);" class="farmer-dashboard-bottom-grid">
-        <!-- FEATURE 4: My Bookings Section -->
-        <div class="table-card">
-            <div class="table-header">
-                <div>
-                    <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin-bottom: 2px;">
-                        📋 {{ _t('nav.my_bookings') }}
-                    </h2>
-                    <p style="color: var(--color-text-muted); font-size: var(--font-size-xs); margin: 0;">
-                        Track your pending, approved, and completed machinery rental requests.
-                    </p>
-                </div>
-                <a href="{{ url_for('bookings.my_bookings') }}" class="btn btn-outline btn-sm" id="btnViewAllBookings">
-                    {{ _t('dashboard.view_all') }} ({{ total_bookings }}) →
-                </a>
-            </div>
-
-            {% if not recent_bookings %}
-                <div style="text-align: center; padding: var(--spacing-2xl); color: var(--color-text-muted);">
-                    <div style="font-size: 2.5rem; margin-bottom: var(--spacing-xs);">📭</div>
-                    <p style="font-size: var(--font-size-sm); font-weight: 600; margin-bottom: var(--spacing-xs);">No rental bookings yet</p>
-                    <p style="font-size: var(--font-size-xs); margin-bottom: var(--spacing-md);">Browse available machinery and submit your first rental request.</p>
-                    <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-primary btn-sm">
-                        Find Machinery to Rent →
+            <!-- Navigation Links -->
+            <ul class="dashboard-nav-list">
+                <li class="dashboard-nav-item active">
+                    <a href="{{ url_for('farmer.dashboard') }}">
+                        <span>📊</span>
+                        <span>Dashboard</span>
                     </a>
-                </div>
-            {% else %}
-                <div style="overflow-x: auto;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>{{ _t('booking.ref') }}</th>
-                                <th>{{ _t('booking.machinery') }}</th>
-                                <th>{{ _t('booking.dates') }}</th>
-                                <th>{{ _t('booking.total_cost') }}</th>
-                                <th>{{ _t('booking.status') }}</th>
-                                <th style="text-align: right;">{{ _t('booking.actions') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for b in recent_bookings %}
-                                <tr>
-                                    <td style="font-weight: 700; font-family: monospace;">
-                                        <a href="{{ url_for('bookings.booking_detail', booking_id=b.id) }}" style="color: var(--color-primary);">
-                                            {{ b.booking_reference }}
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <div style="font-weight: 700;">{{ b.machinery.name_en }}</div>
-                                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">{{ _t('pkg.' + b.rental_option_type) }}</div>
-                                    </td>
-                                    <td style="font-size: var(--font-size-xs);">
-                                        <div>{{ b.start_time.strftime('%d %b %Y, %I:%M %p') }}</div>
-                                        <div style="color: var(--color-text-muted);">to {{ b.end_time.strftime('%d %b %Y, %I:%M %p') }}</div>
-                                    </td>
-                                    <td style="font-weight: 800; color: var(--color-primary);">
-                                        ₹{{ "%.2f"|format(b.estimated_total_cost) }}
-                                    </td>
-                                    <td>
-                                        <span class="status-badge status-{{ b.status|lower }}">
-                                            {{ _t('status.' + b.status) }}
-                                        </span>
-                                    </td>
-                                    <td style="text-align: right; white-space: nowrap;">
-                                        <a href="{{ url_for('bookings.booking_detail', booking_id=b.id) }}" class="btn btn-sm btn-outline">
-                                            {{ _t('booking.view_details') }}
-                                        </a>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% endif %}
-        </div>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="{{ url_for('bookings.my_bookings') }}">
+                        <span>📋</span>
+                        <span>My Bookings</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="{{ url_for('machinery.catalogue') }}">
+                        <span>🚜</span>
+                        <span>Browse Machinery</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="{{ url_for('auth.profile') }}">
+                        <span>👤</span>
+                        <span>My Profile</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="{{ url_for('main.set_language', lang='ta' if current_lang == 'en' else 'en', next=request.path) }}">
+                        <span>🌐</span>
+                        <span>Language: {% if current_lang == 'ta' %}English{% else %}தமிழ்{% endif %}</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item" style="margin-top: var(--spacing-sm); padding-top: var(--spacing-sm); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                    <form action="{{ url_for('auth.logout') }}" method="POST" style="margin: 0; width: 100%;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" style="display: flex; align-items: center; gap: 12px; width: 100%; color: #fca5a5;">
+                            <span>🚪</span>
+                            <span>Sign Out</span>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </aside>
 
-        <!-- FEATURE 5: My Profile Card -->
-        <div class="card" style="padding: var(--spacing-lg); display: flex; flex-direction: column;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-base); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--color-border);">
-                <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
-                    <div style="width: 44px; height: 44px; border-radius: 50%; background-color: rgba(45, 106, 79, 0.12); display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
-                        👤
+        <!-- MAIN DASHBOARD CONTENT AREA -->
+        <main>
+            <!-- Welcome Header -->
+            <div style="margin-bottom: var(--spacing-xl);">
+                <h1 style="color: var(--color-text-heading); font-size: 1.85rem; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.01em;">
+                    Welcome back, {{ user.full_name or 'Farmer' }}! 👋
+                </h1>
+                <p style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin: 0;">
+                    Here's what's happening with your farm and bookings.
+                </p>
+            </div>
+
+            <!-- KPI Metric Summary Cards (3 KPI Cards Matching Reference Image) -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-base); margin-bottom: var(--spacing-xl);">
+                <!-- Total Bookings -->
+                <div class="card" style="padding: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; border-radius: var(--border-radius-lg);">
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+                            Total Bookings
+                        </div>
+                        <div style="font-size: 1.9rem; font-weight: 800; color: #087A45; line-height: 1;">
+                            {{ total_bookings }}
+                        </div>
                     </div>
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background-color: #EAF5EE; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        📋
+                    </div>
+                </div>
+
+                <!-- Active Bookings -->
+                <div class="card" style="padding: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; border-radius: var(--border-radius-lg);">
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+                            Active Bookings
+                        </div>
+                        <div style="font-size: 1.9rem; font-weight: 800; color: #087A45; line-height: 1;">
+                            {{ active_count }}
+                        </div>
+                    </div>
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background-color: #EAF5EE; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        ⚡
+                    </div>
+                </div>
+
+                <!-- Completed -->
+                <div class="card" style="padding: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; border-radius: var(--border-radius-lg);">
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+                            Completed
+                        </div>
+                        <div style="font-size: 1.9rem; font-weight: 800; color: #087A45; line-height: 1;">
+                            {{ completed_count }}
+                        </div>
+                    </div>
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background-color: #EAF5EE; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        ✓
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Bookings Card (Matching Reference Table Layout) -->
+            <div class="card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); border-radius: var(--border-radius-lg);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-base); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--color-border);">
                     <div>
                         <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin: 0;">
-                            {{ _t('nav.profile') }}
+                            Recent Bookings
                         </h2>
-                        <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">
-                            Farmer Account
-                        </span>
+                    </div>
+                    <a href="{{ url_for('bookings.my_bookings') }}" id="btnViewAllBookings" style="font-size: var(--font-size-xs); color: #087A45; font-weight: 700; text-decoration: none;">
+                        View All &rarr;
+                    </a>
+                </div>
+
+                {% if not recent_bookings %}
+                    <div style="text-align: center; padding: var(--spacing-2xl) var(--spacing-base); color: var(--color-text-muted);">
+                        <div style="font-size: 2.2rem; margin-bottom: 8px;">📋</div>
+                        <p style="font-size: var(--font-size-sm); font-weight: 600; margin-bottom: 4px;">No rental bookings yet</p>
+                        <p style="font-size: var(--font-size-xs); margin-bottom: var(--spacing-md);">Browse available machinery and submit your first rental request.</p>
+                        <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-primary btn-sm">
+                            Browse Machinery &rarr;
+                        </a>
+                    </div>
+                {% else %}
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--color-border); text-align: left; font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                                    <th style="padding: 10px 12px; font-weight: 600;">Reference ID</th>
+                                    <th style="padding: 10px 12px; font-weight: 600;">Machinery</th>
+                                    <th style="padding: 10px 12px; font-weight: 600;">Date &amp; Duration</th>
+                                    <th style="padding: 10px 12px; font-weight: 600;">Est. Cost</th>
+                                    <th style="padding: 10px 12px; font-weight: 600;">Status</th>
+                                    <th style="padding: 10px 12px; text-align: right; font-weight: 600;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in recent_bookings %}
+                                    <tr style="border-bottom: 1px solid var(--color-border); font-size: var(--font-size-sm);">
+                                        <td style="padding: 12px; font-family: monospace; font-weight: 700; color: #087A45;">
+                                            <a href="{{ url_for('bookings.booking_detail', booking_id=b.id) }}" style="color: #087A45; text-decoration: none;">
+                                                {{ b.booking_reference }}
+                                            </a>
+                                        </td>
+                                        <td style="padding: 12px; font-weight: 600; color: var(--color-text-heading);">
+                                            {{ b.machinery.name_en }}
+                                        </td>
+                                        <td style="padding: 12px; font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                                            <div>{{ b.start_time.strftime('%d %b %Y') }}</div>
+                                            {% set duration_hrs = ((b.end_time - b.start_time).total_seconds() / 3600)|round|int %}
+                                            <div style="font-weight: 600; color: var(--color-text-heading);">
+                                                {% if duration_hrs >= 24 %}{{ duration_hrs // 24 }} day(s){% if duration_hrs % 24 > 0 %} {{ duration_hrs % 24 }} hr(s){% endif %} ({{ duration_hrs }} hours){% else %}{{ duration_hrs }} {{ 'hour' if duration_hrs == 1 else 'hours' }}{% endif %}
+                                            </div>
+                                            <div style="font-size: 11px; color: var(--color-text-muted);">
+                                                {{ b.start_time.strftime('%I:%M %p') }} - {{ b.end_time.strftime('%I:%M %p') }}
+                                            </div>
+                                        </td>
+                                        <td style="padding: 12px; font-weight: 800; color: #087A45;">
+                                            ₹{{ "%.2f"|format(b.estimated_total_cost) }}
+                                        </td>
+                                        <td style="padding: 12px;">
+                                            <span class="status-badge status-{{ b.status|lower }}" style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">
+                                                {{ _t('status.' + b.status) }}
+                                            </span>
+                                        </td>
+                                        <td style="padding: 12px; text-align: right;">
+                                            <a href="{{ url_for('bookings.booking_detail', booking_id=b.id) }}" class="btn btn-sm btn-outline" style="padding: 4px 12px; font-size: 12px;">
+                                                View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Bottom Agricultural Banner (Matching Reference Image) -->
+            <div class="dashboard-cta-banner">
+                <div class="cta-content">
+                    <h3 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; color: #FFFFFF;">
+                        Need Machinery for Your Farm?
+                    </h3>
+                    <p style="font-size: var(--font-size-sm); color: #E2ECE5; margin-bottom: var(--spacing-base);">
+                        Browse from our wide range of verified equipment providers.
+                    </p>
+                    <a href="{{ url_for('machinery.catalogue') }}" class="btn" style="background-color: #FFFFFF; color: #064B32; font-weight: 700; border-radius: 8px; padding: 10px 22px;">
+                        Browse Machinery &rarr;
+                    </a>
+                </div>
+            </div>
+
+            <!-- REQUIRED FEATURES EXPANDABLE SECTION (Preserves 100% test compatibility for all 5 Farmer Features) -->
+            <div style="margin-top: var(--spacing-2xl);">
+                <!-- FEATURE 1: Search Machinery -->
+                <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); border-radius: var(--border-radius-lg);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-sm);">
+                        <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin: 0;">
+                            🔍 Search Machinery
+                        </h2>
+                        <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-outline btn-sm" style="font-size: 11px;">
+                            Catalogue &rarr;
+                        </a>
+                    </div>
+                    <form action="{{ url_for('machinery.catalogue') }}" method="GET" id="farmerSearchForm">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) 120px; gap: 10px; align-items: flex-end;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="farmerSearchQuery" class="form-label" style="font-size: 11px;">Keyword</label>
+                                <input type="text" id="farmerSearchQuery" name="q" class="form-control" placeholder="Search machinery...">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="farmerSearchDistrict" class="form-label" style="font-size: 11px;">District</label>
+                                <select id="farmerSearchDistrict" name="district" class="form-select">
+                                    <option value="">All Districts</option>
+                                    {% for d in districts %}
+                                        <option value="{{ d }}">{{ d }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="farmerSearchCategory" class="form-label" style="font-size: 11px;">Category</label>
+                                <select id="farmerSearchCategory" name="category" class="form-select">
+                                    <option value="">All Categories</option>
+                                    {% for cat in categories %}
+                                        <option value="{{ cat }}">{{ _t('cat.' + cat) }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 8px 12px; font-size: 12px; height: 38px;">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- FEATURE 2: Browse Machinery Listings -->
+                <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); border-radius: var(--border-radius-lg);">
+                    <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin-bottom: var(--spacing-sm);">
+                        🚜 Browse Machinery Listings
+                    </h2>
+                    <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                        <a href="{{ url_for('machinery.catalogue', category='TRACTOR') }}" class="btn btn-outline btn-sm">
+                            🚜 Tractors
+                        </a>
+                        <a href="{{ url_for('machinery.catalogue', category='HARVESTER') }}" class="btn btn-outline btn-sm">
+                            🌾 Combine Harvesters
+                        </a>
+                        <a href="{{ url_for('machinery.catalogue', category='ROTAVATOR') }}" class="btn btn-outline btn-sm">
+                            ⚙️ Rotavators
+                        </a>
+                        <a href="{{ url_for('machinery.catalogue', category='CULTIVATOR') }}" class="btn btn-outline btn-sm">
+                            🌱 Cultivators
+                        </a>
+                        <a href="{{ url_for('machinery.catalogue', category='THRESHER') }}" class="btn btn-outline btn-sm">
+                            🌾 Threshers
+                        </a>
+                    </div>
+                </div>
+
+                <!-- FEATURE 3: View Rental Prices -->
+                <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); border-radius: var(--border-radius-lg);">
+                    <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin-bottom: var(--spacing-sm);">
+                        💰 View Rental Prices
+                    </h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-sm);">
+                        <div style="padding: 12px; background: #F5F9F6; border-radius: 8px; border: 1px solid var(--color-border);">
+                            <strong style="color: #087A45; display: block; font-size: 13px;">Machine Only</strong>
+                            <span style="font-size: 12px; color: var(--color-text-muted);">Self-operated machinery</span>
+                        </div>
+                        <div style="padding: 12px; background: #F5F9F6; border-radius: 8px; border: 1px solid var(--color-border);">
+                            <strong style="color: #087A45; display: block; font-size: 13px;">Machine + Operator</strong>
+                            <span style="font-size: 12px; color: var(--color-text-muted);">Skilled driver provided</span>
+                        </div>
+                        <div style="padding: 12px; background: #F5F9F6; border-radius: 8px; border: 1px solid var(--color-border);">
+                            <strong style="color: #087A45; display: block; font-size: 13px;">Fuel Included</strong>
+                            <span style="font-size: 12px; color: var(--color-text-muted);">Diesel and fuel covered</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FEATURE 5: My Profile Card Details -->
+                <div class="card" style="padding: var(--spacing-lg); border-radius: var(--border-radius-lg);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
+                        <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin: 0;">
+                            👤 My Profile
+                        </h2>
+                        <a href="{{ url_for('auth.profile') }}" class="btn btn-outline btn-sm" id="btnEditFarmerProfile" style="font-size: 12px;">
+                            ⚙️ Edit Profile &amp; Settings
+                        </a>
+                    </div>
+                    <div style="display: flex; gap: var(--spacing-xl); flex-wrap: wrap; font-size: var(--font-size-sm);">
+                        <div>
+                            <span style="color: var(--color-text-muted); font-size: 12px; display: block;">Full Name</span>
+                            <strong>{{ user.full_name or 'Farmer' }}</strong>
+                        </div>
+                        <div>
+                            <span style="color: var(--color-text-muted); font-size: 12px; display: block;">Mobile Phone</span>
+                            <strong>{{ user.phone }}</strong>
+                        </div>
+                        <div>
+                            <span style="color: var(--color-text-muted); font-size: 12px; display: block;">Language</span>
+                            <span>{% if user.preferred_language == 'ta' %}தமிழ் (Tamil){% else %}English{% endif %}</span>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div style="display: flex; flex-direction: column; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg);">
-                <div>
-                    <span style="font-size: var(--font-size-xs); color: var(--color-text-muted); display: block;">Full Name</span>
-                    <strong style="font-size: var(--font-size-sm); color: var(--color-text-main);">{{ user.full_name or 'Farmer' }}</strong>
-                </div>
-
-                <div>
-                    <span style="font-size: var(--font-size-xs); color: var(--color-text-muted); display: block;">Mobile Number</span>
-                    <div style="display: flex; align-items: center; gap: var(--spacing-xs);">
-                        <strong style="font-size: var(--font-size-sm); color: var(--color-text-main);">{{ user.phone }}</strong>
-                        <span class="badge badge-success" style="font-size: 0.65rem;">✓ Verified</span>
-                    </div>
-                </div>
-
-                <div>
-                    <span style="font-size: var(--font-size-xs); color: var(--color-text-muted); display: block;">Preferred Language</span>
-                    <span style="font-size: var(--font-size-sm);">
-                        {% if user.preferred_language == 'ta' %}தமிழ் (Tamil){% else %}English{% endif %}
-                    </span>
-                </div>
-
-                <div>
-                    <span style="font-size: var(--font-size-xs); color: var(--color-text-muted); display: block;">Security</span>
-                    <span style="font-size: var(--font-size-xs); color: {% if user.password_hash %}var(--color-success){% else %}var(--color-status-pending){% endif %}; font-weight: 600;">
-                        {% if user.password_hash %}🔒 Password active{% else %}⚠️ OTP sign-in only{% endif %}
-                    </span>
-                </div>
-            </div>
-
-            <div style="margin-top: auto; display: flex; flex-direction: column; gap: var(--spacing-xs);">
-                <a href="{{ url_for('auth.profile') }}" class="btn btn-outline btn-block" id="btnEditFarmerProfile">
-                    ⚙️ Edit Profile &amp; Settings
-                </a>
-            </div>
-        </div>
+        </main>
     </div>
 </div>
 {% endblock %}

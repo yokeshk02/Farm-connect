@@ -94,7 +94,6 @@
                         {% endif %}
                         <li><a href="{{ url_for('main.contact') }}" class="sec-link">{{ _t('nav.contact') }}</a></li>
                     {% else %}
-                        <li><a href="{{ url_for('main.roles_portal') }}" class="sec-link">👥 {{ _t('nav.roles_portal') }}</a></li>
                         <li><a href="{{ url_for('main.index') }}#how-it-works" class="sec-link">{{ _t('nav.how_it_works') }}</a></li>
                         <li><a href="{{ url_for('main.contact') }}" class="sec-link">{{ _t('nav.contact') }}</a></li>
                     {% endif %}
@@ -145,7 +144,6 @@
                         </form>
                     </li>
                 {% else %}
-                    <li><a href="{{ url_for('main.roles_portal') }}" class="mobile-nav-link">👥 {{ _t('nav.roles_portal') }}</a></li>
                     <li><a href="{{ url_for('main.index') }}#how-it-works" class="mobile-nav-link">💡 {{ _t('nav.how_it_works') }}</a></li>
                     <li><a href="{{ url_for('main.contact') }}" class="mobile-nav-link">📞 {{ _t('nav.contact') }}</a></li>
                     <li style="margin-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-xs);">
@@ -221,7 +219,7 @@
                 <div>
                     <h4 class="footer-col-title">Provider Services</h4>
                     <ul class="footer-links">
-                        <li><a href="{{ url_for('auth.register') }}">{{ _t('hero.cta_list') }}</a></li>
+                        <li><a href="{{ url_for('auth.register_provider') }}">{{ _t('hero.cta_list') }}</a></li>
                         <li><a href="{{ url_for('machinery.catalogue') }}">{{ _t('nav.machinery') }}</a></li>
                         <li><a href="{{ url_for('auth.login') }}">{{ _t('nav.login') }}</a></li>
                         <li><a href="{{ url_for('main.contact') }}">{{ _t('nav.contact') }}</a></li>

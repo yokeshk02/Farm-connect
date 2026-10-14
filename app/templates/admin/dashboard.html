@@ -1,166 +1,382 @@
 {% extends "base.html" %}
 
-{% block title %}{{ _t('nav.admin_dashboard') }} - {{ _t('app.name') }}{% endblock %}
+{% block title %}Admin Dashboard - {{ _t('app.name') }}{% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: var(--spacing-xl); margin-bottom: var(--spacing-3xl);">
-    <!-- Admin Header -->
-    <div style="margin-bottom: var(--spacing-xl);">
-        <span class="section-pill">⚙️ System Governance</span>
-        <h1 style="color: var(--color-text-heading); font-size: var(--font-size-3xl); font-weight: 800; margin-bottom: var(--spacing-xs); letter-spacing: -0.01em;">
-            {{ _t('nav.admin_dashboard') }}
-        </h1>
-        <p style="color: var(--color-text-muted); font-size: var(--font-size-base);">
-            System administration, user oversight, machinery registry, and support enquiry triage.
-        </p>
-    </div>
-
-    <!-- Platform Metrics Grid -->
-    <div class="stats-grid" style="margin-bottom: var(--spacing-2xl);">
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: rgba(45, 106, 79, 0.12);">🧑‍🌾</div>
-            <div>
-                <div class="stat-value" style="color: var(--color-primary-dark);">{{ total_farmers }}</div>
-                <div class="stat-label">Registered Farmers</div>
+<div class="container" style="max-width: 1320px;">
+    <div class="dashboard-container">
+        <!-- LEFT SIDEBAR (Dark Green Reference Design) -->
+        <aside class="dashboard-sidebar">
+            <div class="brand-badge">
+                <span>🌾</span>
+                <span>Farm<strong style="color: #6ee7b7;">Connect</strong></span>
             </div>
-        </div>
 
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: rgba(221, 161, 94, 0.2);">🚜</div>
-            <div>
-                <div class="stat-value" style="color: var(--color-accent-dark);">{{ total_providers }}</div>
-                <div class="stat-label">Machinery Providers</div>
+            <!-- Admin Profile Summary -->
+            <div class="dashboard-user-card">
+                <div class="dashboard-user-avatar">
+                    👨‍💼
+                </div>
+                <div class="dashboard-user-info">
+                    <div class="dashboard-user-name">Admin</div>
+                    <div class="dashboard-user-role">Administrator</div>
+                </div>
             </div>
-        </div>
 
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: var(--color-status-approved-bg);">⚙️</div>
-            <div>
-                <div class="stat-value" style="color: var(--color-status-approved);">{{ active_machinery }} / {{ total_machinery }}</div>
-                <div class="stat-label">Active Machinery</div>
-            </div>
-        </div>
+            <!-- Admin Navigation Links -->
+            <ul class="dashboard-nav-list">
+                <li class="dashboard-nav-item active">
+                    <a href="{{ url_for('admin.dashboard') }}">
+                        <span>📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="#usersRegistry">
+                        <span>👥</span>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="{{ url_for('machinery.catalogue') }}">
+                        <span>🚜</span>
+                        <span>Machinery</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="#recentBookings">
+                        <span>📋</span>
+                        <span>Bookings</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="{{ url_for('machinery.catalogue') }}">
+                        <span>📍</span>
+                        <span>Locations</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="#supportEnquiries">
+                        <span>💬</span>
+                        <span>Enquiries</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="{{ url_for('auth.profile') }}">
+                        <span>⚙️</span>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item">
+                    <a href="{{ url_for('main.set_language', lang='ta' if current_lang == 'en' else 'en', next=request.path) }}">
+                        <span>🌐</span>
+                        <span>Language: {% if current_lang == 'ta' %}English{% else %}தமிழ்{% endif %}</span>
+                    </a>
+                </li>
+                <li class="dashboard-nav-item" style="margin-top: var(--spacing-sm); padding-top: var(--spacing-sm); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                    <form action="{{ url_for('auth.logout') }}" method="POST" style="margin: 0; width: 100%;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" style="display: flex; align-items: center; gap: 12px; width: 100%; color: #fca5a5;">
+                            <span>🚪</span>
+                            <span>Sign Out</span>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </aside>
 
-        <div class="stat-card">
-            <div class="stat-icon" style="background-color: var(--color-status-in_progress-bg);">📋</div>
-            <div>
-                <div class="stat-value" style="color: var(--color-status-in_progress);">{{ total_bookings }}</div>
-                <div class="stat-label">Total Bookings</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Contact Enquiries Table -->
-    <div class="table-card" style="margin-bottom: var(--spacing-2xl);">
-        <div class="table-header">
-            <div>
-                <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin-bottom: 2px;">
-                    📩 Recent Contact &amp; Support Enquiries
-                </h2>
-                <p style="color: var(--color-text-muted); font-size: var(--font-size-xs); margin: 0;">
-                    User feedback, equipment rental inquiries, and support requests.
+        <!-- MAIN DASHBOARD CONTENT AREA -->
+        <main>
+            <!-- Welcome Header -->
+            <div style="margin-bottom: var(--spacing-xl);">
+                <span class="section-pill" style="margin-bottom: 6px; display: inline-block;">⚙️ System Governance</span>
+                <h1 style="color: var(--color-text-heading); font-size: 1.85rem; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.01em;">
+                    Admin Dashboard
+                </h1>
+                <p style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin: 0;">
+                    Platform overview and key statistics
                 </p>
             </div>
-            <span class="badge" style="background-color: var(--color-primary-subtle); color: var(--color-primary-dark); font-weight: 700;">
-                Total: {{ total_enquiries }}
-            </span>
-        </div>
 
-        {% if not recent_enquiries %}
-            <div style="text-align: center; padding: var(--spacing-2xl); color: var(--color-text-muted);">
-                <div style="font-size: 2.5rem; margin-bottom: var(--spacing-xs);">📭</div>
-                <p style="font-size: var(--font-size-sm);">No contact enquiries submitted yet.</p>
-            </div>
-        {% else %}
-            <div style="overflow-x: auto;">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Sender</th>
-                            <th>Contact Info</th>
-                            <th>Subject</th>
-                            <th>Message Snippet</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for e in recent_enquiries %}
-                            <tr>
-                                <td style="font-weight: 700;">{{ e.sender_name }}</td>
-                                <td style="font-family: monospace; font-size: var(--font-size-xs);">{{ e.contact_phone_or_email }}</td>
-                                <td>{{ e.subject }}</td>
-                                <td style="font-size: var(--font-size-xs); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                    {{ e.message }}
-                                </td>
-                                <td>
-                                    <span class="badge" style="background-color: rgba(45, 106, 79, 0.12); color: var(--color-primary-dark); font-size: 0.7rem; font-weight: 700;">
-                                        {{ e.status }}
-                                    </span>
-                                </td>
-                                <td style="font-size: var(--font-size-xs); color: var(--color-text-muted);">
-                                    {{ e.created_at.strftime('%d %b %Y, %I:%M %p') }}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% endif %}
-    </div>
+            <!-- 6 Real-Count KPI Metric Cards (3x2 Grid Matching Reference Image) -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-base); margin-bottom: var(--spacing-xl);" class="admin-stats-grid">
+                <!-- Total Users -->
+                <div class="card" style="padding: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; border-radius: var(--border-radius-lg);">
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+                            Total Users
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: #087A45; line-height: 1;">
+                            {{ total_users }}
+                        </div>
+                    </div>
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background-color: #EAF5EE; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        👥
+                    </div>
+                </div>
 
-    <!-- Provider Verification Status Table -->
-    <div class="table-card">
-        <div class="table-header">
-            <div>
-                <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin-bottom: 2px;">
-                    🛡️ Machinery Providers Registry
-                </h2>
-                <p style="color: var(--color-text-muted); font-size: var(--font-size-xs); margin: 0;">
-                    Registered agricultural equipment providers and verification status.
-                </p>
-            </div>
-        </div>
+                <!-- Total Farmers / Registered Farmers -->
+                <div class="card" style="padding: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; border-radius: var(--border-radius-lg);">
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+                            Registered Farmers
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: #087A45; line-height: 1;">
+                            {{ total_farmers }}
+                        </div>
+                    </div>
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background-color: #EAF5EE; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        🧑‍🌾
+                    </div>
+                </div>
 
-        {% if not providers_list %}
-            <div style="text-align: center; padding: var(--spacing-2xl); color: var(--color-text-muted);">
-                <div style="font-size: 2.5rem; margin-bottom: var(--spacing-xs);">🚜</div>
-                <p style="font-size: var(--font-size-sm);">No provider profiles registered yet.</p>
+                <!-- Total Providers / Machinery Providers -->
+                <div class="card" style="padding: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; border-radius: var(--border-radius-lg);">
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+                            Machinery Providers
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: #087A45; line-height: 1;">
+                            {{ total_providers }}
+                        </div>
+                    </div>
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background-color: #EAF5EE; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        🚜
+                    </div>
+                </div>
+
+                <!-- Total Machinery -->
+                <div class="card" style="padding: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; border-radius: var(--border-radius-lg);">
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+                            Total Machinery
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: #087A45; line-height: 1;">
+                            {{ total_machinery }}
+                        </div>
+                    </div>
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background-color: #EAF5EE; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        ⚙️
+                    </div>
+                </div>
+
+                <!-- Active Listings / Active Machinery -->
+                <div class="card" style="padding: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; border-radius: var(--border-radius-lg);">
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+                            Active Machinery
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: #087A45; line-height: 1;">
+                            {{ active_machinery }}
+                        </div>
+                    </div>
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background-color: #EAF5EE; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        ⚡
+                    </div>
+                </div>
+
+                <!-- Total Bookings -->
+                <div class="card" style="padding: var(--spacing-lg); display: flex; align-items: center; justify-content: space-between; border-radius: var(--border-radius-lg);">
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+                            Total Bookings
+                        </div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: #087A45; line-height: 1;">
+                            {{ total_bookings }}
+                        </div>
+                    </div>
+                    <div style="width: 44px; height: 44px; border-radius: 10px; background-color: #EAF5EE; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        📋
+                    </div>
+                </div>
             </div>
-        {% else %}
-            <div style="overflow-x: auto;">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Business Name</th>
-                            <th>Owner</th>
-                            <th>Phone</th>
-                            <th>Machinery Count</th>
-                            <th>Verification</th>
-                            <th>Joined</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for p in providers_list %}
-                            <tr>
-                                <td style="font-weight: 700;">{{ p.business_name }}</td>
-                                <td>{{ p.user.full_name or 'Provider' }}</td>
-                                <td style="font-family: monospace; font-size: var(--font-size-xs);">{{ p.user.phone }}</td>
-                                <td>{{ provider_machinery_counts.get(p.id, 0) }} units</td>
-                                <td>
-                                    <span class="badge {% if p.verification_status == 'VERIFIED' %}badge-success{% else %}badge-warning{% endif %}" style="font-size: 0.7rem;">
-                                        {{ p.verification_status }}
-                                    </span>
-                                </td>
-                                <td style="font-size: var(--font-size-xs); color: var(--color-text-muted);">
-                                    {{ p.created_at.strftime('%d %b %Y') }}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+
+            <!-- Recent Bookings Table Card (Matching Reference Image) -->
+            <div class="card" id="recentBookings" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); border-radius: var(--border-radius-lg);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-base); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--color-border);">
+                    <div>
+                        <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin: 0;">
+                            Recent Bookings
+                        </h2>
+                    </div>
+                    <span style="font-size: var(--font-size-xs); color: #087A45; font-weight: 700;">
+                        Total: {{ total_bookings }}
+                    </span>
+                </div>
+
+                {% if not recent_bookings %}
+                    <div style="text-align: center; padding: var(--spacing-2xl) var(--spacing-base); color: var(--color-text-muted);">
+                        <div style="font-size: 2.2rem; margin-bottom: 8px;">📋</div>
+                        <p style="font-size: var(--font-size-sm); font-weight: 600;">No bookings recorded yet.</p>
+                    </div>
+                {% else %}
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--color-border); text-align: left; font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                                    <th style="padding: 10px 12px; font-weight: 600;">ID</th>
+                                    <th style="padding: 10px 12px; font-weight: 600;">Machinery</th>
+                                    <th style="padding: 10px 12px; font-weight: 600;">Farmer</th>
+                                    <th style="padding: 10px 12px; font-weight: 600;">Status</th>
+                                    <th style="padding: 10px 12px; text-align: right; font-weight: 600;">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in recent_bookings %}
+                                    <tr style="border-bottom: 1px solid var(--color-border); font-size: var(--font-size-sm);">
+                                        <td style="padding: 12px; font-family: monospace; font-weight: 700; color: #087A45;">
+                                            {{ b.booking_reference }}
+                                        </td>
+                                        <td style="padding: 12px; font-weight: 600; color: var(--color-text-heading);">
+                                            {{ b.machinery.name_en }}
+                                        </td>
+                                        <td style="padding: 12px;">
+                                            {{ b.farmer.full_name or 'Farmer' }}
+                                        </td>
+                                        <td style="padding: 12px;">
+                                            <span class="status-badge status-{{ b.status|lower }}" style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">
+                                                {{ _t('status.' + b.status) }}
+                                            </span>
+                                        </td>
+                                        <td style="padding: 12px; text-align: right; color: var(--color-text-muted); font-size: var(--font-size-xs);">
+                                            {{ b.created_at.strftime('%d %b %Y') if b.created_at else '' }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
+
+            <!-- Quick Actions Bar (Matching Reference Image) -->
+            <div class="card" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-xl); border-radius: var(--border-radius-lg);">
+                <h3 style="font-size: var(--font-size-sm); font-weight: 700; color: var(--color-text-heading); margin-bottom: var(--spacing-sm);">
+                    Quick Actions
+                </h3>
+                <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+                    <a href="#usersRegistry" class="btn btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <span>👥</span> Manage Users
+                    </a>
+                    <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <span>🚜</span> Manage Machinery
+                    </a>
+                    <a href="#recentBookings" class="btn btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <span>📋</span> View Bookings
+                    </a>
+                    <a href="#supportEnquiries" class="btn btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <span>💬</span> Enquiries
+                    </a>
+                </div>
+            </div>
+
+            <!-- Contact Enquiries Table -->
+            <div class="card" id="supportEnquiries" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); border-radius: var(--border-radius-lg);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-base); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--color-border);">
+                    <div>
+                        <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin: 0;">
+                            📩 Recent Contact &amp; Support Enquiries
+                        </h2>
+                    </div>
+                    <span class="badge" style="background-color: var(--color-primary-subtle); color: var(--color-primary-dark); font-weight: 700;">
+                        Total: {{ total_enquiries }}
+                    </span>
+                </div>
+
+                {% if not recent_enquiries %}
+                    <div style="text-align: center; padding: var(--spacing-2xl); color: var(--color-text-muted);">
+                        <div style="font-size: 2.2rem; margin-bottom: var(--spacing-xs);">📭</div>
+                        <p style="font-size: var(--font-size-sm);">No contact enquiries submitted yet.</p>
+                    </div>
+                {% else %}
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--color-border); text-align: left; font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                                    <th style="padding: 10px 12px;">Sender</th>
+                                    <th style="padding: 10px 12px;">Contact</th>
+                                    <th style="padding: 10px 12px;">Subject</th>
+                                    <th style="padding: 10px 12px;">Message</th>
+                                    <th style="padding: 10px 12px;">Status</th>
+                                    <th style="padding: 10px 12px; text-align: right;">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for e in recent_enquiries %}
+                                    <tr style="border-bottom: 1px solid var(--color-border); font-size: var(--font-size-sm);">
+                                        <td style="padding: 12px; font-weight: 700;">{{ e.sender_name }}</td>
+                                        <td style="padding: 12px; font-family: monospace; font-size: var(--font-size-xs);">{{ e.contact_phone_or_email }}</td>
+                                        <td style="padding: 12px;">{{ e.subject }}</td>
+                                        <td style="padding: 12px; font-size: var(--font-size-xs); max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            {{ e.message }}
+                                        </td>
+                                        <td style="padding: 12px;">
+                                            <span class="badge" style="background-color: #EAF5EE; color: #087A45; font-size: 0.7rem; font-weight: 700;">
+                                                {{ e.status }}
+                                            </span>
+                                        </td>
+                                        <td style="padding: 12px; text-align: right; font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                                            {{ e.created_at.strftime('%d %b %Y') }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Machinery Providers Registry -->
+            <div class="card" id="usersRegistry" style="padding: var(--spacing-xl); border-radius: var(--border-radius-lg);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-base); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--color-border);">
+                    <div>
+                        <h2 style="font-size: var(--font-size-base); font-weight: 800; color: var(--color-text-heading); margin: 0;">
+                            🛡️ Machinery Providers Registry
+                        </h2>
+                    </div>
+                </div>
+
+                {% if not providers_list %}
+                    <div style="text-align: center; padding: var(--spacing-2xl); color: var(--color-text-muted);">
+                        <div style="font-size: 2.2rem; margin-bottom: var(--spacing-xs);">🚜</div>
+                        <p style="font-size: var(--font-size-sm);">No provider profiles registered yet.</p>
+                    </div>
+                {% else %}
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--color-border); text-align: left; font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                                    <th style="padding: 10px 12px;">Business Name</th>
+                                    <th style="padding: 10px 12px;">Owner</th>
+                                    <th style="padding: 10px 12px;">Phone</th>
+                                    <th style="padding: 10px 12px;">Machinery Count</th>
+                                    <th style="padding: 10px 12px;">Verification</th>
+                                    <th style="padding: 10px 12px; text-align: right;">Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in providers_list %}
+                                    <tr style="border-bottom: 1px solid var(--color-border); font-size: var(--font-size-sm);">
+                                        <td style="padding: 12px; font-weight: 700;">{{ p.business_name or 'Verified Provider' }}</td>
+                                        <td style="padding: 12px;">{{ p.user.full_name or 'Provider' }}</td>
+                                        <td style="padding: 12px; font-family: monospace; font-size: var(--font-size-xs);">{{ p.user.phone }}</td>
+                                        <td style="padding: 12px;">{{ provider_machinery_counts.get(p.id, 0) }} units</td>
+                                        <td style="padding: 12px;">
+                                            <span class="badge {% if p.verification_status == 'VERIFIED' %}badge-success{% else %}badge-warning{% endif %}" style="font-size: 0.7rem;">
+                                                {{ p.verification_status }}
+                                            </span>
+                                        </td>
+                                        <td style="padding: 12px; text-align: right; font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                                            {{ p.created_at.strftime('%d %b %Y') }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </main>
     </div>
 </div>
 {% endblock %}

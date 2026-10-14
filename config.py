@@ -38,6 +38,10 @@ class BaseConfig:
     # CSRF Protection
     WTF_CSRF_ENABLED = True
 
+    # Session Cookie Security
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+
     # File Uploads
     UPLOAD_FOLDER = BASE_DIR / "app" / "static" / "uploads"
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB max request payload

@@ -3,11 +3,11 @@
 {% block title %}{{ _t('app.name') }} - {{ _t('hero.title') }}{% endblock %}
 
 {% block content %}
-<!-- A. Hero Section -->
+<!-- A. Hero Section (Matched to Reference Design) -->
 <section class="hero-section">
     <div class="container hero-content">
         <div class="hero-pill-badge">
-            🌾 {{ _t('hero.badge') }}
+            <span class="hero-pill-icon">🌿</span> FarmConnect
         </div>
         <h1 class="hero-title">
             {{ _t('hero.title') }}
@@ -16,23 +16,66 @@
             {{ _t('hero.subtitle') }}
         </p>
         <div class="hero-actions">
-            <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-accent btn-lg" id="heroBtnExplore">
-                🔍 {{ _t('hero.cta_browse') }}
+            <a href="{{ url_for('machinery.catalogue') }}" class="btn btn-primary btn-lg hero-cta-btn" id="heroBtnExplore">
+                {{ _t('hero.cta_browse') }} →
             </a>
             {% if session.get('user_id') and session.get('user_role') == 'PROVIDER' %}
                 <a href="{{ url_for('provider.machinery_new') }}" class="btn btn-hero-outline btn-lg" id="heroBtnList">
-                    🚜 {{ _t('hero.cta_list') }}
+                    {{ _t('hero.cta_list') }}
                 </a>
             {% else %}
                 <a href="{{ url_for('auth.register') }}" class="btn btn-hero-outline btn-lg" id="heroBtnList">
-                    🚜 {{ _t('hero.cta_list') }}
+                    {{ _t('hero.cta_list') }}
                 </a>
             {% endif %}
         </div>
     </div>
 </section>
 
-<!-- B. Popular Categories (Directly after Hero) -->
+<!-- B. 4-Feature Benefits Bar (Directly below Hero as in Reference Design) -->
+<section class="hero-features-bar">
+    <div class="container">
+        <div class="hero-features-grid">
+            <!-- 1. Wide Range of Machinery -->
+            <div class="hero-feature-card">
+                <div class="hero-feature-icon-badge">🚜</div>
+                <div class="hero-feature-text">
+                    <h3 class="hero-feature-title">{{ _t('why_choose.b1_title') }}</h3>
+                    <p class="hero-feature-desc">{{ _t('cat.TRACTOR') }}, {{ _t('cat.HARVESTER') }}, {{ _t('cat.ROTAVATOR') }} & more</p>
+                </div>
+            </div>
+
+            <!-- 2. Trusted Providers -->
+            <div class="hero-feature-card">
+                <div class="hero-feature-icon-badge">🤝</div>
+                <div class="hero-feature-text">
+                    <h3 class="hero-feature-title">Trusted Providers</h3>
+                    <p class="hero-feature-desc">Verified and reliable equipment providers</p>
+                </div>
+            </div>
+
+            <!-- 3. Secure Bookings -->
+            <div class="hero-feature-card">
+                <div class="hero-feature-icon-badge">🛡️</div>
+                <div class="hero-feature-text">
+                    <h3 class="hero-feature-title">Secure Bookings</h3>
+                    <p class="hero-feature-desc">Safe bookings and transparent process</p>
+                </div>
+            </div>
+
+            <!-- 4. Support in Tamil & English -->
+            <div class="hero-feature-card">
+                <div class="hero-feature-icon-badge">🌐</div>
+                <div class="hero-feature-text">
+                    <h3 class="hero-feature-title">Support in Tamil & English</h3>
+                    <p class="hero-feature-desc">Easy to use for every farmer</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- C. Popular Machinery Categories (5 Photo Cards as in Reference Design) -->
 <section class="section" id="popular-categories">
     <div class="container">
         <div class="section-header">
@@ -41,47 +84,60 @@
             <p class="section-desc">{{ _t('categories.subtitle') }}</p>
         </div>
 
-        <div class="categories-grid categories-grid-6">
+        <div class="categories-photo-grid">
             <!-- 1. Tractors -->
-            <a href="{{ url_for('machinery.catalogue', category='TRACTOR') }}" class="category-card" id="catCardTractor">
-                <div class="category-icon-box">🚜</div>
-                <div class="category-name">{{ _t('cat.TRACTOR') }}</div>
-                <span class="category-count">40–75 HP Plowing & Haulage</span>
+            <a href="{{ url_for('machinery.catalogue', category='TRACTOR') }}" class="category-photo-card" id="catCardTractor">
+                <div class="category-photo-wrapper">
+                    <img src="{{ url_for('static', filename='images/categories/tractor.jpg') }}" alt="{{ _t('cat.TRACTOR') }}" class="category-photo-img" loading="lazy">
+                </div>
+                <div class="category-photo-info">
+                    <div class="category-photo-title">{{ _t('cat.TRACTOR') }}</div>
+                    <span class="category-photo-action">View Listings →</span>
+                </div>
             </a>
 
             <!-- 2. Harvesters -->
-            <a href="{{ url_for('machinery.catalogue', category='HARVESTER') }}" class="category-card" id="catCardHarvester">
-                <div class="category-icon-box">🌾</div>
-                <div class="category-name">{{ _t('cat.HARVESTER') }}</div>
-                <span class="category-count">Paddy & Multi-Crop Combine</span>
+            <a href="{{ url_for('machinery.catalogue', category='HARVESTER') }}" class="category-photo-card" id="catCardHarvester">
+                <div class="category-photo-wrapper">
+                    <img src="{{ url_for('static', filename='images/categories/harvester.jpg') }}" alt="{{ _t('cat.HARVESTER') }}" class="category-photo-img" loading="lazy">
+                </div>
+                <div class="category-photo-info">
+                    <div class="category-photo-title">{{ _t('cat.HARVESTER') }}</div>
+                    <span class="category-photo-action">View Listings →</span>
+                </div>
             </a>
 
             <!-- 3. Rotavators -->
-            <a href="{{ url_for('machinery.catalogue', category='ROTAVATOR') }}" class="category-card" id="catCardRotavator">
-                <div class="category-icon-box">⚙️</div>
-                <div class="category-name">{{ _t('cat.ROTAVATOR') }}</div>
-                <span class="category-count">Soil Preparation & Tillage</span>
+            <a href="{{ url_for('machinery.catalogue', category='ROTAVATOR') }}" class="category-photo-card" id="catCardRotavator">
+                <div class="category-photo-wrapper">
+                    <img src="{{ url_for('static', filename='images/categories/rotavator.jpg') }}" alt="{{ _t('cat.ROTAVATOR') }}" class="category-photo-img" loading="lazy">
+                </div>
+                <div class="category-photo-info">
+                    <div class="category-photo-title">{{ _t('cat.ROTAVATOR') }}</div>
+                    <span class="category-photo-action">View Listings →</span>
+                </div>
             </a>
 
-            <!-- 4. Backhoes -->
-            <a href="{{ url_for('machinery.catalogue', category='BACKHOE') }}" class="category-card" id="catCardBackhoe">
-                <div class="category-icon-box">🏗️</div>
-                <div class="category-name">{{ _t('cat.BACKHOE') }}</div>
-                <span class="category-count">Earthmoving & Trenching</span>
+            <!-- 4. Cultivators -->
+            <a href="{{ url_for('machinery.catalogue', category='CULTIVATOR') }}" class="category-photo-card" id="catCardCultivator">
+                <div class="category-photo-wrapper">
+                    <img src="{{ url_for('static', filename='images/categories/cultivator.jpg') }}" alt="{{ _t('cat.CULTIVATOR') }}" class="category-photo-img" loading="lazy">
+                </div>
+                <div class="category-photo-info">
+                    <div class="category-photo-title">{{ _t('cat.CULTIVATOR') }}</div>
+                    <span class="category-photo-action">View Listings →</span>
+                </div>
             </a>
 
             <!-- 5. Threshers -->
-            <a href="{{ url_for('machinery.catalogue', category='THRESHER') }}" class="category-card" id="catCardThresher">
-                <div class="category-icon-box">🌾</div>
-                <div class="category-name">{{ _t('cat.THRESHER') }}</div>
-                <span class="category-count">Grain Separation & Cleaning</span>
-            </a>
-
-            <!-- 6. Other Equipment -->
-            <a href="{{ url_for('machinery.catalogue', category='OTHER') }}" class="category-card" id="catCardOther">
-                <div class="category-icon-box">📦</div>
-                <div class="category-name">{{ _t('cat.OTHER') }}</div>
-                <span class="category-count">Balers, Sprayers & Tillers</span>
+            <a href="{{ url_for('machinery.catalogue', category='THRESHER') }}" class="category-photo-card" id="catCardThresher">
+                <div class="category-photo-wrapper">
+                    <img src="{{ url_for('static', filename='images/categories/thresher.jpg') }}" alt="{{ _t('cat.THRESHER') }}" class="category-photo-img" loading="lazy">
+                </div>
+                <div class="category-photo-info">
+                    <div class="category-photo-title">{{ _t('cat.THRESHER') }}</div>
+                    <span class="category-photo-action">View Listings →</span>
+                </div>
             </a>
         </div>
     </div>

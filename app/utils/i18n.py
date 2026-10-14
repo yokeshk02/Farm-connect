@@ -66,11 +66,11 @@ TRANSLATIONS = {
         "ta": "நவீன விவசாய இயந்திர வாடகை தளம்",
     },
     "hero.title": {
-        "en": "Find the Right Machinery for Your Farm",
+        "en": "Modern Machinery for a Stronger Agriculture",
         "ta": "உங்கள் பண்ணைக்கான சரியான விவசாய இயந்திரங்களை கண்டறியுங்கள்",
     },
     "hero.subtitle": {
-        "en": "Rent agricultural machinery easily and affordably. Explore a wide range of equipment from providers near you.",
+        "en": "Rent agricultural machinery easily, Increase productivity, Connect with trusted providers. Grow together.",
         "ta": "விவசாய இயந்திரங்களை எளிதாகவும் மலிவாகவும் வாடகைக்கு பெறுங்கள். உங்கள் அருகில் உள்ள உரிமையாளர்களிடம் இருந்து இயந்திரங்களை ஆராயுங்கள்.",
     },
     "hero.cta_browse": {
@@ -622,6 +622,10 @@ TRANSLATIONS = {
     "cat.BALER": {
         "en": "Balers",
         "ta": "வைக்கோல் கட்டும் இயந்திரங்கள்",
+    },
+    "cat.CULTIVATOR": {
+        "en": "Cultivators",
+        "ta": "களப்பைகள் / கल्टीவேட்டர்கள்",
     },
     "cat.OTHER": {
         "en": "Other Equipment",
@@ -1183,6 +1187,46 @@ TRANSLATIONS = {
         "en": "Complete timeline, cost breakdown, and equipment details.",
         "ta": "முழு காலவரிசை, கட்டண விபரம் மற்றும் இயந்திர விவரங்கள்.",
     },
+    "booking.date_time": {
+        "en": "Date & Time",
+        "ta": "தேதி & நேரம்",
+    },
+    "booking.duration": {
+        "en": "Duration",
+        "ta": "கால அளவு",
+    },
+    "booking.rental_package": {
+        "en": "Rental Package",
+        "ta": "வாடகைத் தொகுப்பு",
+    },
+    "booking.rental_rate": {
+        "en": "Rental Rate",
+        "ta": "வாடகைக் கட்டணம்",
+    },
+    "booking.estimated_price": {
+        "en": "Estimated Rental Price",
+        "ta": "மதிப்பிடப்பட்ட வாடகைக் கட்டணம்",
+    },
+    "booking.total_amount": {
+        "en": "Total Amount",
+        "ta": "மொத்தத் தொகை",
+    },
+    "booking.status_history": {
+        "en": "Booking Status History",
+        "ta": "முன்பதிவு நிலை வரலாறு",
+    },
+    "booking.back_my_bookings": {
+        "en": "← Back to My Bookings",
+        "ta": "← என் முன்பதிவுகளுக்குத் திரும்பு",
+    },
+    "booking.back_incoming": {
+        "en": "← Back to Incoming Bookings",
+        "ta": "← முன்பதிவுக் கோரிக்கைகளுக்குத் திரும்பு",
+    },
+    "booking.offline_settlement_note": {
+        "en": "Offline Settlement: Payment is collected directly by the provider upon equipment inspection.",
+        "ta": "நேரடி தீர்வு: உபகரண ஆய்வின் போது கட்டணம் நேரடியாக உரிமையாளரால் பெறப்படும்.",
+    },
     "booking.timeline": {
         "en": "Status Audit Timeline",
         "ta": "முன்பதிவு நிலை காலவரிசை",
@@ -1538,6 +1582,42 @@ TRANSLATIONS = {
     "nav.roles_portal": {
         "en": "Role Portals",
         "ta": "பாத்திரங்கள்",
+    },
+    "auth.admin_login_link": {
+        "en": "Admin Login",
+        "ta": "நிர்வாகி உள்நுழைவு",
+    },
+    "auth.regular_login_link": {
+        "en": "Regular User Login",
+        "ta": "வழக்கமான பயனர் உள்நுழைவு",
+    },
+    "auth.admin_access_denied": {
+        "en": "Access denied: This account does not have administrator privileges.",
+        "ta": "அணுகல் மறுக்கப்பட்டது: இந்தக் கணக்கிற்கு நிர்வாகி அனுமதிகள் இல்லை.",
+    },
+    "auth.role_tab_farmer": {
+        "en": "Farmer",
+        "ta": "விவசாயி",
+    },
+    "auth.role_tab_provider": {
+        "en": "Machinery Provider",
+        "ta": "இயந்திர உரிமையாளர்",
+    },
+    "auth.role_switch_to_farmer": {
+        "en": "Switch to Farmer",
+        "ta": "விவசாயிக்கு மாறுக",
+    },
+    "auth.role_switch_to_provider": {
+        "en": "Switch to Provider",
+        "ta": "உரிமையாளருக்கு மாறுக",
+    },
+    "auth.role_farmer": {
+        "en": "Farmer",
+        "ta": "விவசாயி",
+    },
+    "auth.role_provider": {
+        "en": "Machinery Provider",
+        "ta": "இயந்திர உரிமையாளர்",
     },
 }
 

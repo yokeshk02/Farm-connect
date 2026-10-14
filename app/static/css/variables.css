@@ -1,35 +1,43 @@
 :root {
-    /* Primary Agricultural Green Palette */
-    --color-primary-dark: #1B4332;   /* Deep green */
-    --color-primary: #2D6A4F;        /* Agricultural green */
-    --color-primary-light: #40916C;  /* Fresh green */
-    --color-primary-subtle: #D8F3DC; /* Soft pale green */
-    --color-primary-hover: #143526;  /* Dark hover */
+    /* Primary Agricultural Green Palette (Matched to Reference Design) */
+    --color-primary: #087A45;        /* Vibrant agricultural green */
+    --color-primary-dark: #064B32;   /* Deep forest green for sidebars & titles */
+    --color-primary-darkest: #043623;/* Deepest green */
+    --color-primary-light: #18A866;  /* Fresh green accent & active pills */
+    --color-primary-subtle: #E8F5EE; /* Soft pale mint background */
+    --color-primary-hover: #065B33;  /* Darker green button hover */
 
-    /* Warm Golden Yellow / Amber Accents */
-    --color-accent: #DDA15E;         /* Golden accent */
-    --color-accent-dark: #BC6C25;    /* Deep warm amber */
-    --color-accent-light: #FEFAE0;   /* Pale gold tint */
-    --color-accent-hover: #C58B47;   /* Hover accent */
-    --color-accent-gold: #DDA15E;
+    /* Warm Amber / Secondary Accents */
+    --color-accent: #18A866;         /* Primary brand accent */
+    --color-accent-gold: #D97706;    /* Amber warm badge */
+    --color-accent-light: #FEF3C7;
+    --color-accent-hover: #059669;
+
+    /* Dashboard Sidebar Colors */
+    --color-sidebar-bg: #064B32;
+    --color-sidebar-hover: rgba(255, 255, 255, 0.08);
+    --color-sidebar-active: #18A866;
+    --color-sidebar-text: #FFFFFF;
+    --color-sidebar-text-muted: #A3C9B5;
+    --color-sidebar-border: rgba(255, 255, 255, 0.1);
 
     /* Neutral & Background Tones */
-    --color-bg-page: #F8F9FA;        /* Light background */
-    --color-bg-card: #FFFFFF;
-    --color-bg-subtle: #F1F3F5;
-    --color-bg-muted: #E9ECEF;
+    --color-bg-page: #F5F9F6;        /* Clean light green-gray background */
+    --color-bg-card: #FFFFFF;        /* Pure white cards */
+    --color-bg-subtle: #EEF5F0;
+    --color-bg-muted: #E2ECE5;
 
     /* Text Tones */
-    --color-text-main: #212529;
-    --color-text-heading: #1B4332;
-    --color-text-muted: #6C757D;
-    --color-text-light: #ADB5BD;
+    --color-text-main: #192A20;      /* Dark charcoal-green text */
+    --color-text-heading: #064B32;   /* Forest green headings */
+    --color-text-muted: #5E7166;     /* Subtle muted text */
+    --color-text-light: #8FA297;
     --color-text-inverse: #FFFFFF;
 
     /* Borders */
-    --color-border: #e2e8f0;
-    --color-border-hover: #cbd5e1;
-    --color-border-focus: #1b4332;
+    --color-border: #E2ECE5;
+    --color-border-hover: #C5D8CC;
+    --color-border-focus: #087A45;
 
     /* Status Colors */
     --color-status-pending: #b45309;
