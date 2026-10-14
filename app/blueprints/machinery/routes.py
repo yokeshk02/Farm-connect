@@ -30,7 +30,8 @@ def get_primary_photo_url(machinery: Machinery) -> str:
     return "/static/images/placeholder_machinery.svg"
 
 
-@machinery_bp.route("/", methods=["GET"])
+@machinery_bp.route("", methods=["GET"])
+@machinery_bp.route("/", methods=["GET"], strict_slashes=False)
 def catalogue():
     """Public agricultural equipment catalogue with search, location filters, and optional GPS."""
     # Query parameters
