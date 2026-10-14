@@ -81,7 +81,7 @@
                 <a href="{{ url_for('auth.register_farmer') }}" class="btn btn-primary btn-block btn-lg" id="btnRegisterFarmer">
                     ✍️ {{ _t('portal.btn_register_farmer') }}
                 </a>
-                <a href="{{ url_for('auth.login', role='farmer') }}" class="btn btn-outline btn-block" id="btnLoginFarmer">
+                <a href="{{ url_for('auth.login', role='farmer', tab='password') }}" class="btn btn-outline btn-block" id="btnLoginFarmer">
                     🔓 {{ _t('portal.btn_login_farmer') }}
                 </a>
             </div>
@@ -148,7 +148,7 @@
                 <a href="{{ url_for('auth.register_provider') }}" class="btn btn-accent btn-block btn-lg" id="btnRegisterProvider">
                     ✍️ {{ _t('portal.btn_register_provider') }}
                 </a>
-                <a href="{{ url_for('auth.login', role='provider') }}" class="btn btn-outline btn-block" id="btnLoginProvider">
+                <a href="{{ url_for('auth.login', role='provider', tab='password') }}" class="btn btn-outline btn-block" id="btnLoginProvider">
                     🔓 {{ _t('portal.btn_login_provider') }}
                 </a>
             </div>

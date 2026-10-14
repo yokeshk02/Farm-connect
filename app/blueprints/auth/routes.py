@@ -57,11 +57,11 @@ def _process_registration(default_role: str = "FARMER"):
             return _render_registration_form(role, request.form)
         password_hash = generate_password_hash(password)
 
-    # Check if phone is already registered and verified
+    # Check if phone is already registered and verified (or has password set)
     existing_user = User.query.filter_by(phone=phone).first()
-    if existing_user and existing_user.is_phone_verified:
+    if existing_user and (existing_user.is_phone_verified or existing_user.password_hash):
         flash("This mobile number is already registered. Please sign in.", "info")
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("auth.login", role=role.lower(), tab="password"))
 
     action = request.form.get("action", "verify_otp")
 
@@ -100,6 +100,9 @@ def _process_registration(default_role: str = "FARMER"):
         db.session.commit()
         login_user_session(user)
         flash("Account registered successfully! Note: Mobile verification is required for rental bookings and machinery management.", "info")
+        next_url = request.args.get("next") or request.form.get("next")
+        if next_url and is_safe_redirect_url(next_url):
+            return redirect(next_url)
         if user.role == "PROVIDER":
             return redirect(url_for("provider.dashboard"))
         elif user.role == "ADMIN":
@@ -120,6 +123,9 @@ def _process_registration(default_role: str = "FARMER"):
         "preferred_language": preferred_language,
         "password_hash": password_hash,
     }
+    next_url = request.args.get("next") or request.form.get("next")
+    if next_url and is_safe_redirect_url(next_url):
+        session["next_url"] = next_url
     session.pop("pending_login_phone", None)
 
     flash(msg, "info")
@@ -175,8 +181,10 @@ def login():
         return redirect(url_for("auth.profile"))
 
     selected_role = (request.args.get("role") or request.form.get("selected_role") or "").strip().lower()
-    default_tab = "password" if selected_role == "admin" else "otp"
-    active_tab = request.args.get("tab") or default_tab
+    # Support both password and OTP logins across all user roles (Farmer, Provider, Admin).
+    # Default to "password" tab so registered farmers and providers can sign in with password directly.
+    requested_tab = (request.args.get("tab") or "").strip().lower()
+    active_tab = requested_tab if requested_tab in ("password", "otp") else "password"
     phone_val = ""
 
     if request.method == "POST":
@@ -256,6 +264,10 @@ def login():
                 selected_role=selected_role
             )
 
+        next_url = request.args.get("next") or request.form.get("next")
+        if next_url and is_safe_redirect_url(next_url):
+            session["next_url"] = next_url
+
         session["pending_login_phone"] = phone
         session.pop("pending_registration", None)
         flash(msg, "info")
@@ -321,10 +333,13 @@ def verify_otp():
                 user.is_phone_verified = True
                 user.last_login_at = datetime.utcnow()
 
+            next_url = session.get("next_url") or request.args.get("next") or request.form.get("next")
             db.session.commit()
             session.pop("pending_registration", None)
             login_user_session(user)
             flash("Phone verification successful! Welcome to FarmConnect.", "success")
+            if next_url and is_safe_redirect_url(next_url):
+                return redirect(next_url)
             if user.role == "PROVIDER":
                 return redirect(url_for("provider.dashboard"))
             elif user.role == "ADMIN":
@@ -348,10 +363,13 @@ def verify_otp():
                 user.is_phone_verified = True
                 user.last_login_at = datetime.utcnow()
 
+            next_url = session.get("next_url") or request.args.get("next") or request.form.get("next")
             db.session.commit()
             session.pop("pending_login_phone", None)
             login_user_session(user)
             flash("Signed in successfully!", "success")
+            if next_url and is_safe_redirect_url(next_url):
+                return redirect(next_url)
             if user.role == "PROVIDER":
                 return redirect(url_for("provider.dashboard"))
             elif user.role == "ADMIN":

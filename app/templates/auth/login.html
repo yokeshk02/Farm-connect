@@ -103,12 +103,13 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="login_type" value="otp">
                     <input type="hidden" name="selected_role" value="{{ selected_role or '' }}">
+                    <input type="hidden" name="next" value="{{ request.args.get('next', '') or request.form.get('next', '') }}">
 
                     <div class="form-group">
                         <label for="otpPhone" class="form-label">{{ _t('auth.phone_label') }} *</label>
                         <input type="tel" id="otpPhone" name="phone" class="form-control" 
                                placeholder="{{ _t('auth.phone_placeholder') }}" 
-                               value="{% if active_tab != 'password' %}{{ phone or '' }}{% endif %}" 
+                               value="{{ phone or '' }}" 
                                required {% if active_tab != 'password' %}autofocus{% endif %}>
                         <p class="form-tip">{{ _t('auth.dev_tip') }}</p>
                     </div>
@@ -124,12 +125,13 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="login_type" value="password">
                     <input type="hidden" name="selected_role" value="{{ selected_role or '' }}">
+                    <input type="hidden" name="next" value="{{ request.args.get('next', '') or request.form.get('next', '') }}">
 
                     <div class="form-group">
                         <label for="passPhone" class="form-label">{{ _t('auth.phone_label') }} *</label>
                         <input type="tel" id="passPhone" name="phone" class="form-control" 
                                placeholder="{{ _t('auth.phone_placeholder') }}" 
-                               value="{% if active_tab == 'password' %}{{ phone or '' }}{% endif %}" 
+                               value="{{ phone or '' }}" 
                                required {% if active_tab == 'password' %}autofocus{% endif %}>
                     </div>
 
@@ -175,6 +177,8 @@ function switchLoginTab(type) {
     const passForm = document.getElementById('passLoginForm');
     const tabOtp = document.getElementById('tabOtpLink');
     const tabPass = document.getElementById('tabPassLink');
+    const passPhone = document.getElementById('passPhone');
+    const otpPhone = document.getElementById('otpPhone');
 
     if (type === 'password') {
         otpForm.style.display = 'none';
@@ -183,12 +187,15 @@ function switchLoginTab(type) {
         tabPass.classList.add('active');
         tabOtp.setAttribute('aria-selected', 'false');
         tabPass.setAttribute('aria-selected', 'true');
-        const passPhone = document.getElementById('passPhone');
-        const otpPhone = document.getElementById('otpPhone');
-        if (otpPhone && otpPhone.value && !passPhone.value) {
+        if (otpPhone && otpPhone.value) {
             passPhone.value = otpPhone.value;
         }
-        document.getElementById('passwordInput').focus();
+        const passInput = document.getElementById('passwordInput');
+        if (passPhone && !passPhone.value) {
+            passPhone.focus();
+        } else if (passInput) {
+            passInput.focus();
+        }
     } else {
         otpForm.style.display = 'block';
         passForm.style.display = 'none';
@@ -196,13 +203,19 @@ function switchLoginTab(type) {
         tabPass.classList.remove('active');
         tabOtp.setAttribute('aria-selected', 'true');
         tabPass.setAttribute('aria-selected', 'false');
-        const passPhone = document.getElementById('passPhone');
-        const otpPhone = document.getElementById('otpPhone');
-        if (passPhone && passPhone.value && !otpPhone.value) {
+        if (passPhone && passPhone.value) {
             otpPhone.value = passPhone.value;
         }
-        otpPhone.focus();
+        if (otpPhone) {
+            otpPhone.focus();
+        }
     }
+
+    try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', type);
+        window.history.replaceState({}, '', url.toString());
+    } catch (e) {}
 }
 
 function togglePasswordVisibility(fieldId, btnId) {

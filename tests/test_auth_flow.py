@@ -477,3 +477,40 @@ def test_safe_redirect_prevents_open_redirect(client, db_session):
     assert "evil-phishing-site.com" not in res.headers["Location"]
     assert res.headers["Location"].startswith("/auth/profile")
 
+
+def test_safe_redirect_with_legitimate_next_url(client, db_session):
+    """Verify that valid relative next URLs redirect the user directly to the requested page."""
+    phone = "+919876507777"
+    user = User(phone=phone, full_name="Next URL User", role="FARMER", is_phone_verified=True)
+    user.set_password("SecurePass123")
+    db_session.add(user)
+    db_session.commit()
+
+    # Password sign-in with legitimate next URL
+    res = client.post("/auth/login?next=/bookings/my", data={
+        "login_type": "password",
+        "phone": phone,
+        "password": "SecurePass123",
+    })
+    assert res.status_code == 302
+    assert res.headers["Location"] == "/bookings/my"
+
+    client.post("/auth/logout", follow_redirects=True)
+
+    # OTP sign-in with legitimate next URL
+    res_otp_req = client.post("/auth/login?next=/bookings/my", data={
+        "login_type": "otp",
+        "phone": phone,
+    }, follow_redirects=True)
+    assert res_otp_req.status_code == 200
+
+    otp_record = OTPVerification.query.filter_by(phone=phone).first()
+    from werkzeug.security import generate_password_hash
+    otp_record.otp_hash = generate_password_hash("778899")
+    db_session.commit()
+
+    res_verify = client.post("/auth/verify-otp", data={"otp_code": "778899"})
+    assert res_verify.status_code == 302
+    assert res_verify.headers["Location"] == "/bookings/my"
+
+
