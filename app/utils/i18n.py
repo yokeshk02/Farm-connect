@@ -248,7 +248,7 @@ TRANSLATIONS = {
         "ta": "இயந்திரங்களின் விவரங்கள் மற்றும் வாடகையை திருத்தவும்.",
     },
     "dashboard.action_add_machinery": {
-        "en": "List New Machinery",
+        "en": "Add Machinery",
         "ta": "புதிய இயந்திரம் சேர்க்க",
     },
     "dashboard.action_add_machinery_desc": {
@@ -1280,6 +1280,264 @@ TRANSLATIONS = {
     "provider.complete_confirm": {
         "en": "Mark this rental as Completed and payment settled offline?",
         "ta": "பணி நிறைவடைந்து வாடகை பெறப்பட்டதாகக் குறிக்கவா?",
+    },
+
+    # Separate Registration Options
+    "auth.select_role_title": {
+        "en": "Join FarmConnect Agricultural Community",
+        "ta": "விவசாய இணைப்பு சமூகத்தில் இணையுங்கள்",
+    },
+    "auth.select_role_subtitle": {
+        "en": "Choose your registration option to get started with verified agricultural rentals across Tamil Nadu.",
+        "ta": "தமிழ்நாடு முழுவதும் சரிபார்க்கப்பட்ட விவசாய வாடகைகளைத் தொடங்க உங்கள் பதிவு விருப்பத்தைத் தேர்வுசெய்யவும்.",
+    },
+    "auth.role_card_farmer_title": {
+        "en": "Register as Farmer",
+        "ta": "விவசாயியாக பதிவு செய்க",
+    },
+    "auth.role_card_farmer_subtitle": {
+        "en": "Rent verified tractors, harvesters, and implements near your village at fair rates with zero middleman markups.",
+        "ta": "உங்கள் கிராமத்திற்கு அருகில் உள்ள டிராக்டர்கள் மற்றும் அறுவடை இயந்திரங்களை தரகர்கள் இன்றி வாடகைக்கு எடுங்கள்.",
+    },
+    "auth.role_card_farmer_btn": {
+        "en": "Register as Farmer →",
+        "ta": "விவசாயியாக பதிவு செய்க →",
+    },
+    "auth.role_card_provider_title": {
+        "en": "Register as Machinery Provider",
+        "ta": "இயந்திர உரிமையாளராக பதிவு செய்க",
+    },
+    "auth.role_card_provider_subtitle": {
+        "en": "List your equipment, set hourly & daily rental packages, and receive direct booking requests from local farmers.",
+        "ta": "உங்கள் இயந்திரங்களை பட்டியலிட்டு, வாடகை கட்டணங்களை நிர்ணயித்து, விவசாயிகளிடமிருந்து முன்பதிவுகளைப் பெறுங்கள்.",
+    },
+    "auth.role_card_provider_btn": {
+        "en": "Register as Machinery Provider →",
+        "ta": "இயந்திர உரிமையாளராக பதிவு செய்க →",
+    },
+    "auth.register_farmer_title": {
+        "en": "Farmer Registration",
+        "ta": "விவசாயி பதிவு",
+    },
+    "auth.register_farmer_subtitle": {
+        "en": "Create your Farmer account to discover, compare, and book verified agricultural equipment near you.",
+        "ta": "உங்களுக்கு அருகிலுள்ள விவசாய இயந்திரங்களை கண்டறிந்து முன்பதிவு செய்ய விவசாயி கணக்கை உருவாக்கவும்.",
+    },
+    "auth.register_provider_title": {
+        "en": "Machinery Provider Registration",
+        "ta": "இயந்திர உரிமையாளர் பதிவு",
+    },
+    "auth.register_provider_subtitle": {
+        "en": "Create your Provider account to list machinery, manage rental rates, and grow your agricultural rental business.",
+        "ta": "இயந்திரங்களை பட்டியலிட, வாடகை கட்டணங்களை நிர்வகிக்க உரிமையாளர் கணக்கை உருவாக்கவும்.",
+    },
+    "auth.switch_role_link": {
+        "en": "← Choose a different registration option",
+        "ta": "← வேறு பதிவு விருப்பத்தைத் தேர்வுசெய்க",
+    },
+
+    # Role Dashboards
+    "nav.farmer_dashboard": {
+        "en": "Farmer Dashboard",
+        "ta": "விவசாயி கட்டுப்பாட்டகம்",
+    },
+    "dashboard.farmer_welcome": {
+        "en": "Farmer Dashboard",
+        "ta": "விவசாயி கட்டுப்பாட்டகம்",
+    },
+    "dashboard.farmer_subtitle": {
+        "en": "Discover nearby machinery, compare rental prices, and manage all your farm bookings.",
+        "ta": "அருகிலுள்ள இயந்திரங்களைக் கண்டறியுங்கள், வாடகைக் கட்டணங்களை ஒப்பிடுங்கள், உங்கள் முன்பதிவுகளை நிர்வகியுங்கள்.",
+    },
+    "dashboard.search_machinery": {
+        "en": "Search Machinery",
+        "ta": "இயந்திரங்களைத் தேடுக",
+    },
+    "dashboard.browse_listings": {
+        "en": "Browse Machinery Listings",
+        "ta": "இயந்திரங்களை காண்க",
+    },
+    "dashboard.view_prices": {
+        "en": "View Rental Prices",
+        "ta": "வாடகை கட்டணங்கள்",
+    },
+    "dashboard.manage_rental_prices": {
+        "en": "Manage Rental Prices",
+        "ta": "வாடகை கட்டணங்களை நிர்வகிக்க",
+    },
+    "dashboard.manage_rental_prices_desc": {
+        "en": "Configure hourly, daily, and operator package rates for your listed machinery.",
+        "ta": "உங்கள் இயந்திரங்களுக்கான மணிநேர, தினசரி மற்றும் ஓட்டுனர் கட்டணங்களை மாற்றியமைக்கவும்.",
+    },
+    "dashboard.incoming_requests": {
+        "en": "Incoming Booking Requests",
+        "ta": "வந்த முன்பதிவு கோரிக்கைகள்",
+    },
+    "dashboard.farmer_profile_desc": {
+        "en": "Review account details, contact number, preferred language, and security settings.",
+        "ta": "கணக்கு விவரங்கள், தொடர்பு எண், விருப்ப மொழி மற்றும் பாதுகாப்பு அமைப்புகளைப் பார்வையிடுங்கள்.",
+    },
+    "dashboard.active_rentals": {
+        "en": "Active Rentals",
+        "ta": "செயலில் உள்ள வாடகைகள்",
+    },
+    "dashboard.pending_bookings": {
+        "en": "Pending Requests",
+        "ta": "காத்திருக்கும் கோரிக்கைகள்",
+    },
+    "dashboard.completed_rentals": {
+        "en": "Completed Rentals",
+        "ta": "நிறைவடைந்த வாடகைகள்",
+    },
+    "dashboard.total_bookings": {
+        "en": "Total Bookings",
+        "ta": "மொத்த முன்பதிவுகள்",
+    },
+
+    # Three-Column Unified Role Portal
+    "portal.title": {
+        "en": "FarmConnect Community Portals",
+        "ta": "விவசாய இணைப்பு பாத்திரங்கள்",
+    },
+    "portal.subtitle": {
+        "en": "Select your portal to access relevant actions, services, and secure authentication.",
+        "ta": "உங்கள் பாத்திரத்தைத் தேர்வுசெய்து அதற்கான சேவைகள் மற்றும் உள்நுழைவை அணுகுங்கள்.",
+    },
+    "portal.farmer_title": {
+        "en": "Farmer",
+        "ta": "விவசாயி",
+    },
+    "portal.farmer_desc": {
+        "en": "Rent verified agricultural machinery near your village with transparent pricing and zero middleman markups.",
+        "ta": "கிராமத்தில் உள்ள டிராக்டர்கள் மற்றும் உபகரணங்களை நியாயமான வாடகையில் முன்பதிவு செய்யுங்கள்.",
+    },
+    "portal.provider_title": {
+        "en": "Machinery Provider / Renter",
+        "ta": "இயந்திர உரிமையாளர் / வழங்குநர்",
+    },
+    "portal.provider_desc": {
+        "en": "List your tractors & implements, manage rental pricing, and approve booking requests from local farmers.",
+        "ta": "உங்கள் இயந்திரங்களை பட்டியலிட்டு, வாடகை நிர்ணயித்து, விவசாயிகளிடம் முன்பதிவு பெறுங்கள்.",
+    },
+    "portal.admin_title": {
+        "en": "Admin",
+        "ta": "நிர்வாகி",
+    },
+    "portal.admin_desc": {
+        "en": "System governance, equipment provider oversight, platform booking monitoring, and support enquiry triage.",
+        "ta": "கணினி மேலாண்மை, பயனர் சரிபார்ப்பு, இயந்திரங்கள் மற்றும் விசாரணைகள் மேலாண்மை.",
+    },
+    "portal.action_search_machinery": {
+        "en": "Search Machinery",
+        "ta": "இயந்திரங்களைத் தேடுக",
+    },
+    "portal.action_view_prices": {
+        "en": "View Rental Prices",
+        "ta": "வாடகை கட்டணங்கள்",
+    },
+    "portal.action_my_bookings": {
+        "en": "My Bookings",
+        "ta": "என் முன்பதிவுகள்",
+    },
+    "portal.action_my_profile": {
+        "en": "My Profile",
+        "ta": "என் சுயவிவரம்",
+    },
+    "portal.action_add_machinery": {
+        "en": "Add Machinery",
+        "ta": "இயந்திரம் சேர்க்க",
+    },
+    "portal.action_manage_machinery": {
+        "en": "Manage My Machinery",
+        "ta": "என் இயந்திரங்கள் மேலாண்மை",
+    },
+    "portal.action_set_prices": {
+        "en": "Set Rental Prices",
+        "ta": "வாடகைக் கட்டணம் நிர்ணயித்தல்",
+    },
+    "portal.action_incoming_requests": {
+        "en": "Incoming Booking Requests",
+        "ta": "வந்த முன்பதிவுக் கோரிக்கைகள்",
+    },
+    "portal.action_manage_users": {
+        "en": "Manage Users",
+        "ta": "பயனர்கள் மேலாண்மை",
+    },
+    "portal.action_review_listings": {
+        "en": "Review Listings",
+        "ta": "இயந்திரங்கள் சரிபார்ப்பு",
+    },
+    "portal.action_monitor_bookings": {
+        "en": "Monitor Bookings",
+        "ta": "முன்பதிவுகள் கண்காணிப்பு",
+    },
+    "portal.action_manage_enquiries": {
+        "en": "Manage Enquiries",
+        "ta": "விசாரணைகள் மேலாண்மை",
+    },
+    "portal.btn_register_farmer": {
+        "en": "Register as Farmer",
+        "ta": "விவசாயியாக பதிவு செய்க",
+    },
+    "portal.btn_login_farmer": {
+        "en": "Sign In as Farmer",
+        "ta": "விவசாயியாக உள்நுழைக",
+    },
+    "portal.btn_register_provider": {
+        "en": "Register as Provider",
+        "ta": "உரிமையாளராக பதிவு செய்க",
+    },
+    "portal.btn_login_provider": {
+        "en": "Sign In as Provider",
+        "ta": "உரிமையாளராக உள்நுழைக",
+    },
+    "portal.btn_admin_login": {
+        "en": "Admin Sign In",
+        "ta": "நிர்வாகி உள்நுழைவு",
+    },
+    "portal.badge_admin_restricted": {
+        "en": "Authorized Accounts Only",
+        "ta": "அங்கீகரிக்கப்பட்ட ஊழியர்களுக்கு மட்டும்",
+    },
+    "portal.admin_registration_closed": {
+        "en": "Public Registration Closed",
+        "ta": "பொதுப் பதிவு முடக்கப்பட்டுள்ளது",
+    },
+    "portal.btn_request_admin": {
+        "en": "Request Access",
+        "ta": "அணுகல் கோருக",
+    },
+    "auth.role_indicator_farmer": {
+        "en": "Signing in as Farmer",
+        "ta": "விவசாயியாக உள்நுழைகிறீர்கள்",
+    },
+    "auth.role_indicator_farmer_sub": {
+        "en": "Search machinery, compare rates, and manage bookings",
+        "ta": "இயந்திரங்களைத் தேடி, வாடகை ஒப்பீடு செய்து முன்பதிவுகளை நிர்வகியுங்கள்",
+    },
+    "auth.role_indicator_provider": {
+        "en": "Signing in as Machinery Provider / Renter",
+        "ta": "இயந்திர வழங்குநராக உள்நுழைகிறீர்கள்",
+    },
+    "auth.role_indicator_provider_sub": {
+        "en": "Manage machinery listings, set rental rates, and approve bookings",
+        "ta": "இயந்திரங்கள், வாடகை கட்டணங்கள் மற்றும் முன்பதிவுகளை நிர்வகியுங்கள்",
+    },
+    "auth.role_indicator_admin": {
+        "en": "Signing in as System Administrator",
+        "ta": "கணினி நிர்வாகியாக உள்நுழைகிறீர்கள்",
+    },
+    "auth.role_indicator_admin_sub": {
+        "en": "Authorized system governance, reviews, and monitoring",
+        "ta": "கணினி நிர்வாகம், சரிபார்ப்பு மற்றும் கண்காணிப்பு",
+    },
+    "auth.switch_role": {
+        "en": "Switch Role",
+        "ta": "பாத்திரத்தை மாற்ற",
+    },
+    "nav.roles_portal": {
+        "en": "Role Portals",
+        "ta": "பாத்திரங்கள்",
     },
 }
 

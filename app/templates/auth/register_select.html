@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('portal.title') }} - {{ _t('app.name') }}{% endblock %}
+
+{% block content %}
+<div class="container roles-portal-container">
+    <!-- Portal Header -->
+    <header class="roles-portal-header">
+        <span class="section-pill">
+            🌾 {{ _t('app.name') }} {{ _t('nav.roles_portal') }}
+        </span>
+        <h1 class="roles-portal-title">
+            {{ _t('portal.title') }}
+        </h1>
+        <p class="roles-portal-subtitle">
+            {{ _t('portal.subtitle') }}
+        </p>
+    </header>
+
+    <!-- Unified Three Columns Grid (Desktop: Side-by-Side 3 Columns, Mobile: Stacked) -->
+    <div class="roles-columns-grid" id="rolesPortalGrid">
+        
+        <!-- ====================================================================
+             COLUMN 1: FARMER
+             ==================================================================== -->
+        <article class="card role-portal-card role-card-farmer cardRegisterFarmer" id="cardFarmer">
+            <div class="role-portal-card-top">
+                <span class="role-portal-badge role-badge-farmer">
+                    🧑‍🌾 FOR FARMERS
+                </span>
+                <div class="role-portal-icon-box role-icon-farmer" aria-hidden="true">
+                    <span>🧑‍🌾</span>
+                </div>
+                <h2 class="role-portal-heading">
+                    {{ _t('portal.farmer_title') }}
+                </h2>
+                <p class="role-portal-desc">
+                    {{ _t('portal.farmer_desc') }}
+                </p>
+            </div>
+
+            <!-- Farmer Actions -->
+            <div class="portal-actions-wrapper">
+                <h3 class="portal-actions-heading">
+                    🌾 Quick Actions &amp; Services
+                </h3>
+                <ul class="portal-actions-list">
+                    <li>
+                        <a href="{{ url_for('machinery.catalogue') }}" class="portal-action-item" id="farmerActionSearch">
+                            <span class="portal-action-icon">🔍</span>
+                            <span class="portal-action-label">{{ _t('portal.action_search_machinery') }}</span>
+                            <span class="portal-action-arrow">→</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('machinery.catalogue', sort='price_asc') }}" class="portal-action-item" id="farmerActionPrices">
+                            <span class="portal-action-icon">🏷️</span>
+                            <span class="portal-action-label">{{ _t('portal.action_view_prices') }}</span>
+                            <span class="portal-action-arrow">→</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('bookings.my_bookings') }}" class="portal-action-item" id="farmerActionBookings">
+                            <span class="portal-action-icon">📋</span>
+                            <span class="portal-action-label">{{ _t('portal.action_my_bookings') }}</span>
+                            <span class="portal-action-arrow">→</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('auth.profile') }}" class="portal-action-item" id="farmerActionProfile">
+                            <span class="portal-action-icon">👤</span>
+                            <span class="portal-action-label">{{ _t('portal.action_my_profile') }}</span>
+                            <span class="portal-action-arrow">→</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Farmer Authentication Buttons -->
+            <div class="role-portal-footer">
+                <a href="{{ url_for('auth.register_farmer') }}" class="btn btn-primary btn-block btn-lg" id="btnRegisterFarmer">
+                    ✍️ {{ _t('portal.btn_register_farmer') }}
+                </a>
+                <a href="{{ url_for('auth.login', role='farmer') }}" class="btn btn-outline btn-block" id="btnLoginFarmer">
+                    🔓 {{ _t('portal.btn_login_farmer') }}
+                </a>
+            </div>
+        </article>
+
+        <!-- ====================================================================
+             COLUMN 2: MACHINERY PROVIDER / RENTER
+             ==================================================================== -->
+        <article class="card role-portal-card role-card-provider cardRegisterProvider" id="cardProvider">
+            <div class="role-portal-card-top">
+                <span class="role-portal-badge role-badge-provider">
+                    🚜 FOR EQUIPMENT PROVIDERS
+                </span>
+                <div class="role-portal-icon-box role-icon-provider" aria-hidden="true">
+                    <span>🚜</span>
+                </div>
+                <h2 class="role-portal-heading">
+                    {{ _t('portal.provider_title') }}
+                </h2>
+                <p class="role-portal-desc">
+                    {{ _t('portal.provider_desc') }}
+                </p>
+            </div>
+
+            <!-- Provider Actions -->
+            <div class="portal-actions-wrapper">
+                <h3 class="portal-actions-heading">
+                    🚜 Fleet &amp; Rental Management
+                </h3>
+                <ul class="portal-actions-list">
+                    <li>
+                        <a href="{{ url_for('provider.machinery_new') }}" class="portal-action-item" id="providerActionAdd">
+                            <span class="portal-action-icon">➕</span>
+                            <span class="portal-action-label">{{ _t('portal.action_add_machinery') }}</span>
+                            <span class="portal-action-arrow">→</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('provider.machinery_list') }}" class="portal-action-item" id="providerActionManage">
+                            <span class="portal-action-icon">🚜</span>
+                            <span class="portal-action-label">{{ _t('portal.action_manage_machinery') }}</span>
+                            <span class="portal-action-arrow">→</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('provider.machinery_list') }}" class="portal-action-item" id="providerActionPrices">
+                            <span class="portal-action-icon">💰</span>
+                            <span class="portal-action-label">{{ _t('portal.action_set_prices') }}</span>
+                            <span class="portal-action-arrow">→</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('provider.bookings_list') }}" class="portal-action-item" id="providerActionRequests">
+                            <span class="portal-action-icon">📥</span>
+                            <span class="portal-action-label">{{ _t('portal.action_incoming_requests') }}</span>
+                            <span class="portal-action-arrow">→</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Provider Authentication Buttons -->
+            <div class="role-portal-footer">
+                <a href="{{ url_for('auth.register_provider') }}" class="btn btn-accent btn-block btn-lg" id="btnRegisterProvider">
+                    ✍️ {{ _t('portal.btn_register_provider') }}
+                </a>
+                <a href="{{ url_for('auth.login', role='provider') }}" class="btn btn-outline btn-block" id="btnLoginProvider">
+                    🔓 {{ _t('portal.btn_login_provider') }}
+                </a>
+            </div>
+        </article>
+
+        <!-- ====================================================================
+             COLUMN 3: ADMIN
+             ==================================================================== -->
+        <article class="card role-portal-card role-card-admin" id="cardAdmin">
+            <div class="role-portal-card-top">
+                <span class="role-portal-badge role-badge-admin">
+                    ⚙️ SYSTEM GOVERNANCE
+                </span>
+                <div class="role-portal-icon-box role-icon-admin" aria-hidden="true">
+                    <span>⚙️</span>
+                </div>
+                <h2 class="role-portal-heading">
+                    {{ _t('portal.admin_title') }}
+                </h2>
+                <p class="role-portal-desc">
+                    {{ _t('portal.admin_desc') }}
+                </p>
+            </div>
+
+            <!-- Admin Actions -->
+            <div class="portal-actions-wrapper">
+                <h3 class="portal-actions-heading">
+                    🛡️ Administration Tools
+                </h3>
+                <ul class="portal-actions-list">
+                    <li>
+                        <a href="{{ url_for('admin.dashboard', tab='users') }}" class="portal-action-item" id="adminActionUsers">
+                            <span class="portal-action-icon">👥</span>
+                            <span class="portal-action-label">{{ _t('portal.action_manage_users') }}</span>
+                            <span class="portal-action-arrow">→</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('admin.dashboard', tab='machinery') }}" class="portal-action-item" id="adminActionListings">
+                            <span class="portal-action-icon">🛡️</span>
+                            <span class="portal-action-label">{{ _t('portal.action_review_listings') }}</span>
+                            <span class="portal-action-arrow">→</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('admin.dashboard', tab='bookings') }}" class="portal-action-item" id="adminActionBookings">
+                            <span class="portal-action-icon">📊</span>
+                            <span class="portal-action-label">{{ _t('portal.action_monitor_bookings') }}</span>
+                            <span class="portal-action-arrow">→</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('admin.dashboard', tab='enquiries') }}" class="portal-action-item" id="adminActionEnquiries">
+                            <span class="portal-action-icon">✉️</span>
+                            <span class="portal-action-label">{{ _t('portal.action_manage_enquiries') }}</span>
+                            <span class="portal-action-arrow">→</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Admin Authentication & Security Notice -->
+            <div class="role-portal-footer">
+                <a href="{{ url_for('auth.login', role='admin', tab='password') }}" class="btn btn-dark-outline btn-block btn-lg" id="btnLoginAdmin">
+                    ⚙️ {{ _t('portal.btn_admin_login') }}
+                </a>
+                
+                <div class="admin-security-notice">
+                    <span class="admin-notice-tag">🔒 {{ _t('portal.badge_admin_restricted') }}</span>
+                    <p class="admin-notice-text">
+                        {{ _t('portal.admin_registration_closed') }}. Administrator accounts are provisioned exclusively by system governance.
+                    </p>
+                    <a href="{{ url_for('main.contact') }}" class="admin-request-link" id="btnRegisterAdmin">
+                        ✉️ {{ _t('portal.btn_request_admin') }}
+                    </a>
+                </div>
+            </div>
+        </article>
+
+    </div>
+
+    <!-- Quick Alternate Navigation Footer -->
+    <footer class="roles-portal-subfooter">
+        <p>
+            {{ _t('auth.have_account') }}
+            <a href="{{ url_for('auth.login') }}" class="subfooter-login-link">
+                {{ _t('auth.login_link') }}
+            </a>
+            &nbsp;•&nbsp;
+            <a href="{{ url_for('machinery.catalogue') }}" class="subfooter-catalogue-link">
+                🔍 {{ _t('nav.machinery') }}
+            </a>
+        </p>
+    </footer>
+</div>
+{% endblock %}

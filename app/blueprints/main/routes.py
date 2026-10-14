@@ -12,6 +12,13 @@ def index():
     return render_template("main/index.html")
 
 
+@main_bp.route("/roles")
+@main_bp.route("/portal")
+def roles_portal():
+    """Unified 3-column role selection portal displaying Farmer, Provider, and Admin."""
+    return render_template("auth/register_select.html")
+
+
 @main_bp.route("/contact", methods=["GET", "POST"])
 def contact():
     """Public Contact & Support enquiry form."""

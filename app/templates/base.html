@@ -87,12 +87,14 @@
                             <li><a href="{{ url_for('provider.machinery_list') }}" class="sec-link">{{ _t('nav.my_machinery') }}</a></li>
                             <li><a href="{{ url_for('provider.bookings_list') }}" class="sec-link">{{ _t('provider.nav_bookings') }}</a></li>
                         {% elif session.get('user_role') == 'ADMIN' %}
-                            <li><a href="{{ url_for('provider.dashboard') }}" class="sec-link">{{ _t('nav.admin_dashboard') }}</a></li>
+                            <li><a href="{{ url_for('admin.dashboard') }}" class="sec-link">{{ _t('nav.admin_dashboard') }}</a></li>
                         {% else %}
+                            <li><a href="{{ url_for('farmer.dashboard') }}" class="sec-link">{{ _t('nav.farmer_dashboard') }}</a></li>
                             <li><a href="{{ url_for('bookings.my_bookings') }}" class="sec-link">{{ _t('nav.my_bookings') }}</a></li>
                         {% endif %}
                         <li><a href="{{ url_for('main.contact') }}" class="sec-link">{{ _t('nav.contact') }}</a></li>
                     {% else %}
+                        <li><a href="{{ url_for('main.roles_portal') }}" class="sec-link">👥 {{ _t('nav.roles_portal') }}</a></li>
                         <li><a href="{{ url_for('main.index') }}#how-it-works" class="sec-link">{{ _t('nav.how_it_works') }}</a></li>
                         <li><a href="{{ url_for('main.contact') }}" class="sec-link">{{ _t('nav.contact') }}</a></li>
                     {% endif %}
@@ -127,8 +129,9 @@
                         <li><a href="{{ url_for('provider.machinery_list') }}" class="mobile-nav-link">🚜 {{ _t('nav.my_machinery') }}</a></li>
                         <li><a href="{{ url_for('provider.bookings_list') }}" class="mobile-nav-link">📋 {{ _t('provider.nav_bookings') }}</a></li>
                     {% elif session.get('user_role') == 'ADMIN' %}
-                        <li><a href="{{ url_for('provider.dashboard') }}" class="mobile-nav-link">⚙️ {{ _t('nav.admin_dashboard') }}</a></li>
+                        <li><a href="{{ url_for('admin.dashboard') }}" class="mobile-nav-link">⚙️ {{ _t('nav.admin_dashboard') }}</a></li>
                     {% else %}
+                        <li><a href="{{ url_for('farmer.dashboard') }}" class="mobile-nav-link">🌾 {{ _t('nav.farmer_dashboard') }}</a></li>
                         <li><a href="{{ url_for('bookings.my_bookings') }}" class="mobile-nav-link">📋 {{ _t('nav.my_bookings') }}</a></li>
                     {% endif %}
                     <li><a href="{{ url_for('auth.profile') }}" class="mobile-nav-link">👤 {{ _t('nav.profile') }}</a></li>
@@ -142,6 +145,7 @@
                         </form>
                     </li>
                 {% else %}
+                    <li><a href="{{ url_for('main.roles_portal') }}" class="mobile-nav-link">👥 {{ _t('nav.roles_portal') }}</a></li>
                     <li><a href="{{ url_for('main.index') }}#how-it-works" class="mobile-nav-link">💡 {{ _t('nav.how_it_works') }}</a></li>
                     <li><a href="{{ url_for('main.contact') }}" class="mobile-nav-link">📞 {{ _t('nav.contact') }}</a></li>
                     <li style="margin-top: var(--spacing-md); display: flex; flex-direction: column; gap: var(--spacing-xs);">

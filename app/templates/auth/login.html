@@ -50,6 +50,36 @@
         <!-- Right Side: Clean Login Card -->
         <div class="auth-card-side">
             <div class="card auth-form-card">
+                {% if selected_role %}
+                <!-- Selected Role Indicator Badge -->
+                <div class="login-role-banner role-banner-{{ selected_role }}" id="roleIndicatorBanner">
+                    <div class="role-banner-content">
+                        {% if selected_role == 'farmer' %}
+                            <span class="role-banner-icon">🧑‍🌾</span>
+                            <div class="role-banner-text">
+                                <span class="role-banner-title">{{ _t('auth.role_indicator_farmer') }}</span>
+                                <span class="role-banner-desc">{{ _t('auth.role_indicator_farmer_sub') }}</span>
+                            </div>
+                        {% elif selected_role == 'provider' %}
+                            <span class="role-banner-icon">🚜</span>
+                            <div class="role-banner-text">
+                                <span class="role-banner-title">{{ _t('auth.role_indicator_provider') }}</span>
+                                <span class="role-banner-desc">{{ _t('auth.role_indicator_provider_sub') }}</span>
+                            </div>
+                        {% elif selected_role == 'admin' %}
+                            <span class="role-banner-icon">⚙️</span>
+                            <div class="role-banner-text">
+                                <span class="role-banner-title">{{ _t('auth.role_indicator_admin') }}</span>
+                                <span class="role-banner-desc">{{ _t('auth.role_indicator_admin_sub') }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <a href="{{ url_for('auth.register') }}" class="role-banner-switch-btn" title="{{ _t('auth.switch_role') }}">
+                        🔄 {{ _t('auth.switch_role') }}
+                    </a>
+                </div>
+                {% endif %}
+
                 <div class="card-header">
                     <h1 class="card-title">{{ _t('auth.login_title') }}</h1>
                     <p class="card-subtitle">{{ _t('auth.login_subtitle') }}</p>
@@ -72,6 +102,7 @@
                       style="{% if active_tab == 'password' %}display: none;{% else %}display: block;{% endif %}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="login_type" value="otp">
+                    <input type="hidden" name="selected_role" value="{{ selected_role or '' }}">
 
                     <div class="form-group">
                         <label for="otpPhone" class="form-label">{{ _t('auth.phone_label') }} *</label>
@@ -92,6 +123,7 @@
                       style="{% if active_tab == 'password' %}display: block;{% else %}display: none;{% endif %}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="login_type" value="password">
+                    <input type="hidden" name="selected_role" value="{{ selected_role or '' }}">
 
                     <div class="form-group">
                         <label for="passPhone" class="form-label">{{ _t('auth.phone_label') }} *</label>

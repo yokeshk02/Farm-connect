@@ -110,5 +110,16 @@ class ProviderProfile(db.Model):
     user = relationship("User", back_populates="provider_profile")
     machinery = relationship("Machinery", back_populates="provider", lazy="dynamic")
 
+    @property
+    def machinery_count(self) -> int:
+        """Total number of machinery units owned by this provider."""
+        if hasattr(self, "_cached_machinery_count") and self._cached_machinery_count is not None:
+            return self._cached_machinery_count
+        return self.machinery.count()
+
+    @machinery_count.setter
+    def machinery_count(self, value: int):
+        self._cached_machinery_count = value
+
     def __repr__(self) -> str:
         return f"<ProviderProfile id={self.id} business_name={self.business_name} status={self.verification_status}>"

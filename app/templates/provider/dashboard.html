@@ -72,11 +72,27 @@
                 </div>
             </a>
 
+            <a href="{{ url_for('provider.machinery_list') }}" class="quick-action-card">
+                <div class="quick-action-icon" style="background-color: rgba(221, 161, 94, 0.2);">💰</div>
+                <div>
+                    <h3 class="quick-action-title">{{ _t('dashboard.manage_rental_prices') }}</h3>
+                    <p class="quick-action-desc">{{ _t('dashboard.manage_rental_prices_desc') }}</p>
+                </div>
+            </a>
+
             <a href="{{ url_for('provider.bookings_list') }}" class="quick-action-card">
                 <div class="quick-action-icon">📋</div>
                 <div>
-                    <h3 class="quick-action-title">{{ _t('dashboard.action_requests') }}</h3>
+                    <h3 class="quick-action-title">{{ _t('dashboard.incoming_requests') }}</h3>
                     <p class="quick-action-desc">{{ _t('dashboard.action_requests_desc') }}</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('auth.profile') }}" class="quick-action-card">
+                <div class="quick-action-icon" style="background-color: rgba(45, 106, 79, 0.12);">👤</div>
+                <div>
+                    <h3 class="quick-action-title">{{ _t('nav.profile') }}</h3>
+                    <p class="quick-action-desc">{{ _t('dashboard.farmer_profile_desc') }}</p>
                 </div>
             </a>
         </div>

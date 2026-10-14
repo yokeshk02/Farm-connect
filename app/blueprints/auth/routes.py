@@ -19,118 +19,164 @@ from app.utils.security import (
 )
 
 
+def _render_registration_form(role: str, form_data: dict):
+    """Render the appropriate registration template based on selected role."""
+    if role == "PROVIDER":
+        return render_template("auth/register_provider.html", form_data=form_data)
+    return render_template("auth/register_farmer.html", form_data=form_data)
+
+
+def _process_registration(default_role: str = "FARMER"):
+    """Handle POST registration logic for Farmer and Machinery Provider accounts."""
+    full_name = (request.form.get("full_name") or "").strip()
+    raw_phone = request.form.get("phone")
+    role = (request.form.get("role") or default_role).upper()
+    preferred_language = request.form.get("preferred_language") or session.get("lang", "en")
+    password = request.form.get("password") or ""
+    confirm_password = request.form.get("confirm_password") or ""
+
+    # Public registration cannot assign ADMIN role
+    if role not in ("FARMER", "PROVIDER"):
+        role = "FARMER"
+
+    try:
+        phone = normalize_phone_number(raw_phone)
+    except ValueError as e:
+        flash(str(e), "error")
+        return _render_registration_form(role, request.form)
+
+    # Password validation if provided
+    password_hash = None
+    if password or confirm_password:
+        valid, err = validate_password_strength(password)
+        if not valid:
+            flash(err, "error")
+            return _render_registration_form(role, request.form)
+        if password != confirm_password:
+            flash("Passwords do not match.", "error")
+            return _render_registration_form(role, request.form)
+        password_hash = generate_password_hash(password)
+
+    # Check if phone is already registered and verified
+    existing_user = User.query.filter_by(phone=phone).first()
+    if existing_user and existing_user.is_phone_verified:
+        flash("This mobile number is already registered. Please sign in.", "info")
+        return redirect(url_for("auth.login"))
+
+    action = request.form.get("action", "verify_otp")
+
+    if action == "save_signin":
+        if not password:
+            flash("Please provide a password to save and sign in directly.", "error")
+            return _render_registration_form(role, request.form)
+
+        # Direct password creation: Account is created with is_phone_verified=False
+        if existing_user:
+            user = existing_user
+            user.full_name = full_name
+            user.role = role
+            user.preferred_language = preferred_language
+            user.password_hash = password_hash
+        else:
+            user = User(
+                phone=phone,
+                full_name=full_name,
+                role=role,
+                preferred_language=preferred_language,
+                password_hash=password_hash,
+                is_phone_verified=False,
+            )
+            db.session.add(user)
+            db.session.flush()
+
+            if role == "PROVIDER":
+                profile = ProviderProfile(
+                    user_id=user.id,
+                    business_name=f"{full_name}'s Equipment Services",
+                    verification_status="PENDING",
+                )
+                db.session.add(profile)
+
+        db.session.commit()
+        login_user_session(user)
+        flash("Account registered successfully! Note: Mobile verification is required for rental bookings and machinery management.", "info")
+        if user.role == "PROVIDER":
+            return redirect(url_for("provider.dashboard"))
+        elif user.role == "ADMIN":
+            return redirect(url_for("admin.dashboard"))
+        return redirect(url_for("farmer.dashboard"))
+
+    # Default: Continue to Phone Verification (OTP)
+    success, msg = otp_service.request_otp(phone, purpose="REGISTER")
+    if not success:
+        flash(msg, "warning")
+        return _render_registration_form(role, request.form)
+
+    # Save pending registration details into session for post-verification creation
+    session["pending_registration"] = {
+        "full_name": full_name,
+        "phone": phone,
+        "role": role,
+        "preferred_language": preferred_language,
+        "password_hash": password_hash,
+    }
+    session.pop("pending_login_phone", None)
+
+    flash(msg, "info")
+    return redirect(url_for("auth.verify_otp"))
+
+
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
-    """User registration flow for Farmers and Machinery Providers."""
+    """Registration role selection screen or direct registration form."""
     if session.get("user_id"):
         return redirect(url_for("auth.profile"))
 
     if request.method == "POST":
-        full_name = (request.form.get("full_name") or "").strip()
-        raw_phone = request.form.get("phone")
-        role = (request.form.get("role") or "FARMER").upper()
-        preferred_language = request.form.get("preferred_language") or session.get("lang", "en")
-        password = request.form.get("password") or ""
-        confirm_password = request.form.get("confirm_password") or ""
+        return _process_registration()
 
-        # Public registration cannot assign ADMIN role
-        if role not in ("FARMER", "PROVIDER"):
-            role = "FARMER"
+    role_param = (request.args.get("role") or "").strip().lower()
+    if role_param == "farmer":
+        return render_template("auth/register_farmer.html", form_data={})
+    elif role_param == "provider":
+        return render_template("auth/register_provider.html", form_data={})
 
-        try:
-            phone = normalize_phone_number(raw_phone)
-        except ValueError as e:
-            flash(str(e), "error")
-            return render_template("auth/register.html", form_data=request.form)
+    return render_template("auth/register_select.html")
 
-        # Password validation if provided
-        password_hash = None
-        if password or confirm_password:
-            valid, err = validate_password_strength(password)
-            if not valid:
-                flash(err, "error")
-                return render_template("auth/register.html", form_data=request.form)
-            if password != confirm_password:
-                flash("Passwords do not match.", "error")
-                return render_template("auth/register.html", form_data=request.form)
-            password_hash = generate_password_hash(password)
 
-        # Check if phone is already registered and verified
-        existing_user = User.query.filter_by(phone=phone).first()
-        if existing_user and existing_user.is_phone_verified:
-            flash("This mobile number is already registered. Please sign in.", "info")
-            return redirect(url_for("auth.login"))
+@auth_bp.route("/register/farmer", methods=["GET", "POST"])
+def register_farmer():
+    """Dedicated registration form for Farmers."""
+    if session.get("user_id"):
+        return redirect(url_for("auth.profile"))
 
-        action = request.form.get("action", "verify_otp")
+    if request.method == "POST":
+        return _process_registration(default_role="FARMER")
 
-        if action == "save_signin":
-            if not password:
-                flash("Please provide a password to save and sign in directly.", "error")
-                return render_template("auth/register.html", form_data=request.form)
+    return render_template("auth/register_farmer.html", form_data={})
 
-            # Direct password creation: Account is created with is_phone_verified=False
-            if existing_user:
-                user = existing_user
-                user.full_name = full_name
-                user.role = role
-                user.preferred_language = preferred_language
-                user.password_hash = password_hash
-            else:
-                user = User(
-                    phone=phone,
-                    full_name=full_name,
-                    role=role,
-                    preferred_language=preferred_language,
-                    password_hash=password_hash,
-                    is_phone_verified=False,
-                )
-                db.session.add(user)
-                db.session.flush()
 
-                if role == "PROVIDER":
-                    profile = ProviderProfile(
-                        user_id=user.id,
-                        business_name=f"{full_name}'s Equipment Services",
-                        verification_status="PENDING",
-                    )
-                    db.session.add(profile)
+@auth_bp.route("/register/provider", methods=["GET", "POST"])
+def register_provider():
+    """Dedicated registration form for Machinery Providers."""
+    if session.get("user_id"):
+        return redirect(url_for("auth.profile"))
 
-            db.session.commit()
-            login_user_session(user)
-            flash("Account registered successfully! Note: Mobile verification is required for rental bookings and machinery management.", "info")
-            if user.role == "PROVIDER":
-                return redirect(url_for("provider.dashboard"))
-            return redirect(url_for("auth.profile"))
+    if request.method == "POST":
+        return _process_registration(default_role="PROVIDER")
 
-        # Default: Continue to Phone Verification (OTP)
-        success, msg = otp_service.request_otp(phone, purpose="REGISTER")
-        if not success:
-            flash(msg, "warning")
-            return render_template("auth/register.html", form_data=request.form)
-
-        # Save pending registration details into session for post-verification creation
-        session["pending_registration"] = {
-            "full_name": full_name,
-            "phone": phone,
-            "role": role,
-            "preferred_language": preferred_language,
-            "password_hash": password_hash,
-        }
-        session.pop("pending_login_phone", None)
-
-        flash(msg, "info")
-        return redirect(url_for("auth.verify_otp"))
-
-    return render_template("auth/register.html", form_data={})
+    return render_template("auth/register_provider.html", form_data={})
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    """Sign-in route supporting OTP and password authentication."""
+    """Sign-in route supporting OTP and password authentication with role indication."""
     if session.get("user_id"):
         return redirect(url_for("auth.profile"))
 
-    active_tab = request.args.get("tab") or "otp"
+    selected_role = (request.args.get("role") or request.form.get("selected_role") or "").strip().lower()
+    default_tab = "password" if selected_role == "admin" else "otp"
+    active_tab = request.args.get("tab") or default_tab
     phone_val = ""
 
     if request.method == "POST":
@@ -143,12 +189,22 @@ def login():
             phone = normalize_phone_number(raw_phone)
         except ValueError as e:
             flash(str(e), "error")
-            return render_template("auth/login.html", active_tab=active_tab, phone=phone_val)
+            return render_template(
+                "auth/login.html", 
+                active_tab=active_tab, 
+                phone=phone_val, 
+                selected_role=selected_role
+            )
 
         if login_type == "password":
             if is_password_rate_limited(phone):
                 flash("Too many failed login attempts. Please wait 15 minutes or sign in using OTP.", "error")
-                return render_template("auth/login.html", active_tab="password", phone=phone_val)
+                return render_template(
+                    "auth/login.html", 
+                    active_tab="password", 
+                    phone=phone_val, 
+                    selected_role=selected_role
+                )
 
             password = request.form.get("password") or ""
             user = User.query.filter_by(phone=phone).first()
@@ -156,7 +212,12 @@ def login():
             if user and user.password_hash and user.check_password(password):
                 if not user.is_active:
                     flash("This account is currently suspended. Please contact support.", "error")
-                    return render_template("auth/login.html", active_tab="password", phone=phone_val)
+                    return render_template(
+                        "auth/login.html", 
+                        active_tab="password", 
+                        phone=phone_val, 
+                        selected_role=selected_role
+                    )
 
                 clear_password_failures(phone)
                 user.last_login_at = datetime.utcnow()
@@ -165,28 +226,47 @@ def login():
                 flash(f"Welcome back, {user.full_name or 'Farmer'}!", "success")
 
                 next_url = request.args.get("next") or request.form.get("next")
-                if is_safe_redirect_url(next_url):
-                    return redirect(next_url)
+                if next_url:
+                    if is_safe_redirect_url(next_url):
+                        return redirect(next_url)
+                    return redirect(url_for("auth.profile"))
                 if user.role == "PROVIDER":
                     return redirect(url_for("provider.dashboard"))
-                return redirect(url_for("auth.profile"))
+                elif user.role == "ADMIN":
+                    return redirect(url_for("admin.dashboard"))
+                return redirect(url_for("farmer.dashboard"))
             else:
                 record_password_failure(phone)
                 flash("Invalid mobile number or password.", "error")
-                return render_template("auth/login.html", active_tab="password", phone=phone_val)
+                return render_template(
+                    "auth/login.html", 
+                    active_tab="password", 
+                    phone=phone_val, 
+                    selected_role=selected_role
+                )
 
         # Default OTP login flow
         success, msg = otp_service.request_otp(phone, purpose="LOGIN")
         if not success:
             flash(msg, "warning")
-            return render_template("auth/login.html", active_tab="otp", phone=phone_val)
+            return render_template(
+                "auth/login.html", 
+                active_tab="otp", 
+                phone=phone_val, 
+                selected_role=selected_role
+            )
 
         session["pending_login_phone"] = phone
         session.pop("pending_registration", None)
         flash(msg, "info")
         return redirect(url_for("auth.verify_otp"))
 
-    return render_template("auth/login.html", active_tab=active_tab, phone=phone_val)
+    return render_template(
+        "auth/login.html", 
+        active_tab=active_tab, 
+        phone=phone_val, 
+        selected_role=selected_role
+    )
 
 
 @auth_bp.route("/verify-otp", methods=["GET", "POST"])
@@ -245,7 +325,11 @@ def verify_otp():
             session.pop("pending_registration", None)
             login_user_session(user)
             flash("Phone verification successful! Welcome to FarmConnect.", "success")
-            return redirect(url_for("auth.profile"))
+            if user.role == "PROVIDER":
+                return redirect(url_for("provider.dashboard"))
+            elif user.role == "ADMIN":
+                return redirect(url_for("admin.dashboard"))
+            return redirect(url_for("farmer.dashboard"))
 
         else:
             # Login verification
@@ -268,7 +352,11 @@ def verify_otp():
             session.pop("pending_login_phone", None)
             login_user_session(user)
             flash("Signed in successfully!", "success")
-            return redirect(url_for("auth.profile"))
+            if user.role == "PROVIDER":
+                return redirect(url_for("provider.dashboard"))
+            elif user.role == "ADMIN":
+                return redirect(url_for("admin.dashboard"))
+            return redirect(url_for("farmer.dashboard"))
 
     return render_template("auth/verify_otp.html", pending_phone=pending_phone)
 
