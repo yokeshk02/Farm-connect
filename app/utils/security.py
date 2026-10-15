@@ -133,11 +133,16 @@ def get_current_user() -> User | None:
 
 
 def login_required(f):
-    """View decorator to enforce authenticated user session."""
+    """View decorator to enforce authenticated user session and verify active account status."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not session.get("user_id"):
             flash("Please sign in to access this page.", "warning")
+            return redirect(url_for("auth.login", next=request.path))
+        user = get_current_user()
+        if not user or not user.is_active:
+            logout_user_session()
+            flash("Your account is deactivated or invalid. Please sign in again.", "danger")
             return redirect(url_for("auth.login", next=request.path))
         return f(*args, **kwargs)
     return decorated_function
@@ -155,8 +160,14 @@ def role_required(allowed_roles: list[str] | set[str] | str):
             if not session.get("user_id"):
                 flash("Please sign in to access this page.", "warning")
                 return redirect(url_for("auth.login", next=request.path))
-            
-            user_role = session.get("user_role")
+
+            user = get_current_user()
+            if not user or not user.is_active:
+                logout_user_session()
+                flash("Your account is deactivated or invalid. Please sign in again.", "danger")
+                return redirect(url_for("auth.login", next=request.path))
+
+            user_role = user.role or session.get("user_role")
             if user_role not in allowed_set:
                 abort(403)
             return f(*args, **kwargs)

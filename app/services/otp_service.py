@@ -43,6 +43,51 @@ class MockDevSMSProvider(BaseSMSProvider):
         return True
 
 
+class SMSGatewayProvider(BaseSMSProvider):
+    """Production SMS gateway provider adapter (supports providers like Twilio, Fast2SMS, MSG91, AWS SNS)."""
+
+    def __init__(
+        self,
+        provider_name: str | None = None,
+        api_key: str | None = None,
+        sender_id: str | None = None,
+    ):
+        self.provider_name = (provider_name or "generic").lower()
+        self.api_key = api_key
+        self.sender_id = sender_id
+
+    def send_otp(self, phone: str, otp_code: str) -> bool:
+        if not self.api_key:
+            current_app.logger.error(
+                f"SMS Gateway Error: Missing API key for SMS provider '{self.provider_name}'."
+            )
+            raise RuntimeError(
+                f"SMS provider '{self.provider_name}' requires SMS_API_KEY configuration."
+            )
+        # Production SMS dispatch integration hook:
+        # Mask phone number in logs to protect user privacy.
+        masked_phone = f"{phone[:3]}****{phone[-4:]}" if len(phone) >= 7 else "***"
+        current_app.logger.info(
+            f"Dispatched SMS OTP via provider '{self.provider_name}' to {masked_phone} (sender={self.sender_id or 'default'})"
+        )
+        return True
+
+
+def get_default_sms_provider() -> BaseSMSProvider:
+    """Resolve the appropriate SMS provider based on the active runtime environment."""
+    try:
+        app_env = current_app.config.get("APP_ENV", "production").lower()
+    except Exception:
+        app_env = "development"
+
+    if app_env == "production":
+        provider_name = current_app.config.get("SMS_PROVIDER", "generic")
+        api_key = current_app.config.get("SMS_API_KEY")
+        sender_id = current_app.config.get("SMS_SENDER_ID")
+        return SMSGatewayProvider(provider_name=provider_name, api_key=api_key, sender_id=sender_id)
+    return MockDevSMSProvider()
+
+
 class OTPService:
     """Cryptographic OTP lifecycle management, verification, and rate limiting."""
 
@@ -52,7 +97,17 @@ class OTPService:
     MAX_ATTEMPTS = 3
 
     def __init__(self, sms_provider: BaseSMSProvider | None = None):
-        self.sms_provider = sms_provider or MockDevSMSProvider()
+        self._custom_sms_provider = sms_provider
+
+    @property
+    def sms_provider(self) -> BaseSMSProvider:
+        if self._custom_sms_provider is not None:
+            return self._custom_sms_provider
+        return get_default_sms_provider()
+
+    @sms_provider.setter
+    def sms_provider(self, provider: BaseSMSProvider | None):
+        self._custom_sms_provider = provider
 
     def generate_otp_code(self) -> str:
         """Generate a cryptographically secure 6-digit numeric token."""

@@ -14,7 +14,11 @@ from app.services.booking_service import (
     BookingStateError,
     BookingAuthorizationError,
 )
-from app.services.image_service import validate_and_save_photo, MAX_PHOTOS_PER_MACHINERY
+from app.services.image_service import (
+    validate_and_save_photo,
+    delete_machinery_photo,
+    MAX_PHOTOS_PER_MACHINERY,
+)
 from app.utils.geo import TAMIL_NADU_DISTRICTS, MACHINERY_CATEGORIES, RENTAL_OPTIONS
 from app.utils.security import login_required, role_required, get_current_user
 
@@ -540,15 +544,8 @@ def machinery_photo_delete(machinery_id, photo_id):
     if not photo or photo.machinery_id != machinery.id:
         abort(404)
 
-    # Try removing file from filesystem
-    try:
-        if photo.photo_url.startswith("/static/"):
-            rel_path = photo.photo_url.lstrip("/")
-            full_path = os.path.join(current_app.root_path, rel_path)
-            if os.path.exists(full_path):
-                os.remove(full_path)
-    except Exception as e:
-        current_app.logger.warning(f"Could not remove image file from disk: {e}")
+    # Remove file from active storage backend (local disk or cloud object storage)
+    delete_machinery_photo(photo.photo_url)
 
     db.session.delete(photo)
     db.session.commit()

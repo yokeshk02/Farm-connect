@@ -145,6 +145,7 @@ def my_bookings():
         "IN_PROGRESS": sum(1 for b in all_user_bookings if b.status == Booking.STATUS_IN_PROGRESS),
         "COMPLETED": sum(1 for b in all_user_bookings if b.status == Booking.STATUS_COMPLETED),
         "CANCELLED": sum(1 for b in all_user_bookings if b.status == Booking.STATUS_CANCELLED),
+        "REJECTED": sum(1 for b in all_user_bookings if b.status == Booking.STATUS_REJECTED),
     }
 
     return render_template(

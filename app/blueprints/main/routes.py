@@ -1,6 +1,7 @@
 from flask import render_template, request, session, redirect, url_for, flash
 from app.blueprints.main import main_bp
-from app.utils.security import get_current_user
+from urllib.parse import urlparse
+from app.utils.security import get_current_user, is_safe_redirect_url
 from app.extensions import db
 from app.models.enquiry import ContactEnquiry
 from app.utils.i18n import t
@@ -71,9 +72,22 @@ def set_language(lang: str):
             user.preferred_language = lang
             db.session.commit()
 
-    # Redirect to previous page or index
-    next_url = request.args.get("next") or request.referrer or url_for("main.index")
-    # Prevent open redirect vulnerability
-    if not next_url.startswith("/") or next_url.startswith("//"):
-        next_url = url_for("main.index")
-    return redirect(next_url)
+    # Validate target redirect using is_safe_redirect_url to prevent open redirects
+    next_url = request.args.get("next")
+    if next_url and is_safe_redirect_url(next_url):
+        return redirect(next_url)
+
+    referrer = request.referrer
+    if referrer:
+        try:
+            parsed = urlparse(referrer)
+            if parsed.netloc == request.host and parsed.path:
+                ref_path = parsed.path
+                if parsed.query:
+                    ref_path += f"?{parsed.query}"
+                if is_safe_redirect_url(ref_path):
+                    return redirect(ref_path)
+        except Exception:
+            pass
+
+    return redirect(url_for("main.index"))

@@ -43,6 +43,21 @@
         </div>
     </div>
 
+    {% if booking.status == 'REJECTED' %}
+        <div class="alert alert-danger booking-rejected-alert" style="margin-bottom: var(--spacing-lg); border-radius: var(--border-radius-md); background-color: var(--color-status-rejected-bg); border: 1px solid var(--color-status-rejected-border); color: var(--color-status-rejected); padding: var(--spacing-md) var(--spacing-lg);">
+            <div style="font-weight: 700; font-size: var(--font-size-sm); margin-bottom: 2px;">
+                ✕ {{ _t('booking.rejected_alert_title') }}
+            </div>
+            <div style="font-size: var(--font-size-xs); color: var(--color-text-body);">
+                {% if booking.rejection_reason %}
+                    <strong>{{ _t('booking.rejection_reason_label') }}:</strong> {{ booking.rejection_reason }}
+                {% else %}
+                    {{ _t('booking.rejected_no_reason') }}
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
     <!-- Two-Column Layout (Matching Reference Image Panel 7) -->
     <div style="display: grid; grid-template-columns: 1fr 1.15fr; gap: var(--spacing-xl); align-items: start;" class="booking-detail-grid">
         <!-- LEFT COLUMN: Machinery Photo & Provider Profile -->
@@ -76,7 +91,7 @@
                         </p>
                     {% endif %}
                     <a href="{{ url_for('machinery.detail', machinery_id=booking.machinery_id) }}" style="font-size: var(--font-size-xs); color: #087A45; font-weight: 700; text-decoration: none;">
-                        View Full Machinery Details &rarr;
+                        {{ _t('catalogue.view_details') }} &rarr;
                     </a>
                 </div>
             </div>

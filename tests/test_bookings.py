@@ -551,3 +551,260 @@ def test_bilingual_booking_units_and_category(client, db_session):
     assert "மொத்தத் தொகை" in html  # Total Amount
     assert "முன்பதிவு விவரங்கள்" in html  # Booking Details
 
+
+def test_rejected_booking_visibility_and_filter_tabs(client, db_session):
+    """Verify rejected bookings appear under ALL and REJECTED filter tabs with correct counts,
+    and other status filters (PENDING, APPROVED, CANCELLED) work properly."""
+    farmer, provider_user, _, tractor = create_sample_machinery_and_users(db_session)
+
+    # Booking 1: PENDING
+    b1 = create_booking_request(
+        farmer=farmer,
+        machinery=tractor,
+        package_type="MACHINE_ONLY",
+        start_time=datetime(2026, 12, 1, 9, 0),
+        end_time=datetime(2026, 12, 1, 12, 0),
+    )
+
+    # Booking 2: APPROVED
+    b2 = create_booking_request(
+        farmer=farmer,
+        machinery=tractor,
+        package_type="MACHINE_ONLY",
+        start_time=datetime(2026, 12, 2, 9, 0),
+        end_time=datetime(2026, 12, 2, 12, 0),
+    )
+    transition_booking_status(b2, Booking.STATUS_APPROVED, provider_user)
+
+    # Booking 3: REJECTED
+    b3 = create_booking_request(
+        farmer=farmer,
+        machinery=tractor,
+        package_type="MACHINE_ONLY",
+        start_time=datetime(2026, 12, 3, 9, 0),
+        end_time=datetime(2026, 12, 3, 12, 0),
+    )
+    rejection_reason_text = "Operator unavailable on requested date"
+    transition_booking_status(
+        b3, Booking.STATUS_REJECTED, provider_user, reason=rejection_reason_text
+    )
+
+    with client.session_transaction() as sess:
+        sess["user_id"] = str(farmer.id)
+        sess["user_role"] = "FARMER"
+        sess["user_name"] = farmer.full_name
+        sess["lang"] = "en"
+
+    # 1. View ALL bookings
+    all_resp = client.get("/bookings/?status=ALL")
+    assert all_resp.status_code == 200
+    all_html = all_resp.data.decode("utf-8")
+
+    # Tab presence and counts
+    assert f"status=ALL" in all_html
+    assert f"status=PENDING" in all_html
+    assert f"status=APPROVED" in all_html
+    assert f"status=REJECTED" in all_html
+    assert f"status=CANCELLED" in all_html
+
+    # All three bookings should be visible
+    assert b1.booking_reference in all_html
+    assert b2.booking_reference in all_html
+    assert b3.booking_reference in all_html
+
+    # Rejection reason and status badge visible on rejected card
+    assert rejection_reason_text in all_html
+    assert "Rejected" in all_html
+
+    # 2. View REJECTED filter
+    rej_resp = client.get("/bookings/?status=REJECTED")
+    assert rej_resp.status_code == 200
+    rej_html = rej_resp.data.decode("utf-8")
+
+    assert b3.booking_reference in rej_html
+    assert rejection_reason_text in rej_html
+    assert b1.booking_reference not in rej_html
+    assert b2.booking_reference not in rej_html
+
+    # 3. View PENDING filter
+    pend_resp = client.get("/bookings/?status=PENDING")
+    assert pend_resp.status_code == 200
+    pend_html = pend_resp.data.decode("utf-8")
+    assert b1.booking_reference in pend_html
+    assert b2.booking_reference not in pend_html
+    assert b3.booking_reference not in pend_html
+
+    # 4. View APPROVED filter
+    appr_resp = client.get("/bookings/?status=APPROVED")
+    assert appr_resp.status_code == 200
+    appr_html = appr_resp.data.decode("utf-8")
+    assert b2.booking_reference in appr_html
+    assert b1.booking_reference not in appr_html
+    assert b3.booking_reference not in appr_html
+
+    # 5. View CANCELLED filter (0 records)
+    canc_resp = client.get("/bookings/?status=CANCELLED")
+    assert canc_resp.status_code == 200
+    canc_html = canc_resp.data.decode("utf-8")
+    assert b1.booking_reference not in canc_html
+    assert b2.booking_reference not in canc_html
+    assert b3.booking_reference not in canc_html
+    assert "No cancelled bookings found." in canc_html
+
+
+def test_farmer_ownership_and_access_restrictions_on_rejected_bookings(client, db_session):
+    """Verify that a farmer cannot view another farmer's rejected bookings or rejection details."""
+    farmer_a, provider_user, _, tractor = create_sample_machinery_and_users(db_session)
+    farmer_b = User(phone="+919876543198", full_name="Farmer B", role="FARMER")
+    db_session.add(farmer_b)
+    db_session.commit()
+
+    # Create rejected booking for Farmer A
+    booking_a = create_booking_request(
+        farmer=farmer_a,
+        machinery=tractor,
+        package_type="MACHINE_ONLY",
+        start_time=datetime(2026, 12, 5, 9, 0),
+        end_time=datetime(2026, 12, 5, 12, 0),
+    )
+    transition_booking_status(
+        booking_a, Booking.STATUS_REJECTED, provider_user, reason="Maintenance issue for Farmer A"
+    )
+
+    # Create rejected booking for Farmer B
+    booking_b = create_booking_request(
+        farmer=farmer_b,
+        machinery=tractor,
+        package_type="MACHINE_ONLY",
+        start_time=datetime(2026, 12, 6, 9, 0),
+        end_time=datetime(2026, 12, 6, 12, 0),
+    )
+    transition_booking_status(
+        booking_b, Booking.STATUS_REJECTED, provider_user, reason="Confidential issue for Farmer B"
+    )
+
+    # Sign in as Farmer A
+    with client.session_transaction() as sess:
+        sess["user_id"] = str(farmer_a.id)
+        sess["user_role"] = "FARMER"
+        sess["user_name"] = farmer_a.full_name
+
+    # Farmer A views rejected filter tab
+    resp = client.get("/bookings/?status=REJECTED")
+    assert resp.status_code == 200
+    html = resp.data.decode("utf-8")
+    assert booking_a.booking_reference in html
+    assert "Maintenance issue for Farmer A" in html
+    # Farmer B's data MUST NOT leak
+    assert booking_b.booking_reference not in html
+    assert "Confidential issue for Farmer B" not in html
+
+    # Farmer A attempts direct access to Farmer B's rejected booking -> 403 Forbidden
+    detail_resp = client.get(f"/bookings/{booking_b.id}")
+    assert detail_resp.status_code == 403
+
+    # Farmer A attempts to cancel Farmer B's booking -> 403 Forbidden
+    cancel_resp = client.post(f"/bookings/{booking_b.id}/cancel")
+    assert cancel_resp.status_code == 403
+
+
+def test_rejected_booking_detail_page_rejection_reason(client, db_session):
+    """Verify that the booking detail page displays the rejection alert banner and reason,
+    and does not offer a cancel button for terminal rejected state."""
+    farmer, provider_user, _, tractor = create_sample_machinery_and_users(db_session)
+
+    booking = create_booking_request(
+        farmer=farmer,
+        machinery=tractor,
+        package_type="MACHINE_ONLY",
+        start_time=datetime(2026, 12, 7, 9, 0),
+        end_time=datetime(2026, 12, 7, 13, 0),
+    )
+    rejection_msg = "Implements are being repaired this week."
+    transition_booking_status(
+        booking, Booking.STATUS_REJECTED, provider_user, reason=rejection_msg
+    )
+
+    with client.session_transaction() as sess:
+        sess["user_id"] = str(farmer.id)
+        sess["user_role"] = "FARMER"
+
+    resp = client.get(f"/bookings/{booking.id}")
+    assert resp.status_code == 200
+    html = resp.data.decode("utf-8")
+
+    # Banner alert and reason
+    assert rejection_msg in html
+    assert "Rejection Reason" in html
+    assert "booking-rejected-alert" in html
+    # Status badge
+    assert "Rejected" in html
+    # Cannot cancel a rejected booking
+    assert 'action="/bookings/' not in html or 'cancel' not in html
+
+
+def test_rejected_filter_and_rejection_reason_translations(client, db_session):
+    """Verify English and Tamil translations for REJECTED tab, labels, empty state, and badges."""
+    farmer, provider_user, _, tractor = create_sample_machinery_and_users(db_session)
+
+    booking = create_booking_request(
+        farmer=farmer,
+        machinery=tractor,
+        package_type="MACHINE_ONLY",
+        start_time=datetime(2026, 12, 8, 9, 0),
+        end_time=datetime(2026, 12, 8, 12, 0),
+    )
+    transition_booking_status(
+        booking, Booking.STATUS_REJECTED, provider_user, reason="Seasonal closure"
+    )
+
+    with client.session_transaction() as sess:
+        sess["user_id"] = str(farmer.id)
+        sess["user_role"] = "FARMER"
+
+    # 1. English
+    client.get("/set-language/en", follow_redirects=True)
+    en_resp = client.get("/bookings/?status=REJECTED")
+    assert en_resp.status_code == 200
+    en_html = en_resp.data.decode("utf-8")
+    assert "Rejected" in en_html
+    assert "Rejection Reason" in en_html
+
+    # English detail page
+    en_detail = client.get(f"/bookings/{booking.id}")
+    assert en_detail.status_code == 200
+    en_detail_html = en_detail.data.decode("utf-8")
+    assert "This booking request was declined by the equipment provider" in en_detail_html
+    assert "Rejection Reason" in en_detail_html
+
+    # 2. Tamil
+    client.get("/set-language/ta", follow_redirects=True)
+    ta_resp = client.get("/bookings/?status=REJECTED")
+    assert ta_resp.status_code == 200
+    ta_html = ta_resp.data.decode("utf-8")
+    assert "நிராகரிக்கப்பட்டது" in ta_html
+    assert "நிராகரிப்புக்கான காரணம்" in ta_html
+    assert "அனைத்தும்" in ta_html
+
+    # Tamil detail page
+    ta_detail = client.get(f"/bookings/{booking.id}")
+    assert ta_detail.status_code == 200
+    ta_detail_html = ta_detail.data.decode("utf-8")
+    assert "இந்த முன்பதிவுக் கோரிக்கை இயந்திர உரிமையாளரால் நிராகரிக்கப்பட்டது" in ta_detail_html
+    assert "நிராகரிப்புக்கான காரணம்" in ta_detail_html
+
+    # Tamil empty state when 0 records
+    other_farmer = User(phone="+919876543188", full_name="Empty Farmer", role="FARMER")
+    db_session.add(other_farmer)
+    db_session.commit()
+    with client.session_transaction() as sess:
+        sess["user_id"] = str(other_farmer.id)
+        sess["user_role"] = "FARMER"
+
+    ta_empty_resp = client.get("/bookings/?status=REJECTED")
+    assert ta_empty_resp.status_code == 200
+    ta_empty_html = ta_empty_resp.data.decode("utf-8")
+    assert "நிராகரிக்கப்பட்ட முன்பதிவுகள் எதுவும் இல்லை." in ta_empty_html
+    assert "அனைத்து முன்பதிவுகளையும் காண்க" in ta_empty_html
+
+

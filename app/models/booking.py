@@ -72,6 +72,16 @@ class Booking(db.Model):
         order_by="BookingStatusHistory.changed_at",
     )
 
+    @property
+    def rejection_reason(self) -> str | None:
+        """Return the reason for rejection from status history if rejected."""
+        if self.status != self.STATUS_REJECTED:
+            return None
+        for h in reversed(self.status_history):
+            if h.to_status == self.STATUS_REJECTED and h.reason_or_comment:
+                return h.reason_or_comment
+        return None
+
     def __repr__(self) -> str:
         return f"<Booking ref={self.booking_reference} status={self.status} machine_id={self.machinery_id}>"
 

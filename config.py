@@ -41,6 +41,7 @@ class BaseConfig:
     # Session Cookie Security
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
+    SESSION_COOKIE_SECURE = False
 
     # File Uploads
     UPLOAD_FOLDER = BASE_DIR / "app" / "static" / "uploads"
@@ -68,6 +69,30 @@ class BaseConfig:
             if not db_uri:
                 raise RuntimeError(
                     "CRITICAL CONFIGURATION ERROR: DATABASE_URL must be configured in production!"
+                )
+            if os.getenv("VERCEL"):
+                if not db_uri or ("@localhost" in db_uri or "@127.0.0.1" in db_uri or "@::1" in db_uri):
+                    raise RuntimeError(
+                        "CRITICAL CONFIGURATION ERROR: Vercel deployment cannot point to localhost/127.0.0.1!"
+                    )
+                storage_backend = (os.getenv("STORAGE_BACKEND") or "local").lower()
+                if storage_backend != "s3":
+                    raise RuntimeError(
+                        "CRITICAL CONFIGURATION ERROR: Vercel requires STORAGE_BACKEND=s3 (ephemeral filesystem cannot store uploads)!"
+                    )
+            if "SECRET_KEY" in os.environ:
+                secret_key = os.getenv("SECRET_KEY", "").strip()
+            else:
+                secret_key = (cls.SECRET_KEY or "").strip()
+
+            insecure_defaults = (
+                "farmconnect-insecure-default-key-change-me",
+                "change-this-to-a-secure-random-secret-key-in-production",
+                "farmconnect-dev-secret-key-3648f8d1-6bff-40b8-b442",
+            )
+            if not secret_key or secret_key in insecure_defaults:
+                raise RuntimeError(
+                    "CRITICAL SECURITY ERROR: A secure, unique SECRET_KEY must be configured in production!"
                 )
 
 
@@ -99,6 +124,16 @@ class ProductionConfig(BaseConfig):
     DEBUG = False
     APP_ENV = "production"
     MOCK_OTP_ENABLED = False
+    SESSION_COOKIE_SECURE = True
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+        "pool_size": int(os.getenv("DB_POOL_SIZE", "2")),
+        "max_overflow": int(os.getenv("DB_MAX_OVERFLOW", "0")),
+        "connect_args": {
+            "prepare_threshold": None,
+        },
+    }
 
 
 # Map environment names to configuration classes
@@ -114,6 +149,15 @@ def get_config(env_name: str | None = None) -> type[BaseConfig]:
     resolved_env = (env_name or os.getenv("APP_ENV", "development")).lower()
     config_class = CONFIG_MAP.get(resolved_env, ProductionConfig)
     config_class.validate_environment()
+    if "SECRET_KEY" in os.environ:
+        config_class.SECRET_KEY = os.getenv("SECRET_KEY")
+    if resolved_env != "testing" and "DATABASE_URL" in os.environ:
+        config_class.SQLALCHEMY_DATABASE_URI = normalize_db_url(os.getenv("DATABASE_URL"))
+    elif resolved_env == "testing":
+        config_class.SQLALCHEMY_DATABASE_URI = normalize_db_url(
+            os.getenv("TEST_DATABASE_URL")
+        ) or "sqlite:///:memory:"
     return config_class
+
 
 

@@ -33,6 +33,15 @@ app/static/uploads/**/*
 *.db
 *.sqlite
 *.sqlite3
+scratch/
+scratch_*.py
+scratch_*.sql
+
+# Database backups and dumps
+backups/
+*.dump
+*.sql
+*.tar
 
 # IDE and OS files
 .vscode/
@@ -40,3 +49,4 @@ app/static/uploads/**/*
 .DS_Store
 Thumbs.db
 desktop.ini
+

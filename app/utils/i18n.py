@@ -1052,7 +1052,7 @@ TRANSLATIONS = {
         "ta": "ரத்து செய்யப்பட்டது",
     },
     "status.REJECTED": {
-        "en": "Declined",
+        "en": "Rejected",
         "ta": "நிராகரிக்கப்பட்டது",
     },
 
@@ -1178,6 +1178,38 @@ TRANSLATIONS = {
     "booking.explore_btn": {
         "en": "Explore Machinery Catalogue",
         "ta": "இயந்திரப் பட்டியலை உலாவுக",
+    },
+    "booking.tab_all": {
+        "en": "All",
+        "ta": "அனைத்தும்",
+    },
+    "catalogue.all": {
+        "en": "All",
+        "ta": "அனைத்தும்",
+    },
+    "booking.tab_rejected": {
+        "en": "Rejected",
+        "ta": "நிராகரிக்கப்பட்டது",
+    },
+    "booking.rejection_reason_label": {
+        "en": "Rejection Reason",
+        "ta": "நிராகரிப்புக்கான காரணம்",
+    },
+    "booking.rejected_alert_title": {
+        "en": "This booking request was declined by the equipment provider",
+        "ta": "இந்த முன்பதிவுக் கோரிக்கை இயந்திர உரிமையாளரால் நிராகரிக்கப்பட்டது",
+    },
+    "booking.rejected_no_reason": {
+        "en": "No specific reason provided.",
+        "ta": "குறிப்பிட்ட காரணம் எதுவும் வழங்கப்படவில்லை.",
+    },
+    "booking.no_rejected_bookings": {
+        "en": "No rejected bookings found.",
+        "ta": "நிராகரிக்கப்பட்ட முன்பதிவுகள் எதுவும் இல்லை.",
+    },
+    "booking.view_all": {
+        "en": "View All Bookings",
+        "ta": "அனைத்து முன்பதிவுகளையும் காண்க",
     },
     "booking.detail_title": {
         "en": "Booking Details",
