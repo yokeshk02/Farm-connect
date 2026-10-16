@@ -1,0 +1,8 @@
+[project]
+name = "farmconnect"
+version = "1.0.0"
+description = "FarmConnect - Agricultural Equipment Rental Platform"
+requires-python = ">=3.11"
+
+[tool.vercel]
+entrypoint = "run:app"
