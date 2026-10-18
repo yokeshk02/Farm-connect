@@ -3,6 +3,17 @@ name = "farmconnect"
 version = "1.0.0"
 description = "FarmConnect - Agricultural Equipment Rental Platform"
 requires-python = ">=3.11"
+dependencies = [
+    "Flask>=3.0.0",
+    "Flask-SQLAlchemy>=3.1.1",
+    "Flask-Migrate>=4.0.7",
+    "Flask-WTF>=1.2.1",
+    "psycopg2-binary>=2.9.9",
+    "psycopg[binary]>=3.1.18",
+    "python-dotenv>=1.0.1",
+    "Pillow>=10.0.0",
+    "boto3>=1.34.0",
+]
 
 [tool.vercel]
 entrypoint = "run:app"
